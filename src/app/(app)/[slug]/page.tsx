@@ -12,13 +12,6 @@ interface ModulePageProps {
   };
 }
 
-// This function can be used by Next.js to generate static pages for each module slug
-export async function generateStaticParams() {
-  return moduleSlugs.map((slug) => ({
-    slug,
-  }));
-}
-
 export default function ModulePage({ params }: ModulePageProps) {
   const { slug } = params;
   const data = getMockData(slug);
@@ -49,3 +42,4 @@ export default function ModulePage({ params }: ModulePageProps) {
     </>
   );
 }
+
