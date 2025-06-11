@@ -1,4 +1,6 @@
 
+import React from 'react';
+
 // Mock data for various ERP modules
 
 export interface GenericItem {
