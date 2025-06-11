@@ -1,4 +1,6 @@
 
+"use client";
+
 import { PageHeader } from '@/components/PageHeader';
 import { DataTable } from '@/components/DataTable';
 import { getMockData, getColumns, getPageTitle, moduleSlugs } from '@/lib/data';
