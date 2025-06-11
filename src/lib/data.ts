@@ -76,7 +76,7 @@ export const getColumns = (slug: string): ColumnDefinition[] => {
           style: "currency",
           currency: "USD", // Or any relevant currency
         }).format(amount);
-        return <div className="text-right font-medium">{formatted}</div>;
+        return React.createElement('div', { className: "text-right font-medium" }, formatted);
       };
     }
     if (col.accessorKey.toLowerCase().includes('status')) {
@@ -88,7 +88,7 @@ export const getColumns = (slug: string): ColumnDefinition[] => {
         else if (status.toLowerCase().includes('failed') || status.toLowerCase().includes('cancelled')) colorClass = 'text-red-600 bg-red-100';
         else colorClass = 'text-gray-600 bg-gray-100';
         
-        return <span className={`px-2 py-1 rounded-full text-xs font-medium ${colorClass}`}>{status}</span>;
+        return React.createElement('span', { className: `px-2 py-1 rounded-full text-xs font-medium ${colorClass}` }, status);
        };
     }
   });
@@ -109,3 +109,4 @@ export const getDashboardSummary = () => ({
   totalPurchases: 62150,
   activeCustomers: 1280,
 });
+
