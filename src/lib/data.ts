@@ -89,7 +89,7 @@ export const getColumns = (slug: string): ColumnDefinition[] => {
         else colorClass = 'text-gray-600 bg-gray-100';
         
         return <span className={`px-2 py-1 rounded-full text-xs font-medium ${colorClass}`}>{status}</span>;
-       }
+       };
     }
   });
   
