@@ -6,7 +6,7 @@ import { SidebarNav } from '@/components/SidebarNav';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-// import { ThemeProvider } from "next-themes"; // Uncomment if using next-themes
+import { ThemeProvider } from "next-themes";
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   const { isAuthenticated, loading } = useAuth();
@@ -27,7 +27,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    // <ThemeProvider attribute="class" defaultTheme="system" enableSystem> // Uncomment if using next-themes
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <div className="grid min-h-screen w-full md:grid-cols-[280px_1fr]">
         <div className="hidden border-r bg-sidebar md:block">
           <SidebarNav />
@@ -36,6 +36,6 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           {children}
         </div>
       </div>
-    // </ThemeProvider> // Uncomment if using next-themes
+    </ThemeProvider>
   );
 }

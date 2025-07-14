@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard, Package, Barcode, ShoppingCart, CreditCard, TrendingUp,
-  Users, Building, Truck, Layers, Combine, CalendarDays, Landmark, BotMessageSquare, Package2, Library, FileText, Calculator, BookOpen
+  Users, Building, Truck, Layers, Combine, CalendarDays, Landmark, BotMessageSquare, Package2, Library, FileText, Calculator, BookOpen, Settings
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -104,6 +104,20 @@ export function SidebarNav() {
 
         </nav>
       </ScrollArea>
+       <div className="mt-auto border-t border-sidebar-border p-4">
+          <Link
+            href="/settings"
+            className={cn(
+              'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+              pathname.startsWith('/settings')
+                ? 'bg-sidebar-primary text-sidebar-primary-foreground font-medium'
+                : 'text-sidebar-foreground'
+            )}
+          >
+            <Settings className="h-5 w-5" />
+            Settings
+          </Link>
+      </div>
     </div>
   );
 }
