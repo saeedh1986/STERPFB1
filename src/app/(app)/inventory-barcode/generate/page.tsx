@@ -23,6 +23,7 @@ import { PrintSettingsDialog } from '@/components/inventory/PrintSettingsDialog'
 
 // QZ Tray integration
 import qz from 'qz-tray';
+import { setupQzSecurity } from '@/lib/qz-security';
 
 type PrintType = "both" | "barcode" | "qrcode";
 
@@ -117,6 +118,7 @@ export default function GenerateBarcodePage() {
   const connectToQz = async () => {
     setQzLoading(true);
     try {
+      setupQzSecurity(); // Set up the signing promise
       await qz.websocket.connect();
       setQzConnected(true);
       toast({ title: "QZ Tray Connected", description: "Successfully connected to the QZ Tray service." });
@@ -129,7 +131,7 @@ export default function GenerateBarcodePage() {
       console.error(err);
       toast({
         title: "QZ Tray Connection Failed",
-        description: err.message || "Please ensure QZ Tray is installed and running.",
+        description: err.message || "Please ensure QZ Tray is installed, running, and you have trusted the certificate.",
         variant: "destructive",
       });
       setQzConnected(false);
@@ -332,6 +334,13 @@ export default function GenerateBarcodePage() {
                                     </span>
                                 </div>
                             </div>
+                             <Alert>
+                                <AlertTriangle className="h-4 w-4" />
+                                <AlertTitle>Security Note</AlertTitle>
+                                <AlertDescription>
+                                To enable trusted printing, run `npm run security:generate-cert` once in your terminal to create the required security files. Then, when connecting, you will be prompted to trust this application.
+                                </AlertDescription>
+                            </Alert>
                             {qzConnected && (
                                 <div className="text-sm text-muted-foreground p-3 bg-accent/30 rounded-md">
                                     <p><b>Selected Printer:</b> {printSettings.printer || 'None'}</p>
