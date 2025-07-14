@@ -1,14 +1,16 @@
 
 "use client";
 
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { PageHeader } from '@/components/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { bankTransactionsData, bankAccountDetails } from '@/lib/data';
+import { bankTransactionsData as initialTransactions, bankAccountDetails as initialAccountDetails } from '@/lib/data';
 import { Button } from '@/components/ui/button';
-import { Download, FilePlus } from 'lucide-react';
+import { Download, FileUp, FilePlus } from 'lucide-react';
 import Image from 'next/image';
+import { useToast } from "@/hooks/use-toast";
+
 
 const aedSymbol = <Image src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/UAE_Dirham_Symbol.svg/1377px-UAE_Dirham_Symbol.svg.png" alt="AED" width={14} height={14} className="inline-block" />;
 
@@ -22,6 +24,92 @@ const currencyFormatter = (value: number) => {
 
 
 export default function BankStatementPage() {
+    const [accountDetails, setAccountDetails] = useState(initialAccountDetails);
+    const [transactions, setTransactions] = useState(initialTransactions);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const { toast } = useToast();
+
+    const handleFileImportClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const text = e.target?.result as string;
+                const lines = text.split('\n').filter(line => line.trim() !== '').slice(1); // Skip header
+                if (lines.length === 0) {
+                    throw new Error("CSV file is empty or has no data rows.");
+                }
+
+                const firstRowCols = lines[0].split(',').map(c => c.trim());
+                const newAccountDetails = {
+                    accountName: firstRowCols[0] || accountDetails.accountName,
+                    accountType: firstRowCols[1] || accountDetails.accountType,
+                    accountIban: firstRowCols[2] || accountDetails.accountIban,
+                    accountNumber: firstRowCols[3] || accountDetails.accountNumber,
+                    cardNumber: firstRowCols[4] || accountDetails.cardNumber,
+                    accountCurrency: firstRowCols[5] || accountDetails.accountCurrency,
+                };
+                setAccountDetails(newAccountDetails);
+
+                const newTransactions = lines.map((line, index) => {
+                    const columns = line.split(',').map(c => c.trim());
+                    const amount = parseFloat(columns[10]);
+                    const debit = amount < 0 ? Math.abs(amount) : 0;
+                    const credit = amount >= 0 ? amount : 0;
+                    
+                    const dateStr = columns[7];
+                    let formattedDate = dateStr;
+                    try {
+                        const dateObj = new Date(dateStr.split(' ')[0].split('/').reverse().join('-'));
+                        if (!isNaN(dateObj.getTime())) {
+                            formattedDate = dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '-');
+                        }
+                    } catch(e) {
+                        // Keep original date if parsing fails
+                    }
+
+
+                    return {
+                        id: `imported-txn-${Date.now()}-${index}`,
+                        date: formattedDate,
+                        transactionType: columns[6],
+                        refNumber: columns[8],
+                        description: columns[9],
+                        debit: debit,
+                        credit: credit,
+                        balance: parseFloat(columns[11]),
+                    };
+                }).filter(t => !isNaN(t.balance)); // Filter out any potentially malformed rows
+
+                setTransactions(newTransactions.reverse()); // Reverse to show latest first
+
+                toast({
+                    title: "Import Successful",
+                    description: `${newTransactions.length} transaction(s) have been imported.`,
+                });
+
+            } catch (error) {
+                toast({
+                    title: "Import Failed",
+                    description: error instanceof Error ? error.message : "Could not parse the CSV file.",
+                    variant: "destructive",
+                });
+            } finally {
+                if(fileInputRef.current) {
+                    fileInputRef.current.value = "";
+                }
+            }
+        };
+        reader.readAsText(file);
+    };
+
+
     return (
         <>
             <PageHeader title="Bank Statement" />
@@ -35,27 +123,27 @@ export default function BankStatementPage() {
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 text-sm">
                             <div className="space-y-1">
                                 <p className="text-muted-foreground">Account Name</p>
-                                <p className="font-medium">{bankAccountDetails.accountName}</p>
+                                <p className="font-medium">{accountDetails.accountName}</p>
                             </div>
                             <div className="space-y-1">
                                 <p className="text-muted-foreground">Account Number</p>
-                                <p className="font-medium">{bankAccountDetails.accountNumber}</p>
+                                <p className="font-medium">{accountDetails.accountNumber}</p>
                             </div>
                              <div className="space-y-1">
                                 <p className="text-muted-foreground">Account Type</p>
-                                <p className="font-medium">{bankAccountDetails.accountType}</p>
+                                <p className="font-medium">{accountDetails.accountType}</p>
                             </div>
                              <div className="space-y-1">
                                 <p className="text-muted-foreground">Card Number</p>
-                                <p className="font-medium">{bankAccountDetails.cardNumber}</p>
+                                <p className="font-medium">{accountDetails.cardNumber}</p>
                             </div>
                             <div className="space-y-1 col-span-2">
                                 <p className="text-muted-foreground">Account IBAN</p>
-                                <p className="font-medium">{bankAccountDetails.accountIban}</p>
+                                <p className="font-medium">{accountDetails.accountIban}</p>
                             </div>
                              <div className="space-y-1">
                                 <p className="text-muted-foreground">Account Currency</p>
-                                <p className="font-medium">{bankAccountDetails.accountCurrency}</p>
+                                <p className="font-medium">{accountDetails.accountCurrency}</p>
                             </div>
                         </div>
                     </CardContent>
@@ -69,6 +157,8 @@ export default function BankStatementPage() {
                         </div>
                          <div className="flex gap-2">
                             <Button variant="outline"><Download className="mr-2" /> Download CSV</Button>
+                            <Button variant="outline" onClick={handleFileImportClick}><FileUp className="mr-2" /> Import from CSV</Button>
+                            <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileUpload} accept=".csv" />
                             <Button><FilePlus className="mr-2" /> Add Transaction</Button>
                         </div>
                     </CardHeader>
@@ -86,7 +176,7 @@ export default function BankStatementPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {bankTransactionsData.map((item) => (
+                                {transactions.map((item) => (
                                     <TableRow key={item.id}>
                                         <TableCell>{item.date}</TableCell>
                                         <TableCell>{item.transactionType}</TableCell>
@@ -121,4 +211,3 @@ export default function BankStatementPage() {
         </>
     );
 }
-
