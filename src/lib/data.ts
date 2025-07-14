@@ -35,7 +35,9 @@ const mockExpenseDescriptions = [
   "Internet Bill",
   "Electricity Bill",
   "Marketing Campaign",
-  "Software License Renewal"
+  "Software License Renewal",
+  "FBN Charge for Shipment",
+  "Warehouse Storage Fee"
 ];
 const mockExpenseSuppliers = [
   "Only Domains",
@@ -47,11 +49,20 @@ const mockExpenseSuppliers = [
   "Etisalat",
   "DEWA",
   "Google Ads",
-  "Microsoft"
+  "Microsoft",
+  "Amazon FBN",
+  "Warehouse Co."
 ];
-const mockExpenseCategories = [
+
+export const expenseCategories = [
   "IT & Software Subscriptions",
   "Government & Licensing",
+  "Freelance Services",
+  "Bank Expense",
+  "Transport Expense",
+  "FBN Charges",
+  "Logistics & Shipping Fees",
+  "Storage Expenses",
   "Office Utilities",
   "Marketing",
 ];
@@ -134,7 +145,7 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
             item[field] = slug === 'expenses' ? mockExpenseSuppliers[i % mockExpenseSuppliers.length] : `Supplier ${String.fromCharCode(65 + (i % 5))}`;
             break;
         case 'category':
-             item[field] = slug === 'expenses' ? mockExpenseCategories[i % mockExpenseCategories.length] : `Category ${String.fromCharCode(65 + (i % 5))}`;
+             item[field] = slug === 'expenses' ? expenseCategories[i % expenseCategories.length] : `Category ${String.fromCharCode(65 + (i % 5))}`;
              break;
         case 'description':
              item[field] = slug === 'expenses' ? mockExpenseDescriptions[i % mockExpenseDescriptions.length] : `Sample Description ${i + 1}`;
@@ -157,7 +168,7 @@ const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   'inventory-barcode': { fields: ['itemName', 'barcode', 'quantity'], count: 15 },
   purchases: { fields: ['date', 'supplier', 'sku', 'itemName', 'quantity', 'totalCost'], count: 10 },
   sales: { fields: ['date', 'customerName', 'orderId', 'sku', 'itemName', 'qtySold', 'qtyRtv', 'note', 'price', 'shipping', 'referralFees', 'shippingCost', 'paymentFees', 'totalSales'], count: 30 },
-  expenses: { fields: ['date', 'description', 'supplier', 'category', 'amount'], count: 10 },
+  expenses: { fields: ['date', 'description', 'supplier', 'category', 'amount'], count: 12 },
   customers: { fields: ['customerName', 'email', 'phone', 'address', 'joinDate'], count: 18 },
   vendors: { fields: ['vendorName', 'contactPerson', 'email', 'phone', 'productCategory'], count: 12 },
   logistics: { fields: ['shipmentId', 'routeName', 'driverName', 'status', 'estimatedDeliveryDate'], count: 8 },
