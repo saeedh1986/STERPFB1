@@ -140,7 +140,7 @@ export default function GenerateBarcodePage() {
       console.error(err);
       toast({
         title: "QZ Tray Connection Failed",
-        description: err.message || "Please ensure QZ Tray is installed, running, and you have trusted the certificate.",
+        description: err.message || "Please ensure QZ Tray is running and you have trusted the certificate.",
         variant: "destructive",
       });
       setQzConnected(false);
@@ -206,7 +206,6 @@ export default function GenerateBarcodePage() {
         const zplDataString = zplDataArray.join('\n');
         const data = [{
             type: 'raw',
-            format: 'zpl',
             data: zplDataString
         }];
         

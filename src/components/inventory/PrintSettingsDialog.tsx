@@ -50,7 +50,6 @@ export function PrintSettingsDialog({ isOpen, onClose, printers, settings, onSet
         const zplDataString = testDataArray.join('\n');
         const data = [{
             type: 'raw',
-            format: 'zpl',
             data: zplDataString
         }];
         
