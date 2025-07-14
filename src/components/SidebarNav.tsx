@@ -49,6 +49,7 @@ const reportsNavItems: NavItem[] = [
     { href: '/reports/sales', label: 'Sales Report', icon: TrendingUp },
     { href: '/reports/purchases', label: 'Purchases Report', icon: ShoppingCart },
     { href: '/reports/expenses', label: 'Expenses Report', icon: CreditCard },
+    { href: '/reports/inventory', label: 'Inventory Report', icon: Package },
 ];
 
 
