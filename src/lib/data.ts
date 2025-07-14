@@ -205,7 +205,7 @@ export const getColumns = (slug: string): ColumnDefinition[] => {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2
         }).format(amount);
-        const displayValue = `DH ${formatted}`;
+        const displayValue = `د.إ ${formatted}`;
         return React.createElement('div', { className: 'text-right font-medium' }, displayValue);
       };
     }
