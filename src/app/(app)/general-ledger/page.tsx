@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { getMockData, GenericItem } from '@/lib/data';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 const currencyFormatter = (value: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -118,7 +119,7 @@ export default function GeneralLedgerPage() {
                             <TableBody>
                                 {ledgerData.map((entry, index) => (
                                     <TableRow key={`${entry.date.toISOString()}-${index}`}>
-                                        <TableCell>{entry.date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '-')}</TableCell>
+                                        <TableCell>{entry.date.toLocaleDateSfromtring('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '-')}</TableCell>
                                         <TableCell>
                                             <Badge variant="outline" className={cn("border-transparent", getBadgeVariant(entry.type))}>{entry.type}</Badge>
                                         </TableCell>
