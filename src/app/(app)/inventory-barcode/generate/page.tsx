@@ -100,11 +100,12 @@ export default function GenerateBarcodePage() {
     offsetY: 0,
   });
 
-  // CRITICAL FIX: Set up QZ Tray security as soon as the component is loaded.
-  // This must be done BEFORE any connection attempt.
-  if (typeof window !== 'undefined') {
-    setupQzSecurity();
-  }
+  useEffect(() => {
+    // This ensures the security setup happens once, on the client, after the component mounts.
+    if (typeof window !== 'undefined') {
+        setupQzSecurity();
+    }
+  }, []);
 
 
   useEffect(() => {

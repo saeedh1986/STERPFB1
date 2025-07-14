@@ -5,14 +5,14 @@ import qz from 'qz-tray';
 import { KJUR } from 'jsrsasign';
 
 // Hashing algorithm
-const ALGORITHM = "SHA512"; // QZ Tray recommends SHA512 for their demo cert
+const ALGORITHM = "SHA512withRSA";
 
 const CERTIFICATE = `
 -----BEGIN CERTIFICATE-----
 MIIECzCCAvOgAwIBAgIGAZgLBmIrMA0GCSqGSIb3DQEBCwUAMIGiMQswCQYDVQQG
 EwJVUzELMAkGA1UECAwCTlkxEjAQBgNVBAcMCUNhbmFzdG90YTEbMBkGA1UECgwS
 UVogSW5kdXN0cmllcywgTExDMRswGQYDVQQLDBJRWiBJbmR1c3RyaWVzLCBMTEMx
-HDAaBgkqhkiG9w0BCQEWDXN1cHBvcnRAcXouaW8xGjAYBgNVBAMMEVFaIFRyYXkg
+HDAaBgkqhkiGw0BCQEWDXN1cHBvcnRAcXouaW8xGjAYBgNVBAMMEVFaIFRyYXkg
 RGVtbyBDZXJ0MB4XDTI1MDcxMzIyMjAyNFoXDTQ1MDcxMzIyMjAyNFowgaIxCzAJ
 BgNVBAYTAlVTMQswCQYDVQQIDAJOWTESMBAGA1UEBwwJQ2FuYXN0b3RhMRswGQYD
 VQQKDBJRWiBJbmR1c3RyaWVzLCBMTEMxGzAZBgNVBAsMElFaIEluZHVzdHJpZXMs
@@ -25,7 +25,7 @@ yqnlp//jCOs51USfEpq36EsNkew1SWBYF+bodKTxWOhL/FjT2gg6t4559pzx1ReZ
 oYaHdn+UfvJbvvIb83cHN/oSQ4uYr87GX2v6VJD9gwAUjRo/fxKVseaBVb3YUEg+
 45x5I0Thft5c9XZb6ZqHAgMBAAGjRTBDMBIGA1UdEwEB/wQIMAYBAf8CAQEwDgYD
 VR0PAQH/BAQDAgEGMB0GA1UdDgQWBBRwpbbFEWf1SO2l8Wbu1DtjH30H5jANBgkq
-hkiG9w0BAQsFAAOCAQEAXA5Q/P+r5Vzl1R9nlKa1eTmVw+2QHAWZtJTUyHsV0HCV
+hkiGw0BAQsFAAOCAQEAXA5Q/P+r5Vzl1R9nlKa1eTmVw+2QHAWZtJTUyHsV0HCV
 w2vzocYwMOiSP+dOrS4mmw66potPUBifB4r2NN5ExavuenbOqhTBNBPI4dOxZ6sk
 mTpWgRbzjdHB70yaLKt/xNfplDLPWi4Y3vRAwOSV4+0MGMBARnUcTCDwRGBdwkc2
 6OExlD446G42PidLfCZTqY/GEEYuzvhhajDPcOah45xaWBeQSXFofFkgd2KUdAif
@@ -36,7 +36,7 @@ PXRWIxSCEmztSrWvbtChwIInGtNLN8rJgx2Oy8uTVw==
 
 const PRIVATE_KEY = `
 -----BEGIN PRIVATE KEY-----
-MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDPjrVZorKaT9DG
+MIIEvwIBADANBgkqhkiGw0BAQEFAASCBKkwggSlAgEAAoIBAQDPjrVZorKaT9DG
 zGHW250TR0fUzD9KHbhLA+VLKkAPQhzARlzJ4+mmXRGfrnRebSuuf03Q/ePiMXdE
 5K+CVDQT7kVKVx3aTnJAnITUJOrq4uxl4A71mryTksdDwJv2aKE7+THYbqoTdfN6
 tn4E+2U88HUV7WP9YqsganW1GSQi2F0IZN4g6L2rYT5J2tWQoKlXyqnlp//jCOs5
@@ -70,7 +70,7 @@ JRyXUq7/xSDhPwjyHQMj2czy7Q==
 function signData(data: string): Promise<string> {
     return new Promise((resolve, reject) => {
         try {
-            const sig = new KJUR.crypto.Signature({ "alg": `${ALGORITHM}withRSA` });
+            const sig = new KJUR.crypto.Signature({ "alg": ALGORITHM });
             sig.init(PRIVATE_KEY);
             sig.updateString(data);
             const hex = sig.sign();
