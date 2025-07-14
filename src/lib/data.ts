@@ -130,6 +130,17 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
     // These pages have custom data handling
     return [];
   }
+  
+  if (slug === 'logistics') {
+    return [
+      { id: 'log-1', companyName: 'Qonooz', type: 'Inbound, Outbound Logistics', serviceDescription: 'Shipping locally to customers and providing shipment services from China', contactDetails: 'Hayder Allawi', location: 'UAE', notes: '' },
+      { id: 'log-2', companyName: 'SHIP SMART TRANSPORT LLC', type: 'Outbound, Storage Services', serviceDescription: 'Shipping to Amazon FBA, Noon FBN, and providing storage services', contactDetails: '+971 50 432 5218', location: 'UAE', notes: '' },
+      { id: 'log-3', companyName: 'Amazon Easy ship', type: 'Outbound Logistics', serviceDescription: 'Easy shipping to customers', contactDetails: '', location: 'UAE', notes: '' },
+      { id: 'log-4', companyName: 'Noon Direct Ship', type: 'Outbound Logistics', serviceDescription: 'Direct shipments to customers', contactDetails: '', location: 'UAE', notes: '' },
+      { id: 'log-5', companyName: 'Guangdong Hushida Electronic Co. Ltd.', type: 'Inbound Logistics', serviceDescription: 'Shipping from China to UAE', contactDetails: 'Niki Lee', location: 'China', notes: '' },
+      { id: 'log-6', companyName: 'DHL', type: '', serviceDescription: '', contactDetails: '', location: '', notes: '' },
+    ];
+  }
 
 
   const data = Array.from({ length: count }, (_, i) => {
@@ -302,7 +313,7 @@ const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   expenses: { fields: ['expenseDate', 'description', 'supplier', 'category', 'amount'], count: 12 },
   customers: { fields: ['customerName', 'email', 'phone', 'address', 'joinDate'], count: 18 },
   vendors: { fields: ['vendorName', 'contactPerson', 'email', 'phone', 'productCategory'], count: VENDORS_POOL_SIZE },
-  logistics: { fields: ['shipmentId', 'routeName', 'driverName', 'status', 'estimatedDeliveryDate'], count: 8 },
+  logistics: { fields: ['companyName', 'type', 'serviceDescription', 'contactDetails', 'location', 'notes'], count: 6 },
   ipcc: { fields: ['date', 'sku', 'quantity', 'usd', 'exchangeRate', 'aed', 'customsFees', 'shippingFees', 'bankCharges', 'totalCost', 'totalCostPerUnit'], count: 20 },
   ipbt: { fields: ['ipbtId', 'taskName', 'assignedTo', 'dueDate', 'priority'], count: 7 },
   'purchases-cal': { fields: [], count: 0 },
