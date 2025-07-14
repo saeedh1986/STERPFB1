@@ -7,12 +7,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useReactToPrint } from 'react-to-print';
 import { PageHeader } from '@/components/PageHeader';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { ArrowLeft, Printer, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Printer, AlertTriangle, FileDown, Loader2 } from 'lucide-react';
 import QRCode from 'qrcode.react';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 const aedSymbol = <Image src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/UAE_Dirham_Symbol.svg/1377px-UAE_Dirham_Symbol.svg.png" alt="AED" width={16} height={16} className="inline-block" />;
 
@@ -116,6 +118,7 @@ export default function ViewInvoicePage() {
     const id = params.id as string;
     const [invoice, setInvoice] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
     const printRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -131,6 +134,48 @@ export default function ViewInvoicePage() {
         content: () => printRef.current,
         documentTitle: `Invoice-${invoice?.invoiceNumber}`,
     });
+    
+    const handleSaveAsPdf = () => {
+        const input = printRef.current;
+        if (!input) return;
+
+        setIsGeneratingPdf(true);
+        html2canvas(input, {
+            scale: 2, // Higher scale for better quality
+            useCORS: true, 
+        }).then(canvas => {
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'pt',
+                format: 'a4'
+            });
+
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+            const canvasWidth = canvas.width;
+            const canvasHeight = canvas.height;
+            const ratio = canvasWidth / canvasHeight;
+            
+            let newCanvasWidth = pdfWidth;
+            let newCanvasHeight = newCanvasWidth / ratio;
+            
+            if (newCanvasHeight > pdfHeight) {
+                newCanvasHeight = pdfHeight;
+                newCanvasWidth = newCanvasHeight * ratio;
+            }
+
+            const x = (pdfWidth - newCanvasWidth) / 2;
+            const y = (pdfHeight - newCanvasHeight) / 2;
+            
+            pdf.addImage(imgData, 'PNG', x, y, newCanvasWidth, newCanvasHeight);
+            pdf.save(`Invoice-${invoice?.invoiceNumber}.pdf`);
+            setIsGeneratingPdf(false);
+        }).catch(err => {
+            console.error("Failed to generate PDF", err);
+            setIsGeneratingPdf(false);
+        });
+    };
 
     if (loading) {
         return (
@@ -172,13 +217,16 @@ export default function ViewInvoicePage() {
                     <ArrowLeft className="mr-2 h-4 w-4" /> Back to List
                 </Link>
             </Button>
-            <Button onClick={handlePrint}>
-                <Printer className="mr-2 h-4 w-4" /> Print / Save as PDF
+            <Button onClick={handleSaveAsPdf} disabled={isGeneratingPdf}>
+                {isGeneratingPdf ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileDown className="mr-2 h-4 w-4" />}
+                {isGeneratingPdf ? 'Saving...' : 'Save as PDF'}
+            </Button>
+            <Button onClick={handlePrint} variant="outline">
+                <Printer className="mr-2 h-4 w-4" /> Print
             </Button>
         </div>
         <Card className="shadow-lg">
             <CardContent className="p-0">
-               {/* This is the visible component that will also be printed */}
                <PrintableInvoice invoice={invoice} ref={printRef} />
             </CardContent>
         </Card>
