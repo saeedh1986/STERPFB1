@@ -337,13 +337,6 @@ export default function GenerateBarcodePage() {
                                     </span>
                                 </div>
                             </div>
-                             <Alert>
-                                <AlertTriangle className="h-4 w-4" />
-                                <AlertTitle>Security Note</AlertTitle>
-                                <AlertDescription>
-                                To enable trusted printing, run `npm run security:generate-cert` once in your terminal to create the required security files. Then, when connecting, you will be prompted to trust this application.
-                                </AlertDescription>
-                            </Alert>
                             {qzConnected && (
                                 <div className="text-sm text-muted-foreground p-3 bg-accent/30 rounded-md">
                                     <p><b>Selected Printer:</b> {printSettings.printer || 'None'}</p>

@@ -10,8 +10,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit",
-    "security:generate-cert": "mkdir -p public/security && openssl req -x509 -newkey rsa:2048 -keyout public/security/private-key.pem -out public/security/digital-certificate.txt -days 3650 -nodes -subj \"/C=US/ST=CA/L=Mountain View/O=Firebase/OU=Firebase Studio/CN=localhost\""
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@genkit-ai/googleai": "^1.8.0",
