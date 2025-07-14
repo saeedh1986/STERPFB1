@@ -148,8 +148,9 @@ export default function ViewInvoicePage() {
 
         setIsGeneratingPdf(true);
         html2canvas(input, {
-            scale: 2,
+            scale: 4, // Increased scale for better quality
             useCORS: true, 
+            logging: false, // Suppress logging for cleaner console
         }).then(canvas => {
             const imgData = canvas.toDataURL('image/png');
             const pdf = new jsPDF({
@@ -168,7 +169,7 @@ export default function ViewInvoicePage() {
             let newCanvasWidth = pdfWidth;
             let newCanvasHeight = newCanvasWidth / ratio;
             
-            // If height is still too large, then scale by height
+            // If the calculated height is greater than the page height, scale down
             if (newCanvasHeight > pdfHeight) {
                 newCanvasHeight = pdfHeight;
                 newCanvasWidth = newCanvasHeight * ratio;
