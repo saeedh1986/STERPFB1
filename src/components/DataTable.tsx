@@ -51,6 +51,7 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<GenericItem | null>(null);
   const { toast } = useToast();
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const filteredData = useMemo(() => {
     let dataToFilter = [...tableData];
@@ -102,18 +103,68 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      toast({
-        title: "File Uploaded",
-        description: `${file.name} selected. In a real app, this would be processed.`,
-      });
-    }
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const text = e.target?.result as string;
+        const lines = text.split('\n').filter(line => line.trim() !== '');
+        if (lines.length < 2) {
+          throw new Error("CSV file must have a header and at least one data row.");
+        }
+        
+        const headerLine = lines[0].trim();
+        const headers = headerLine.split(',').map(h => h.trim());
+        const dataLines = lines.slice(1);
+        
+        const columnAccessors = columns.filter(c => c.accessorKey !== 'id').map(c => c.accessorKey);
+
+        const newRecords = dataLines.map(line => {
+          const values = line.split(',').map(v => v.trim());
+          const record: GenericItem = { id: `new-${Date.now()}-${Math.random()}` };
+          columnAccessors.forEach((accessor, index) => {
+            record[accessor] = values[index] || '';
+          });
+          return record;
+        });
+
+        setTableData(prev => [...newRecords, ...prev]);
+        toast({
+          title: "Import Successful",
+          description: `${newRecords.length} record(s) have been added.`,
+        });
+
+      } catch (error) {
+        toast({
+          title: "Import Failed",
+          description: error instanceof Error ? error.message : "Could not parse the CSV file.",
+          variant: "destructive",
+        });
+      } finally {
+        // Reset file input
+        if(fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+      }
+    };
+    reader.readAsText(file);
   };
 
-  const handleExport = () => {
+  const handleDownloadTemplate = () => {
+    const headers = columns.filter(c => c.accessorKey !== 'id').map(c => c.header).join(',');
+    const blob = new Blob([headers], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `${pageTitle.replace(/\s+/g, '_')}_template.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
     toast({
-      title: "Export Data",
-      description: `Data for ${pageTitle} would be exported. (Mock action)`,
+      title: "Template Downloaded",
+      description: "A CSV template has been downloaded.",
     });
   };
 
@@ -133,12 +184,12 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
           </Button>
            <label htmlFor="file-upload" className="cursor-pointer">
             <Button asChild variant="outline">
-              <span><Upload className="mr-2 h-4 w-4" /> Refresh Data</span>
+              <span><Upload className="mr-2 h-4 w-4" /> Import from CSV</span>
             </Button>
           </label>
-          <input id="file-upload" type="file" className="hidden" onChange={handleFileUpload} accept=".xlsx, .xlsm, .csv" />
-          <Button onClick={handleExport} variant="outline">
-            <Download className="mr-2 h-4 w-4" /> Export Data
+          <input id="file-upload" type="file" ref={fileInputRef} className="hidden" onChange={handleFileUpload} accept=".csv" />
+          <Button onClick={handleDownloadTemplate} variant="outline">
+            <Download className="mr-2 h-4 w-4" /> Download Template
           </Button>
         </div>
       </div>
