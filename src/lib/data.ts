@@ -43,15 +43,13 @@ export const inventoryItemsPool = productCatalogPool.slice(0, INVENTORY_ITEMS_PO
 
 
 // Generate a pool of vendors that can be referenced by other modules
-const VENDORS_POOL_SIZE = 12;
-export const vendorsPool = Array.from({ length: VENDORS_POOL_SIZE }, (_, i) => ({
-  id: `vendor-${i + 1}`,
-  vendorName: `Supplier Co ${String.fromCharCode(65 + i)}`,
-  contactPerson: `Contact ${String.fromCharCode(65 + i)}`,
-  email: `contact@supplier${String.fromCharCode(65 + i)}.com`,
-  phone: `+971 55 555 100${i}`,
-  productCategory: `Category ${String.fromCharCode(65 + (i % 4))}`
-}));
+export const vendorsPool = [
+    { id: 'vendor-1', name: 'Ali Express', contact: '', email: '', address: '', website: 'https://www.aliexpress.com', city: '', country: 'China' },
+    { id: 'vendor-2', name: 'fifinedesign', contact: '(861892) 263-8246', email: 'sales63@fifinedesign.com', address: 'Waijing Industry Village, No. 6, Duanzhou 3rd Road, Zhaoqing, Guangdong, China', website: '', city: 'Zhaoqing', country: 'China' },
+    { id: 'vendor-3', name: 'Ancreu Technology Co., Ltd', contact: '1582046-6007', email: 'sales@dealspeeds.com', address: 'Room 406-412, hua Mei Building East, Huaqiangbei Street, Shenzhen, Guangdong, China', website: 'http://ancreu.com', city: 'Shenzhen', country: 'China' },
+    { id: 'vendor-4', name: 'AliBaba', contact: '', email: '', address: '', website: 'https://www.alibaba.com', city: '', country: 'China' },
+    { id: 'vendor-5', name: 'Power Carton Boxes Manufacturing LLC', contact: '', email: '', address: '', website: '', city: '', country: 'UAE' },
+];
 
 
 const mockExpenseDescriptions = [
@@ -108,7 +106,7 @@ export const bankTransactionsData = Array.from({ length: 40 }, (_, i) => {
         date: new Date(Date.now() - (i * 86400000 * Math.random() * 3)).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '-'),
         transactionType: isCredit ? 'Incoming Transfer' : (Math.random() > 0.5 ? 'Card Payment' : 'Outgoing Transfer'),
         refNumber: `${Math.floor(Math.random() * 90000000) + 10000000}`,
-        description: isCredit ? `Payment from Customer #${Math.floor(Math.random() * 1000)}` : `Purchase from ${vendorsPool[i % vendorsPool.length].vendorName}`,
+        description: isCredit ? `Payment from Customer #${Math.floor(Math.random() * 1000)}` : `Purchase from ${vendorsPool[i % vendorsPool.length].name}`,
         debit: isCredit ? 0 : amount,
         credit: isCredit ? amount : 0,
         balance: runningBalance,
@@ -146,7 +144,7 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
   const data = Array.from({ length: count }, (_, i) => {
     const item: GenericItem = { id: `${slug}-item-${i + 1}` };
     const randomInventoryItem = inventoryItemsPool[Math.floor(Math.random() * inventoryItemsPool.length)];
-    const randomVendor = vendorsPool[Math.floor(Math.random() * VENDORS_POOL_SIZE)];
+    const randomVendor = vendorsPool[Math.floor(Math.random() * vendorsPool.length)];
 
     fields.forEach(field => {
       switch (field) {
@@ -234,7 +232,7 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
             item[field] = `${Math.floor(Math.random()*100)}-${Math.floor(Math.random()*1000000)}-${Math.floor(Math.random()*1000000)}`;
             break;
         case 'supplier':
-            item[field] = slug === 'expenses' ? randomVendor.vendorName : randomVendor.vendorName;
+            item[field] = slug === 'expenses' ? randomVendor.name : randomVendor.name;
             break;
         case 'category':
              item[field] = slug === 'expenses' ? expenseCategories[i % expenseCategories.length] : `Category ${String.fromCharCode(65 + (i % 5))}`;
@@ -312,7 +310,7 @@ const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   invoices: { fields: [], count: 0 },
   expenses: { fields: ['expenseDate', 'description', 'supplier', 'category', 'amount'], count: 12 },
   customers: { fields: ['customerName', 'email', 'phone', 'address', 'joinDate'], count: 18 },
-  vendors: { fields: ['vendorName', 'contactPerson', 'email', 'phone', 'productCategory'], count: VENDORS_POOL_SIZE },
+  vendors: { fields: ['name', 'contact', 'email', 'address', 'website', 'city', 'country'], count: vendorsPool.length },
   logistics: { fields: ['companyName', 'type', 'serviceDescription', 'contactDetails', 'location', 'notes'], count: 6 },
   ipcc: { fields: ['date', 'sku', 'quantity', 'usd', 'exchangeRate', 'aed', 'customsFees', 'shippingFees', 'bankCharges', 'totalCost', 'totalCostPerUnit'], count: 20 },
   ipbt: { fields: ['ipbtId', 'taskName', 'assignedTo', 'dueDate', 'priority'], count: 7 },
@@ -355,6 +353,13 @@ export const getColumns = (slug: string): ColumnDefinition[] => {
                 'data-ai-hint': dataAiHint,
             });
         };
+    }
+    if (col.accessorKey === 'website') {
+      col.cell = ({ row }) => {
+        const url = row.getValue('website') as string;
+        if (!url) return '';
+        return React.createElement('a', { href: url, target: '_blank', rel: 'noopener noreferrer', className: 'text-blue-600 hover:underline' }, url);
+      };
     }
     const currencyColumns = [
         'price', 'shipping', 'referralFees', 'shippingCost', 'paymentFees', 'totalSales', 
@@ -425,6 +430,9 @@ export const getPageTitle = (slug: string): string => {
   }
   if (slug === 'bank-statement') {
     return 'Bank Statement';
+  }
+  if (slug === 'vendors') {
+    return 'Vendors Management';
   }
   return slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') + ' Management';
 };
