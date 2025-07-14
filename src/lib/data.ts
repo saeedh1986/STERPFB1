@@ -93,6 +93,9 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
   if (slug === 'product-catalog') {
     return productCatalogPool;
   }
+  if (slug === 'invoices') {
+    return []; // Invoice data will be handled by the form, not mock data.
+  }
 
 
   return Array.from({ length: count }, (_, i) => {
@@ -206,6 +209,7 @@ const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   'inventory-barcode': { fields: ['itemName', 'barcode', 'quantity'], count: 15 },
   purchases: { fields: ['purchaseDate', 'supplier', 'sku', 'itemName', 'quantity', 'totalCost'], count: 10 },
   sales: { fields: ['saleDate', 'customerName', 'orderId', 'sku', 'itemName', 'qtySold', 'qtyRtv', 'note', 'price', 'shipping', 'referralFees', 'shippingCost', 'paymentFees', 'totalSales'], count: 30 },
+  invoices: { fields: [], count: 0 },
   expenses: { fields: ['expenseDate', 'description', 'supplier', 'category', 'amount'], count: 12 },
   customers: { fields: ['customerName', 'email', 'phone', 'address', 'joinDate'], count: 18 },
   vendors: { fields: ['vendorName', 'contactPerson', 'email', 'phone', 'productCategory'], count: VENDORS_POOL_SIZE },
@@ -281,6 +285,9 @@ export const getColumns = (slug: string): ColumnDefinition[] => {
 export const getPageTitle = (slug: string): string => {
   if (slug === 'product-catalog') {
     return 'Product Catalog';
+  }
+   if (slug === 'invoices') {
+    return 'Invoices';
   }
   return slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') + ' Management';
 };
