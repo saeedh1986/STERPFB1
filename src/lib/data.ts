@@ -159,7 +159,7 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
   if (slug === 'product-catalog') {
     return productCatalogPool;
   }
-  if (slug === 'invoices' || slug === 'purchases-cal' || slug === 'bank-statement' || slug === 'general-ledger') {
+  if (slug === 'invoices' || slug === 'purchases-cal' || slug === 'bank-statement' || slug === 'general-ledger' || slug === 'chart-of-accounts') {
     // These pages have custom data handling
     return [];
   }
@@ -353,6 +353,7 @@ const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   'bank-statement': { fields: [], count: 0 }, 
   'product-catalog': { fields: ['imageUrl', 'itemName', 'sku', 'unitPrice', 'category', 'description', 'productWeight', 'productDimensions', 'packageWeight', 'packageDimensions'], count: 40 },
   'general-ledger': { fields: [], count: 0 },
+  'chart-of-accounts': { fields: ['code', 'name', 'type'], count: 0 },
 };
 
 export const getMockData = (slug: string): GenericItem[] => {
@@ -473,6 +474,9 @@ export const getPageTitle = (slug: string): string => {
   }
    if (slug === 'general-ledger') {
     return 'General Ledger';
+  }
+  if (slug === 'chart-of-accounts') {
+    return 'Chart of Accounts';
   }
   return slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') + ' Management';
 };

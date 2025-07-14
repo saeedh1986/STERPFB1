@@ -1,6 +1,7 @@
 
 "use client";
 
+import React, { useState } from 'react';
 import { useTheme } from "next-themes";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,9 +9,11 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Moon, Sun, Monitor, FilePenLine, PlusCircle } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { chartOfAccountsData } from "@/lib/data";
+import { chartOfAccountsData as initialChartOfAccountsData, getColumns, type GenericItem } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { DataFormDialog } from '@/components/DataFormDialog';
+import { useToast } from "@/hooks/use-toast";
 
 const getBadgeVariantForAccountType = (type: string) => {
     switch (type) {
@@ -25,6 +28,37 @@ const getBadgeVariantForAccountType = (type: string) => {
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
+  const { toast } = useToast();
+
+  const [accounts, setAccounts] = useState<GenericItem[]>(initialChartOfAccountsData);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedAccount, setSelectedAccount] = useState<GenericItem | null>(null);
+
+  const columns = getColumns('chart-of-accounts');
+  const pageTitle = 'Chart of Accounts';
+
+  const handleCreate = () => {
+    setSelectedAccount(null);
+    setIsDialogOpen(true);
+  };
+
+  const handleUpdate = (account: GenericItem) => {
+    setSelectedAccount(account);
+    setIsDialogOpen(true);
+  };
+
+  const handleFormSubmit = (values: GenericItem) => {
+    if (selectedAccount) {
+      setAccounts(prev => prev.map(acc => acc.id === selectedAccount.id ? { ...acc, ...values } : acc));
+      toast({ title: "Account Updated", description: "The account has been successfully updated." });
+    } else {
+      const newAccount = { ...values, id: `coa-${Date.now()}` };
+      setAccounts(prev => [newAccount, ...prev]);
+      toast({ title: "Account Created", description: "A new account has been successfully added." });
+    }
+    setIsDialogOpen(false);
+  };
+
 
   return (
     <>
@@ -74,7 +108,7 @@ export default function SettingsPage() {
                     <CardTitle>Chart of Accounts</CardTitle>
                     <CardDescription>Manage your general ledger accounts.</CardDescription>
                 </div>
-                <Button variant="outline"><PlusCircle className="mr-2 h-4 w-4" /> Add Account</Button>
+                <Button variant="outline" onClick={handleCreate}><PlusCircle className="mr-2 h-4 w-4" /> Add Account</Button>
             </CardHeader>
             <CardContent>
                  <Table>
@@ -87,7 +121,7 @@ export default function SettingsPage() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {chartOfAccountsData.map((account) => (
+                        {accounts.map((account) => (
                             <TableRow key={account.id}>
                                 <TableCell className="font-mono">{account.code}</TableCell>
                                 <TableCell className="font-medium">{account.name}</TableCell>
@@ -97,7 +131,7 @@ export default function SettingsPage() {
                                     </Badge>
                                 </TableCell>
                                 <TableCell className="text-right">
-                                     <Button variant="ghost" size="icon">
+                                     <Button variant="ghost" size="icon" onClick={() => handleUpdate(account)}>
                                         <FilePenLine className="h-4 w-4" />
                                         <span className="sr-only">Edit Account</span>
                                     </Button>
@@ -109,6 +143,15 @@ export default function SettingsPage() {
             </CardContent>
         </Card>
       </main>
+
+      <DataFormDialog
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        onSubmit={handleFormSubmit}
+        defaultValues={selectedAccount}
+        columns={columns.filter(c => c.accessorKey !== 'id')}
+        title={selectedAccount ? `Edit ${pageTitle}` : `Create New ${pageTitle}`}
+      />
     </>
   );
 }
