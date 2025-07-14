@@ -5,9 +5,9 @@ import { Landmark, Package, ShoppingCart, Users, AlertTriangle } from 'lucide-re
 import Image from 'next/image';
 
 const summaryData = [
-  { title: 'Total Sales', value: 'AED 125,670', icon: Landmark, trend: '+12%', trendColor: 'text-green-500', change: 'from last month' },
-  { title: 'Inventory Value', value: 'AED 85,300', icon: Package, trend: '-2%', trendColor: 'text-red-500', change: 'from last month' },
-  { title: 'Total Purchases', value: 'AED 62,150', icon: ShoppingCart, trend: '+8%', trendColor: 'text-green-500', change: 'from last month' },
+  { title: 'Total Sales', value: 'د.إ 125,670', icon: Landmark, trend: '+12%', trendColor: 'text-green-500', change: 'from last month' },
+  { title: 'Inventory Value', value: 'د.إ 85,300', icon: Package, trend: '-2%', trendColor: 'text-red-500', change: 'from last month' },
+  { title: 'Total Purchases', value: 'د.إ 62,150', icon: ShoppingCart, trend: '+8%', trendColor: 'text-green-500', change: 'from last month' },
   { title: 'Active Customers', value: '1,280', icon: Users, trend: '+50', trendColor: 'text-green-500', change: 'new this month' },
 ];
 

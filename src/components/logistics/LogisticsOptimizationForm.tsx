@@ -182,7 +182,7 @@ export function LogisticsOptimizationForm() {
               <h3 className="font-semibold text-lg">Estimated Costs:</h3>
               {result.estimatedCosts.length > 0 ? (
                 <ul className="list-disc list-inside pl-4">
-                  {result.estimatedCosts.map((cost, index) => <li key={index}>Route {index + 1}: AED {cost.toFixed(2)}</li>)}
+                  {result.estimatedCosts.map((cost, index) => <li key={index}>Route {index + 1}: د.إ {cost.toFixed(2)}</li>)}
                 </ul>
               ) : <p className="text-muted-foreground">No cost estimations available.</p>}
             </div>
