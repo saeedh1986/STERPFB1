@@ -57,8 +57,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
   
   const isSkuSelectMode = title.includes('Sales') || title.includes('Purchases');
   const isExpenseMode = title.includes('Expenses');
-  const isSupplierSelectMode = title.includes('Purchases') || title.includes('Expenses');
-
+  
   const handleSkuChange = (sku: string) => {
     const selectedItem = inventoryItemsPool.find(item => item.sku === sku);
     if (selectedItem) {
@@ -102,36 +101,6 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                             {inventoryItemsPool.map(item => (
                               <SelectItem key={item.sku} value={item.sku}>
                                 {item.sku}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                );
-              }
-
-              if (isSupplierSelectMode && col.accessorKey === 'supplier') {
-                return (
-                  <FormField
-                    key={col.accessorKey}
-                    control={form.control}
-                    name={col.accessorKey as keyof FormValues}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{col.header}</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder={`Select a ${col.header.toLowerCase()}`} />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {vendorsPool.map(vendor => (
-                              <SelectItem key={vendor.id} value={vendor.vendorName}>
-                                {vendor.vendorName}
                               </SelectItem>
                             ))}
                           </SelectContent>
