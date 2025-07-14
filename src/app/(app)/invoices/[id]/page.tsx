@@ -178,9 +178,16 @@ export default function ViewInvoicePage() {
         </div>
         <Card className="shadow-lg">
             <CardContent className="p-0">
-               <PrintableInvoice invoice={invoice} ref={printRef} />
+               {/* This is the visible component */}
+               <PrintableInvoice invoice={invoice} />
             </CardContent>
         </Card>
+
+        {/* This is the hidden component that will be used for printing */}
+        <div className="absolute -left-[9999px] -top-[9999px]">
+            <PrintableInvoice invoice={invoice} ref={printRef} />
+        </div>
+
       </main>
     </>
   );
