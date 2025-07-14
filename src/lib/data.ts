@@ -45,18 +45,40 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
           break;
         case 'quantity':
         case 'stock':
-          item[field] = Math.floor(Math.random() * 20) + 1;
+        case 'qtySold':
+          item[field] = Math.floor(Math.random() * 5) + 1;
           break;
+        case 'qtyRtv':
+          item[field] = Math.random() > 0.8 ? 1 : 0;
+          break;
+        case 'note':
+           item[field] = item['qtyRtv'] ? 'Returned' : '';
+           break;
+        case 'price':
         case 'unitPrice':
         case 'amount':
         case 'unitCost':
-          item[field] = parseFloat((randomInventoryItem.unitPrice * (0.8 + Math.random() * 0.4)).toFixed(2));
+          item[field] = parseFloat((randomInventoryItem.unitPrice * (0.9 + Math.random() * 0.2)).toFixed(2));
           break;
-        case 'totalAmount':
+        case 'totalAmount': // For purchases
            const quantity = item['quantity'] || 1;
            const unitCost = item['unitCost'] || item['unitPrice'] || randomInventoryItem.unitPrice;
            item[field] = parseFloat((quantity * unitCost).toFixed(2));
            break;
+        case 'shipping':
+        case 'shippingCost':
+        case 'referralFees':
+        case 'paymentFees':
+          item[field] = parseFloat((Math.random() * -30).toFixed(2));
+          break;
+        case 'totalSales':
+            const price = item['price'] || 0;
+            const shipping = item['shipping'] || 0;
+            const referral = item['referralFees'] || 0;
+            const shippingCost = item['shippingCost'] || 0;
+            const payment = item['paymentFees'] || 0;
+            item[field] = parseFloat((price + shipping + referral + shippingCost + payment).toFixed(2));
+            break;
         case 'date':
         case 'purchaseDate':
         case 'saleDate':
@@ -71,6 +93,9 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
         case 'barcode':
           item[field] = `BC-${String(Math.floor(Math.random() * 1e8)).padStart(8, '0')}`;
           break;
+        case 'orderId':
+            item[field] = `${Math.floor(Math.random()*100)}-${Math.floor(Math.random()*1000000)}-${Math.floor(Math.random()*1000000)}`;
+            break;
         default:
           if (field.toLowerCase().includes('name') || field.toLowerCase().includes('item')) {
             item[field] = `Sample ${field.charAt(0).toUpperCase() + field.slice(1)} ${i + 1}`;
@@ -88,7 +113,7 @@ const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   inventory: { fields: ['itemName', 'sku', 'quantity', 'unitPrice', 'category'], count: INVENTORY_ITEMS_POOL_SIZE },
   'inventory-barcode': { fields: ['itemName', 'barcode', 'quantity'], count: 15 },
   purchases: { fields: ['purchaseOrder', 'vendorName', 'itemName', 'sku', 'quantity', 'unitCost', 'totalAmount', 'purchaseDate', 'status'], count: 10 },
-  sales: { fields: ['invoiceNumber', 'customerName', 'itemName', 'sku', 'quantity', 'unitPrice', 'totalAmount', 'saleDate', 'paymentStatus'], count: 30 },
+  sales: { fields: ['date', 'customerName', 'orderId', 'sku', 'itemName', 'qtySold', 'qtyRtv', 'note', 'price', 'shipping', 'referralFees', 'shippingCost', 'paymentFees', 'totalSales'], count: 30 },
   expenses: { fields: ['expenseCategory', 'expenseDate', 'amount', 'description', 'paidTo'], count: 25 },
   customers: { fields: ['customerName', 'email', 'phone', 'address', 'joinDate'], count: 18 },
   vendors: { fields: ['vendorName', 'contactPerson', 'email', 'phone', 'productCategory'], count: 12 },
@@ -116,23 +141,23 @@ export const getColumns = (slug: string): ColumnDefinition[] => {
 
   // Example of custom cell rendering for price/amount fields
   columns.forEach(col => {
-    if (col.accessorKey.toLowerCase().includes('price') || col.accessorKey.toLowerCase().includes('amount') || col.accessorKey.toLowerCase().includes('cost') || col.accessorKey.toLowerCase().includes('debit') || col.accessorKey.toLowerCase().includes('credit') || col.accessorKey.toLowerCase().includes('balance')) {
+    if (['price', 'shipping', 'referralFees', 'shippingCost', 'paymentFees', 'totalSales', 'amount', 'unitCost', 'debit', 'credit', 'balance', 'totalAmount', 'unitPrice'].includes(col.accessorKey)) {
       col.cell = ({ row }) => {
         const amount = parseFloat(row.getValue(col.accessorKey));
         const formatted = new Intl.NumberFormat("en-AE", {
           style: "currency",
           currency: "AED",
         }).format(amount);
-        return React.createElement('div', { className: "text-right font-medium" }, formatted);
+        return React.createElement('div', { className: 'text-right font-medium' }, formatted);
       };
     }
     if (col.accessorKey.toLowerCase().includes('status')) {
        col.cell = ({ row }) => {
         const status = row.getValue(col.accessorKey) as string;
         let colorClass = '';
-        if (status.toLowerCase().includes('paid') || status.toLowerCase().includes('delivered') || status.toLowerCase().includes('completed')) colorClass = 'text-green-600 bg-green-100';
-        else if (status.toLowerCase().includes('pending') || status.toLowerCase().includes('processing')) colorClass = 'text-yellow-600 bg-yellow-100';
-        else if (status.toLowerCase().includes('failed') || status.toLowerCase().includes('cancelled')) colorClass = 'text-red-600 bg-red-100';
+        if (status && (status.toLowerCase().includes('paid') || status.toLowerCase().includes('delivered') || status.toLowerCase().includes('completed'))) colorClass = 'text-green-600 bg-green-100';
+        else if (status && (status.toLowerCase().includes('pending') || status.toLowerCase().includes('processing'))) colorClass = 'text-yellow-600 bg-yellow-100';
+        else if (status && (status.toLowerCase().includes('failed') || status.toLowerCase().includes('cancelled'))) colorClass = 'text-red-600 bg-red-100';
         else colorClass = 'text-gray-600 bg-gray-100';
         
         return React.createElement('span', { className: `px-2 py-1 rounded-full text-xs font-medium ${colorClass}` }, status);
