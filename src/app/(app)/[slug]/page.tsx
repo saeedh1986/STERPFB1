@@ -6,10 +6,16 @@ import { PageHeader } from '@/components/PageHeader';
 import { DataTable } from '@/components/DataTable';
 import { getMockData, getColumns, getPageTitle, moduleSlugs } from '@/lib/data';
 import { Card, CardContent } from '@/components/ui/card';
+import InventoryBarcodePage from '../inventory-barcode/page'; // Adjust path if needed
 
 export default function ModulePage() {
   const params = useParams();
   const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
+
+  // Special handling for inventory-barcode to render its specific component
+  if (slug === 'inventory-barcode') {
+    return <InventoryBarcodePage />;
+  }
 
   const data = getMockData(slug);
   const columns = getColumns(slug);

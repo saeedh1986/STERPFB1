@@ -162,7 +162,7 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
           item[field] = new Date(Date.now() - Math.floor(Math.random() * 1e10)).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '-');
           break;
         case 'barcode':
-          item[field] = `BC-${String(Math.floor(Math.random() * 1e8)).padStart(8, '0')}`;
+          item[field] = randomInventoryItem.sku; // Use SKU for barcode data
           break;
         case 'orderId':
             item[field] = `${Math.floor(Math.random()*100)}-${Math.floor(Math.random()*1000000)}-${Math.floor(Math.random()*1000000)}`;
@@ -206,7 +206,7 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
 
 const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   inventory: { fields: ['itemName', 'sku', 'quantity', 'unitPrice', 'category'], count: INVENTORY_ITEMS_POOL_SIZE },
-  'inventory-barcode': { fields: ['itemName', 'barcode', 'quantity'], count: 15 },
+  'inventory-barcode': { fields: ['itemName', 'barcode', 'quantity'], count: INVENTORY_ITEMS_POOL_SIZE },
   purchases: { fields: ['purchaseDate', 'supplier', 'sku', 'itemName', 'quantity', 'totalCost'], count: 10 },
   sales: { fields: ['saleDate', 'customerName', 'orderId', 'sku', 'itemName', 'qtySold', 'qtyRtv', 'note', 'price', 'shipping', 'referralFees', 'shippingCost', 'paymentFees', 'totalSales'], count: 30 },
   invoices: { fields: [], count: 0 },
@@ -224,6 +224,10 @@ const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
 export const getMockData = (slug: string): GenericItem[] => {
   const config = moduleDataConfig[slug];
   if (!config) return [];
+  // For inventory-barcode, we just need the items themselves
+  if (slug === 'inventory-barcode') {
+    return inventoryItemsPool;
+  }
   return createMockData(config.count, config.fields, slug);
 };
 
@@ -288,6 +292,9 @@ export const getPageTitle = (slug: string): string => {
   }
    if (slug === 'invoices') {
     return 'Invoices';
+  }
+  if (slug === 'inventory-barcode') {
+    return 'Inventory Barcode';
   }
   return slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') + ' Management';
 };
