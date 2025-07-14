@@ -76,7 +76,7 @@ const PrintableInvoice = React.forwardRef<HTMLDivElement, { invoice: any }>(({ i
 
              <Table>
                 <TableHeader>
-                  <TableRow className="bg-gray-50 border-gray-200">
+                  <TableRow className="bg-gray-50 border-gray-200 hover:bg-gray-50">
                     <TableHead className="w-[50%] text-gray-600 font-semibold">DESCRIPTION</TableHead>
                     <TableHead className="text-right text-gray-600 font-semibold">QTY</TableHead>
                     <TableHead className="text-right text-gray-600 font-semibold">UNIT PRICE</TableHead>
