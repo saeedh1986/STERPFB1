@@ -119,7 +119,7 @@ export default function GeneralLedgerPage() {
                             <TableBody>
                                 {ledgerData.map((entry, index) => (
                                     <TableRow key={`${entry.date.toISOString()}-${index}`}>
-                                        <TableCell>{entry.date.toLocaleDateSfromtring('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '-')}</TableCell>
+                                        <TableCell>{entry.date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '-')}</TableCell>
                                         <TableCell>
                                             <Badge variant="outline" className={cn("border-transparent", getBadgeVariant(entry.type))}>{entry.type}</Badge>
                                         </TableCell>
