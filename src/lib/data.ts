@@ -51,6 +51,15 @@ export const vendorsPool = [
     { id: 'vendor-5', name: 'Power Carton Boxes Manufacturing LLC', contact: '', email: '', address: '', website: '', city: '', country: 'UAE' },
 ];
 
+export const customersPool = [
+    { id: 'cust-1', name: 'Amazon AE', contact: '', email: '', address: '', city: 'Dubai', country: 'UAE' },
+    { id: 'cust-2', name: 'Noon AE', contact: '', email: '', address: '', city: 'Dubai', country: 'UAE' },
+    { id: 'cust-3', name: 'Hamad Al Marzooqi', contact: '', email: 'Hamad.12233.mm@gmail.com', address: '', city: 'Abu Dhabi', country: 'UAE' },
+    { id: 'cust-4', name: 'Saeed Alhebsi', contact: '(97155) 467-4949', email: '', address: '', city: 'Dubai', country: 'UAE' },
+    { id: 'cust-5', name: 'Noora Abdulla', contact: '', email: '', address: '', city: 'Dubai', country: 'UAE' },
+    { id: 'cust-6', name: 'Dmytro SHEMET Boxpark', contact: '(97156) 258-5044', email: 'motorcrashvine@gmail.com', address: '', city: 'Dubai', country: 'UAE' },
+];
+
 
 const mockExpenseDescriptions = [
   "Domain subscription",
@@ -120,6 +129,9 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
   }
   if (slug === 'vendors') {
     return vendorsPool;
+  }
+  if (slug === 'customers') {
+    return customersPool;
   }
   if (slug === 'product-catalog') {
     return productCatalogPool;
@@ -309,7 +321,7 @@ const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   sales: { fields: ['saleDate', 'customerName', 'orderId', 'sku', 'itemName', 'qtySold', 'qtyRtv', 'note', 'price', 'shipping', 'referralFees', 'shippingCost', 'paymentFees', 'totalSales'], count: 30 },
   invoices: { fields: [], count: 0 },
   expenses: { fields: ['expenseDate', 'description', 'supplier', 'category', 'amount'], count: 12 },
-  customers: { fields: ['customerName', 'email', 'phone', 'address', 'joinDate'], count: 18 },
+  customers: { fields: ['name', 'contact', 'email', 'address', 'city', 'country'], count: customersPool.length },
   vendors: { fields: ['name', 'contact', 'email', 'address', 'website', 'city', 'country'], count: vendorsPool.length },
   logistics: { fields: ['companyName', 'type', 'serviceDescription', 'contactDetails', 'location', 'notes'], count: 6 },
   ipcc: { fields: ['date', 'sku', 'quantity', 'usd', 'exchangeRate', 'aed', 'customsFees', 'shippingFees', 'bankCharges', 'totalCost', 'totalCostPerUnit'], count: 20 },
@@ -354,11 +366,12 @@ export const getColumns = (slug: string): ColumnDefinition[] => {
             });
         };
     }
-    if (col.accessorKey === 'website') {
+    if (col.accessorKey === 'website' || (col.accessorKey === 'email' && slug === 'vendors')) {
       col.cell = ({ row }) => {
-        const url = row.getValue('website') as string;
-        if (!url) return '';
-        return React.createElement('a', { href: url, target: '_blank', rel: 'noopener noreferrer', className: 'text-blue-600 hover:underline' }, url);
+        const value = row.getValue(col.accessorKey) as string;
+        if (!value) return '';
+        const href = col.accessorKey === 'email' ? `mailto:${value}` : value;
+        return React.createElement('a', { href: href, target: '_blank', rel: 'noopener noreferrer', className: 'text-blue-600 hover:underline' }, value);
       };
     }
     const currencyColumns = [
