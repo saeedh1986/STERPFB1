@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { GenericItem, ColumnDefinition } from '@/lib/data';
-import { inventoryItemsPool, expenseCategories, vendorsPool } from '@/lib/data';
+import { inventoryItemsPool, expenseCategories, vendorsPool, USD_TO_AED_RATE } from '@/lib/data';
 import { useEffect } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
@@ -51,10 +51,15 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
         acc[col.accessorKey] = z.string().optional();
       }
       else {
-        acc[col.accessorKey] = z.string().min(1, `${col.header} is required.`);
+        // For IPCC, some fields are numeric, so we coerce them.
+        if (title.includes('Cost Calculator') && ['usd', 'quantity', 'customsFees', 'shippingFees', 'bankCharges', 'aed', 'totalCost', 'totalCostPerUnit'].includes(col.accessorKey)) {
+          acc[col.accessorKey] = z.coerce.number().optional();
+        } else {
+           acc[col.accessorKey] = z.string().min(1, `${col.header} is required.`);
+        }
       }
       return acc;
-    }, {} as Record<string, z.ZodString | z.ZodOptional<z.ZodString>>)
+    }, {} as Record<string, z.ZodTypeAny>)
   );
 
   type FormValues = z.infer<typeof formSchema>;
@@ -63,6 +68,23 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
     resolver: zodResolver(formSchema),
     defaultValues: defaultValues || {},
   });
+
+  const isCostCalculator = title.includes('Cost Calculator');
+  const watchedFields = form.watch(['usd', 'quantity', 'customsFees', 'shippingFees', 'bankCharges']);
+
+  useEffect(() => {
+    if (isCostCalculator) {
+        const [usd, quantity, customsFees, shippingFees, bankCharges] = watchedFields;
+        const aed = parseFloat((usd || 0).toString()) * USD_TO_AED_RATE;
+        const totalCost = aed + parseFloat((customsFees || 0).toString()) + parseFloat((shippingFees || 0).toString()) + parseFloat((bankCharges || 0).toString());
+        const totalCostPerUnit = totalCost / (parseFloat((quantity || 1).toString()) || 1);
+
+        form.setValue('aed' as keyof FormValues, parseFloat(aed.toFixed(4)));
+        form.setValue('totalCost' as keyof FormValues, parseFloat(totalCost.toFixed(4)));
+        form.setValue('totalCostPerUnit' as keyof FormValues, parseFloat(totalCostPerUnit.toFixed(4)));
+    }
+  }, [watchedFields, form, isCostCalculator]);
+
 
   useEffect(() => {
     if (isOpen) {
@@ -96,7 +118,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
     onSubmit(formattedData);
   };
   
-  const isSkuSelectMode = title.includes('Sales') || title.includes('Purchases');
+  const isSkuSelectMode = title.includes('Sales') || title.includes('Purchases') || title.includes('Cost Calculator');
   const isExpenseMode = title.includes('Expenses');
   const isProductCatalog = title.includes('Product Catalog');
   
@@ -119,6 +141,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
     }
   };
 
+  const calculatedFields = ['aed', 'totalCost', 'totalCostPerUnit'];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -132,6 +155,8 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4 py-4">
             {columns.map((col) => {
+             
+             const isCalculated = isCostCalculator && calculatedFields.includes(col.accessorKey);
 
              if (col.accessorKey.toLowerCase().includes('date')) {
                 return (
@@ -318,7 +343,20 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                     <FormItem>
                       <FormLabel>{col.header}</FormLabel>
                       <FormControl>
-                        <Input placeholder={`Enter ${col.header.toLowerCase()}...`} {...field} />
+                        <Input 
+                            placeholder={`Enter ${col.header.toLowerCase()}...`}
+                            {...field}
+                            type={typeof field.value === 'number' ? 'number' : 'text'}
+                            readOnly={isCalculated}
+                            className={isCalculated ? 'bg-muted' : ''}
+                            onChange={(e) => {
+                                if (typeof field.value === 'number') {
+                                    field.onChange(e.target.valueAsNumber || 0);
+                                } else {
+                                    field.onChange(e.target.value);
+                                }
+                            }}
+                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -336,3 +374,4 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
     </Dialog>
   );
 }
+

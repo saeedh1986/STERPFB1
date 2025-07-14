@@ -82,7 +82,7 @@ export const expenseCategories = [
   "Marketing",
 ];
 
-const USD_TO_AED_RATE = 3.6725;
+export const USD_TO_AED_RATE = 3.6725;
 
 const createMockData = (count: number, fields: string[], slug: string): GenericItem[] => {
   if (slug === 'inventory') {
@@ -135,7 +135,7 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
             item[field] = parseFloat((item['usd'] * USD_TO_AED_RATE).toFixed(4));
             break;
         case 'customsFees':
-            item[field] = parseFloat((item['aed'] * 0.05).toFixed(4)); // 5% of AED
+            item[field] = parseFloat(((item['usd'] * USD_TO_AED_RATE) * 0.05).toFixed(4)); // 5% of AED
             break;
         case 'shippingFees':
             item[field] = parseFloat((Math.random() * 20 + 5).toFixed(4));
@@ -144,25 +144,18 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
             item[field] = parseFloat((Math.random() * 5 + 1).toFixed(4));
             break;
         case 'totalCost':
-            const aed = item['aed'] || 0;
-            const customs = item['customsFees'] || 0;
-            const shipping = item['shippingFees'] || 0;
-            const bank = item['bankCharges'] || 0;
-            item[field] = parseFloat((aed + customs + shipping + bank).toFixed(4));
+             // This is now calculated dynamically in the mock data creation
             break;
         case 'totalCostPerUnit':
-            const totalCost = item['totalCost'] || 0;
-            const qty = item['quantity'] || 1;
-            item[field] = parseFloat((totalCost / qty).toFixed(4));
+            // This is now calculated dynamically in the mock data creation
             break;
         case 'amount':
            item[field] = parseFloat((Math.random() * 1500 + 30).toFixed(2));
            break;
         case 'totalAmount': // Kept for backward compatibility if other parts use it
-        case 'totalCost': // For purchases
-           const quantity = item['quantity'] || 1;
-           const unitCost = item['unitCost'] || item['unitPrice'] || randomInventoryItem.unitPrice * 0.8; // Assume purchase cost is lower
-           item[field] = parseFloat((quantity * unitCost).toFixed(2));
+           const quantityTA = item['quantity'] || 1;
+           const unitCostTA = item['unitCost'] || item['unitPrice'] || randomInventoryItem.unitPrice * 0.8; // Assume purchase cost is lower
+           item[field] = parseFloat((quantityTA * unitCostTA).toFixed(2));
            break;
         case 'shipping':
         case 'shippingCost':
@@ -250,7 +243,7 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
 const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   inventory: { fields: ['itemName', 'sku', 'quantity', 'unitPrice', 'category'], count: INVENTORY_ITEMS_POOL_SIZE },
   'inventory-barcode': { fields: ['itemName', 'barcode', 'quantity'], count: INVENTORY_ITEMS_POOL_SIZE },
-  purchases: { fields: ['purchaseDate', 'supplier', 'sku', 'itemName', 'quantity', 'totalCost'], count: 10 },
+  purchases: { fields: ['purchaseDate', 'supplier', 'sku', 'itemName', 'quantity', 'unitCost', 'totalCost'], count: 10 },
   sales: { fields: ['saleDate', 'customerName', 'orderId', 'sku', 'itemName', 'qtySold', 'qtyRtv', 'note', 'price', 'shipping', 'referralFees', 'shippingCost', 'paymentFees', 'totalSales'], count: 30 },
   invoices: { fields: [], count: 0 },
   expenses: { fields: ['expenseDate', 'description', 'supplier', 'category', 'amount'], count: 12 },
@@ -312,10 +305,9 @@ export const getColumns = (slug: string): ColumnDefinition[] => {
         const amount = parseFloat(row.getValue(col.accessorKey));
         const formatOptions: Intl.NumberFormatOptions = {
           minimumFractionDigits: 2,
-          maximumFractionDigits: col.accessorKey.match(/aed|Fees|Charges|Cost|PerUnit/i) ? 4 : 2
+          maximumFractionDigits: col.accessorKey.match(/aed|Fees|Charges|Cost|PerUnit|usd/i) ? 4 : 2
         };
         const formatted = new Intl.NumberFormat("en-US", formatOptions).format(amount);
-        const displayValue = `د.إ ${formatted}`;
         const currencySymbol = col.accessorKey === 'usd' ? '$ ' : 'د.إ ';
         return React.createElement('div', { className: 'text-right font-medium' }, `${currencySymbol}${formatted}`);
       };
