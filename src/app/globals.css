@@ -7,26 +7,26 @@ body {
 }
 
 @layer base {
-  :root {
-    --background: 220 13% 97%; /* Light slate gray */
-    --foreground: 220 15% 25%; /* Dark slate for text */
-    --card: 220 13% 100%; /* White cards */
+  :root, .theme-amber {
+    --background: 220 13% 97%;
+    --foreground: 220 15% 25%;
+    --card: 220 13% 100%;
     --card-foreground: 220 15% 25%;
     --popover: 220 13% 100%;
     --popover-foreground: 220 15% 25%;
     --primary: 38 92% 50%; /* Amber */
-    --primary-foreground: 38 92% 10%; /* Dark Amber for text */
-    --secondary: 220 14% 90%; /* Lighter slate gray */
+    --primary-foreground: 38 92% 10%;
+    --secondary: 220 14% 90%;
     --secondary-foreground: 220 15% 25%;
-    --muted: 220 14% 92%; /* Slightly darker light slate gray */
-    --muted-foreground: 220 10% 45%; /* Medium slate text */
-    --accent: 220 14% 85%; /* Soft slate for accents */
+    --muted: 220 14% 92%;
+    --muted-foreground: 220 10% 45%;
+    --accent: 220 14% 85%;
     --accent-foreground: 220 15% 15%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 220 13% 88%; /* Light slate border */
-    --input: 220 13% 88%; /* Input border */
-    --ring: 38 92% 50%; /* Amber for focus rings */
+    --border: 220 13% 88%;
+    --input: 220 13% 88%;
+    --ring: 38 92% 50%;
     --chart-1: 38 92% 50%;
     --chart-2: 210 30% 60%;
     --chart-3: 210 25% 60%;
@@ -35,16 +35,17 @@ body {
     --radius: 0.5rem;
 
     /* Sidebar specific colors */
-    --sidebar-background: 220 15% 25%; /* Dark slate for sidebar */
-    --sidebar-foreground: 220 13% 90%; /* Light gray text on sidebar */
-    --sidebar-primary: 38 92% 50%; /* Amber for active/hover */
-    --sidebar-primary-foreground: 38 92% 10%; /* Dark amber text on amber */
-    --sidebar-accent: 220 15% 35%; /* Slightly lighter than sidebar bg for hover */
+    --sidebar-background: 220 15% 25%;
+    --sidebar-foreground: 220 13% 90%;
+    --sidebar-primary: 38 92% 50%;
+    --sidebar-primary-foreground: 38 92% 10%;
+    --sidebar-accent: 220 15% 35%;
     --sidebar-accent-foreground: 220 13% 97%;
     --sidebar-border: 220 15% 20%;
     --sidebar-ring: 38 92% 50%;
   }
-  .dark {
+
+  .dark:root, .dark.theme-amber {
     --background: 220 15% 15%;
     --foreground: 220 13% 90%;
     --card: 220 15% 20%;
@@ -79,6 +80,46 @@ body {
     --sidebar-accent-foreground: 220 13% 90%;
     --sidebar-border: 220 15% 15%;
     --sidebar-ring: 38 92% 50%;
+  }
+
+  .theme-blue {
+    --primary: 217 91% 60%; /* Blue */
+    --primary-foreground: 217 91% 10%;
+    --ring: 217 91% 60%;
+    --chart-1: 217 91% 60%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 217 91% 10%;
+    --sidebar-ring: 217 91% 60%;
+  }
+
+  .dark.theme-blue {
+    --primary: 217 91% 60%;
+    --primary-foreground: 217 91% 10%;
+    --ring: 217 91% 60%;
+    --chart-1: 217 91% 60%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 217 91% 10%;
+    --sidebar-ring: 217 91% 60%;
+  }
+
+  .theme-green {
+    --primary: 142 76% 36%; /* Green */
+    --primary-foreground: 142 76% 5%;
+    --ring: 142 76% 36%;
+    --chart-1: 142 76% 36%;
+    --sidebar-primary: 142 76% 36%;
+    --sidebar-primary-foreground: 142 76% 5%;
+    --sidebar-ring: 142 76% 36%;
+  }
+
+  .dark.theme-green {
+    --primary: 142 76% 36%;
+    --primary-foreground: 142 76% 5%;
+    --ring: 142 76% 36%;
+    --chart-1: 142 76% 36%;
+    --sidebar-primary: 142 76% 36%;
+    --sidebar-primary-foreground: 142 76% 5%;
+    --sidebar-ring: 142 76% 36%;
   }
 }
 

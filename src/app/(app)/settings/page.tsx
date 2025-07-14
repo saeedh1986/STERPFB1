@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTheme } from "next-themes";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,6 +25,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Separator } from '@/components/ui/separator';
 
 const getBadgeVariantForAccountType = (type: string) => {
     switch (type) {
@@ -37,13 +38,41 @@ const getBadgeVariantForAccountType = (type: string) => {
     }
 };
 
+const themeColors = [
+  { name: 'Amber', value: 'theme-amber', class: 'bg-amber-500' },
+  { name: 'Blue', value: 'theme-blue', class: 'bg-blue-500' },
+  { name: 'Green', value: 'theme-green', class: 'bg-green-500' },
+];
+
 export default function SettingsPage() {
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme, themes } = useTheme();
   const { toast } = useToast();
 
   const [accounts, setAccounts] = useState<GenericItem[]>(initialChartOfAccountsData);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState<GenericItem | null>(null);
+  
+  const [currentColorTheme, setCurrentColorTheme] = useState('theme-amber');
+
+  useEffect(() => {
+    const currentThemeClass = themes.find(t => t.startsWith('theme-') && document.documentElement.classList.contains(t));
+    setCurrentColorTheme(currentThemeClass || 'theme-amber');
+  }, [themes, theme]);
+
+
+  const handleThemeChange = (newTheme: string) => {
+    const currentMode = resolvedTheme; // 'light' or 'dark'
+    // Remove existing color theme classes
+    themeColors.forEach(t => document.documentElement.classList.remove(t.value));
+    // Set the theme, which adds the new class
+    setTheme(newTheme);
+    setCurrentColorTheme(newTheme);
+    // Re-apply the light/dark mode class if next-themes didn't handle it
+    if (currentMode && !document.documentElement.classList.contains(currentMode)) {
+      document.documentElement.classList.add(currentMode);
+    }
+  };
+
 
   const columns = getColumns('chart-of-accounts');
   const pageTitle = 'Chart of Accounts';
@@ -95,32 +124,57 @@ export default function SettingsPage() {
                     Customize the look and feel of the application. Changes are saved automatically.
                     </CardDescription>
                 </CardHeader>
-                <CardContent>
-                    <div className="space-y-4">
-                    <Label htmlFor="theme">Theme</Label>
-                    <RadioGroup
-                        id="theme"
-                        value={theme}
-                        onValueChange={setTheme}
-                        className="grid grid-cols-1 sm:grid-cols-3 gap-4"
-                    >
-                        <Label htmlFor="light" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
-                        <RadioGroupItem value="light" id="light" className="sr-only" />
-                        <Sun className="h-5 w-5" />
-                        <span>Light</span>
-                        </Label>
-                        <Label htmlFor="dark" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
-                        <RadioGroupItem value="dark" id="dark" className="sr-only" />
-                        <Moon className="h-5 w-5" />
-                        <span>Dark</span>
-                        </Label>
-                        <Label htmlFor="system" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
-                        <RadioGroupItem value="system" id="system" className="sr-only" />
-                        <Monitor className="h-5 w-5" />
-                        <span>System</span>
-                        </Label>
-                    </RadioGroup>
+                <CardContent className="space-y-6">
+                    <div>
+                        <Label htmlFor="theme">Mode</Label>
+                        <RadioGroup
+                            id="theme"
+                            value={theme}
+                            onValueChange={(value) => setTheme(value)}
+                            className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-2"
+                        >
+                            <Label htmlFor="light" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
+                            <RadioGroupItem value="light" id="light" className="sr-only" />
+                            <Sun className="h-5 w-5" />
+                            <span>Light</span>
+                            </Label>
+                            <Label htmlFor="dark" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
+                            <RadioGroupItem value="dark" id="dark" className="sr-only" />
+                            <Moon className="h-5 w-5" />
+                            <span>Dark</span>
+                            </Label>
+                            <Label htmlFor="system" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
+                            <RadioGroupItem value="system" id="system" className="sr-only" />
+                            <Monitor className="h-5 w-5" />
+                            <span>System</span>
+                            </Label>
+                        </RadioGroup>
                     </div>
+
+                    <Separator />
+
+                    <div>
+                        <Label htmlFor="theme-color">Theme Color</Label>
+                        <RadioGroup
+                            id="theme-color"
+                            value={currentColorTheme}
+                            onValueChange={handleThemeChange}
+                            className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-2"
+                        >
+                            {themeColors.map((color) => (
+                               <Label 
+                                 key={color.value}
+                                 htmlFor={color.value} 
+                                 className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:ring-2 has-[input:checked]:ring-primary"
+                               >
+                                    <RadioGroupItem value={color.value} id={color.value} className="sr-only" />
+                                    <div className={`h-6 w-6 rounded-full ${color.class}`}></div>
+                                    <span>{color.name}</span>
+                                </Label>
+                            ))}
+                        </RadioGroup>
+                    </div>
+
                 </CardContent>
             </Card>
 
