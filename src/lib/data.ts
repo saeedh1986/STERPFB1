@@ -500,9 +500,77 @@ export const getPageTitle = (slug: string): string => {
 export const moduleSlugs = Object.keys(moduleDataConfig);
 
 // Sample structure for dashboard summary - actual calculation would be complex
-export const getDashboardSummary = () => ({
-  totalSales: 125670,
-  inventoryValue: 85300,
-  totalPurchases: 62150,
-  activeCustomers: 1280,
-});
+export const getDashboardSummaryData = () => {
+    const salesData = getMockData('sales');
+    const purchasesData = getMockData('purchases');
+    const expensesData = getMockData('expenses');
+    const inventoryData = getMockData('inventory');
+    
+    // --- FINANCIALS ---
+    const totalSalesAndShipping = salesData.reduce((acc, sale) => acc + (sale.price || 0) + (sale.shipping || 0), 0);
+    const totalPurchases = purchasesData.reduce((acc, p) => acc + (p.totalCost || 0), 0);
+    const totalExpenses = expensesData.reduce((acc, e) => acc + (e.amount || 0), 0);
+    const totalShippingRevenue = salesData.reduce((acc, sale) => acc + (sale.shipping || 0), 0);
+    const totalShippingCosts = salesData.reduce((acc, sale) => acc + (sale.shippingCost || 0), 0);
+    const totalReferralFees = salesData.reduce((acc, sale) => acc + (sale.referralFees || 0), 0);
+    const totalPaymentFees = salesData.reduce((acc, sale) => acc + (sale.paymentFees || 0), 0);
+    const totalCostOfSales = totalReferralFees + totalShippingCosts; // Simplified
+    const totalSalesValue = salesData.reduce((acc, sale) => acc + (sale.totalSales || 0), 0);
+    const netSales = totalSalesValue - totalPurchases;
+    const netTotal = netSales - totalExpenses;
+
+    // --- INVENTORY & ORDERS ---
+    const qtySold = salesData.reduce((acc, sale) => acc + (sale.qtySold || 0), 0);
+    const qtyRtv = salesData.reduce((acc, sale) => acc + (sale.qtyRtv || 0), 0);
+    const qtyPurchased = purchasesData.reduce((acc, p) => acc + (p.quantity || 0), 0);
+    const qtyInStock = inventoryData.reduce((acc, i) => acc + (i.quantity || 0), 0);
+    const salesOrders = salesData.length;
+
+    return {
+        financials: [
+            { category: 'Sales', description: 'Total Sales and Shipping', amount: totalSalesAndShipping },
+            { category: 'Purchases', description: 'Purchases', amount: totalPurchases },
+            { category: 'Net Sales', description: 'Net Sales', amount: netSales },
+            { category: 'Expenses', description: 'Expenses', amount: totalExpenses },
+            { category: 'Net Total', description: 'Net Total', amount: netTotal },
+            { category: 'Cost of Sales', description: 'Total Cost of Sales', amount: totalCostOfSales },
+        ],
+        inventory: [
+            { description: 'Quantity of Items Sold', amount: qtySold },
+            { description: 'Quantity of Items Purchased', amount: qtyPurchased },
+            { description: 'Quantity in Stock', amount: qtyInStock },
+        ],
+        returns: [
+            { description: 'Total Quantity RTV', amount: qtyRtv },
+        ],
+        salesOrders: [
+            { description: 'Total Sales Orders', amount: salesOrders },
+        ],
+        shipping: [
+            { description: 'Total Shipping Revenue', amount: totalShippingRevenue },
+            { description: 'Total Shipping Costs', amount: totalShippingCosts },
+        ],
+        fees: [
+            { description: 'Total Paid Referral Fees', amount: totalReferralFees },
+            { description: 'Total Payment Fees', amount: totalPaymentFees },
+        ],
+        combinedRevenue: [
+            { description: 'Total Sales', amount: totalSalesValue },
+        ],
+        chartData: {
+            barChart: [
+                { name: 'Purchases', value: totalPurchases },
+                { name: 'Sales', value: totalSalesAndShipping },
+                { name: 'Total Sales and Shipping', value: totalSalesAndShipping },
+                { name: 'Total Sales', value: totalSalesValue },
+                { name: 'Expenses', value: totalExpenses },
+                { name: 'Total Shipping Revenue', value: totalShippingRevenue },
+            ],
+            pieChart: [
+                { name: 'Quantity of Items Sold', value: qtySold, fill: 'hsl(var(--chart-1))' },
+                { name: 'Quantity in Stock', value: qtyInStock, fill: 'hsl(var(--chart-2))' },
+                { name: 'Total Quantity RTV', value: qtyRtv, fill: 'hsl(var(--chart-3))' },
+            ]
+        }
+    };
+};
