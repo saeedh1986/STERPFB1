@@ -48,7 +48,11 @@ export function PrintSettingsDialog({ isOpen, onClose, printers, settings, onSet
         ];
         
         const dataToSend = testData.join('\n');
-        await qz.print(config, {data: dataToSend});
+        
+        // Data must be an array of print jobs
+        await qz.print(config, [
+          { type: 'raw', format: 'zpl', data: dataToSend }
+        ]);
 
         toast({ title: "Test Print Sent", description: `Test label sent to ${settings.printer}`});
     } catch (err: any) {

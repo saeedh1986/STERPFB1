@@ -190,7 +190,11 @@ export default function GenerateBarcodePage() {
         zplData.push('^XZ'); // End
         
         const dataToSend = zplData.join('\n');
-        await qz.print(config, {data: dataToSend});
+        
+        // Data must be an array of print jobs
+        await qz.print(config, [
+          { type: 'raw', format: 'zpl', data: dataToSend }
+        ]);
 
         toast({ title: "Print Successful", description: `Label sent to printer: ${printSettings.printer}`});
     } catch (err: any) {
