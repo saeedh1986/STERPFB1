@@ -100,6 +100,12 @@ export default function GenerateBarcodePage() {
     offsetY: 0,
   });
 
+  // CRITICAL FIX: Set up QZ Tray security as soon as the component is loaded.
+  // This must be done BEFORE any connection attempt.
+  if (typeof window !== 'undefined') {
+    setupQzSecurity();
+  }
+
 
   useEffect(() => {
       if(item) {
@@ -118,8 +124,9 @@ export default function GenerateBarcodePage() {
   const connectToQz = async () => {
     setQzLoading(true);
     try {
-      setupQzSecurity(); // Set up the signing promise
-      await qz.websocket.connect();
+      if (!qz.websocket.isActive()) {
+        await qz.websocket.connect();
+      }
       setQzConnected(true);
       toast({ title: "QZ Tray Connected", description: "Successfully connected to the QZ Tray service." });
       const printerList = await qz.printers.find();
