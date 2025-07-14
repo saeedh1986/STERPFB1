@@ -201,11 +201,12 @@ export const getColumns = (slug: string): ColumnDefinition[] => {
     if (['price', 'shipping', 'referralFees', 'shippingCost', 'paymentFees', 'totalSales', 'amount', 'unitCost', 'debit', 'credit', 'balance', 'totalAmount', 'unitPrice', 'totalCost'].includes(col.accessorKey)) {
       col.cell = ({ row }) => {
         const amount = parseFloat(row.getValue(col.accessorKey));
-        const formatted = new Intl.NumberFormat("en-AE", {
-          style: "currency",
-          currency: "AED",
+        const formatted = new Intl.NumberFormat("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
         }).format(amount);
-        return React.createElement('div', { className: 'text-right font-medium' }, formatted);
+        const displayValue = `DH ${formatted}`;
+        return React.createElement('div', { className: 'text-right font-medium' }, displayValue);
       };
     }
     if (col.accessorKey.toLowerCase().includes('status')) {
