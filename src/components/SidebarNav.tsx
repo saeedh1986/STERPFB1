@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard, Package, Barcode, ShoppingCart, CreditCard, TrendingUp,
-  Users, Building, Truck, Layers, Combine, CalendarDays, Landmark, BotMessageSquare, Package2, Library, FileText, Calculator, BookOpen, Settings, Scale, FileSpreadsheet, AreaChart, PieChart
+  Users, Building, Truck, Layers, Combine, CalendarDays, Landmark, BotMessageSquare, Package2, Library, FileText, Calculator, BookOpen, Settings, Scale, FileSpreadsheet, AreaChart, PieChart, Users2
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -29,13 +29,16 @@ const navItems: NavItem[] = [
   { href: '/sales', label: 'Sales', icon: TrendingUp },
   { href: '/invoices', label: 'Invoices', icon: FileText },
   { href: '/expenses', label: 'Expenses', icon: CreditCard },
-  { href: '/customers', label: 'Customers', icon: Users },
-  { href: '/vendors', label: 'Vendors', icon: Building },
   { href: '/logistics', label: 'Logistics', icon: Truck },
   { href: '/ipcc', label: 'Cost Calculator', icon: Calculator },
   { href: '/ipbt', label: 'IPBT', icon: Combine },
   { href: '/purchases-cal', label: 'Purchases Cal.', icon: CalendarDays },
   { href: '/logistics-insights', label: 'Logistics Insights', icon: BotMessageSquare },
+];
+
+const crmNavItems: NavItem[] = [
+    { href: '/customers', label: 'Customers', icon: Users },
+    { href: '/vendors', label: 'Vendors', icon: Building },
 ];
 
 const accountingNavItems: NavItem[] = [
@@ -83,7 +86,34 @@ export function SidebarNav() {
             </Link>
           ))}
           
-          <Accordion type="multiple" defaultValue={['reports', 'accounting']} className="w-full">
+          <Accordion type="multiple" defaultValue={['reports', 'accounting', 'crm']} className="w-full">
+            <AccordionItem value="crm" className="border-b-0">
+              <AccordionTrigger className="px-3 py-2.5 text-sm hover:no-underline hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-lg [&[data-state=open]]:bg-sidebar-accent">
+                <span className="flex items-center gap-3">
+                  <Users2 className="h-5 w-5" />
+                  CRM
+                </span>
+              </AccordionTrigger>
+              <AccordionContent className="pl-7 pt-1">
+                 <div className="flex flex-col gap-1">
+                  {crmNavItems.map((item) => (
+                     <Link
+                      key={item.label}
+                      href={item.href}
+                      className={cn(
+                        'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+                        pathname.startsWith(item.href)
+                          ? 'bg-sidebar-primary text-sidebar-primary-foreground font-medium'
+                          : 'text-sidebar-foreground'
+                      )}
+                    >
+                      <item.icon className="h-5 w-5" />
+                      {item.label}
+                    </Link>
+                  ))}
+                 </div>
+              </AccordionContent>
+            </AccordionItem>
             <AccordionItem value="reports" className="border-b-0">
               <AccordionTrigger className="px-3 py-2.5 text-sm hover:no-underline hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-lg [&[data-state=open]]:bg-sidebar-accent">
                 <span className="flex items-center gap-3">
