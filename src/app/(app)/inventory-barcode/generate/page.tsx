@@ -102,6 +102,7 @@ export default function GenerateBarcodePage() {
 
   useEffect(() => {
     // This ensures the security setup happens once, on the client, after the component mounts.
+    // This is the correct way to initialize QZ Tray security before any connection attempts.
     if (typeof window !== 'undefined') {
         setupQzSecurity();
     }
@@ -125,7 +126,7 @@ export default function GenerateBarcodePage() {
   const connectToQz = async () => {
     setQzLoading(true);
     try {
-      if (!qz.websocket.isActive()) {
+      if (qz.websocket && !qz.websocket.isActive()) {
         await qz.websocket.connect();
       }
       setQzConnected(true);
@@ -197,7 +198,7 @@ export default function GenerateBarcodePage() {
             // SKU text (below barcode)
             zplDataArray.push(`^FO20,105,^FB180,1,0,C,0^A0N,18,18^FD${codeValue}^FS`);
             // QR Code (right)
-            zplDataArray.push(`^FO${qrCodeXPos},50^BQN,2,${qrCodeSize}^FDQA,${codeValue}^FS`);
+            zplDataArray.push(`^FO${qrCodeXPos > 180 ? qrCodeXPos : 180},50^BQN,2,${qrCodeSize}^FDQA,${codeValue}^FS`);
         }
         
         zplDataArray.push('^XZ'); // End

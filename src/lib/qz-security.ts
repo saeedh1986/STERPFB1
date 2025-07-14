@@ -2,7 +2,7 @@
 "use client";
 
 import qz from 'qz-tray';
-import { KJUR } from 'jsrsasign';
+import { KJUR, hextob64 } from 'jsrsasign';
 
 // Hashing algorithm
 const ALGORITHM = "SHA512withRSA";
@@ -16,7 +16,7 @@ HDAaBgkqhkiGw0BCQEWDXN1cHBvcnRAcXouaW8xGjAYBgNVBAMMEVFaIFRyYXkg
 RGVtbyBDZXJ0MB4XDTI1MDcxMzIyMjAyNFoXDTQ1MDcxMzIyMjAyNFowgaIxCzAJ
 BgNVBAYTAlVTMQswCQYDVQQIDAJOWTESMBAGA1UEBwwJQ2FuYXN0b3RhMRswGQYD
 VQQKDBJRWiBJbmR1c3RyaWVzLCBMTEMxGzAZBgNVBAsMElFaIEluZHVzdHJpZXMs
-IExMQzEcMBoGCSqGSIb3DQEJARYNc3VwcG9ydEBxei5pbzEaMBgGA1UEAwwRUVog
+IExMQzEcMBoGCSqGSIb3DQEJARYNc3VwcGydEBxei5pbzEaMBgGA1UEAwwRUVog
 VHJheSBEZW1vIENlcnQwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDP
 jrVZorKaT9DGzGHW250TR0fUzD9KHbhLA+VLKkAPQhzARlzJ4+mmXRGfrnRebSuu
 f03Q/ePiMXdE5K+CVDQT7kVKVx3aTnJAnITUJOrq4uxl4A71mryTksdDwJv2aKE7
@@ -36,7 +36,7 @@ PXRWIxSCEmztSrWvbtChwIInGtNLN8rJgx2Oy8uTVw==
 
 const PRIVATE_KEY = `
 -----BEGIN PRIVATE KEY-----
-MIIEvwIBADANBgkqhkiG9b3DQEBAQEFAASCBKkwggSlAgEAAoIBAQDPjrVZorKaT9DG
+MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDPjrVZorKaT9DG
 zGHW250TR0fUzD9KHbhLA+VLKkAPQhzARlzJ4+mmXRGfrnRebSuuf03Q/ePiMXdE
 5K+CVDQT7kVKVx3aTnJAnITUJOrq4uxl4A71mryTksdDwJv2aKE7+THYbqoTdfN6
 tn4E+2U88HUV7WP9YqsganW1GSQi2F0IZN4g6L2rYT5J2tWQoKlXyqnlp//jCOs5
@@ -65,15 +65,6 @@ JRyXUq7/xSDhPwjyHQMj2czy7Q==
 -----END PRIVATE KEY-----
 `.trim();
 
-// Helper to convert a hexadecimal string to a Base64 string
-function hexToBase64(hex: string) {
-    let binary = '';
-    for (let i = 0; i < hex.length / 2; i++) {
-        binary += String.fromCharCode(parseInt(hex.substr(i * 2, 2), 16));
-    }
-    return btoa(binary);
-}
-
 // Signs the data with the private key
 async function signData(data: string): Promise<string> {
     try {
@@ -81,7 +72,8 @@ async function signData(data: string): Promise<string> {
         sig.init(PRIVATE_KEY);
         sig.updateString(data);
         const hex = sig.sign();
-        return hexToBase64(hex);
+        // The hextob64 method from jsrsasign correctly converts the hex signature to Base64
+        return hextob64(hex);
     } catch (err) {
         console.error(err);
         return Promise.reject(err);
