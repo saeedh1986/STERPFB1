@@ -195,9 +195,9 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleFormSubmit)} className="flex-1 min-h-0">
-            <ScrollArea className="h-full">
-                <div className="space-y-4 py-4 px-6">
+          <form onSubmit={form.handleSubmit(handleFormSubmit)} className="flex-1 overflow-hidden flex flex-col">
+            <ScrollArea className="flex-1" data-slot="scroll-area">
+                <div className="space-y-4 px-6 py-4">
                     {columns.map((col) => {
                     
                     const isCalculated = isCostCalculator && calculatedFields.includes(col.accessorKey);
@@ -509,7 +509,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                     )}
                 </div>
             </ScrollArea>
-            <DialogFooter className="px-6 pt-4 border-t">
+            <DialogFooter className="border-t pt-4">
               <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
               <Button type="submit">{defaultValues ? 'Save Changes' : 'Create Record'}</Button>
             </DialogFooter>

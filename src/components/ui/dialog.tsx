@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -61,7 +62,7 @@ const DialogHeader = ({
   <div
     className={cn(
       "flex flex-col space-y-1.5 text-center sm:text-left",
-      "p-6 pb-0",
+       "p-6 pb-4 has-[+[data-slot=scroll-area]]:border-b",
       className
     )}
     {...props}
@@ -76,7 +77,7 @@ const DialogFooter = ({
   <div
     className={cn(
       "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
-      "p-6 pt-0",
+      "p-6 pt-4",
       className
     )}
     {...props}
@@ -123,5 +124,3 @@ export {
   DialogTitle,
   DialogDescription,
 }
-
-    
