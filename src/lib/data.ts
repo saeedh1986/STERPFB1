@@ -14,16 +14,26 @@ export interface ColumnDefinition {
   cell?: ({ row }: { row: { getValue: (key: string) => any } }) => JSX.Element | string | number;
 }
 
-// Generate a pool of inventory items that can be referenced by other modules
-const INVENTORY_ITEMS_POOL_SIZE = 20;
-export const inventoryItemsPool = Array.from({ length: INVENTORY_ITEMS_POOL_SIZE }, (_, i) => ({
-  id: `item-${i + 1}`,
-  itemName: `Sample Item ${i + 1}`,
+// Master product catalog
+export const productCatalogPool: GenericItem[] = Array.from({ length: 40 }, (_, i) => ({
+  id: `cat-item-${i + 1}`,
+  itemName: `Master Product ${i + 1}`,
   sku: `SKU-${String(10001 + i)}`,
-  quantity: Math.floor(Math.random() * 100) + 1,
   unitPrice: parseFloat((Math.random() * 500 + 10).toFixed(2)),
   category: `Category ${String.fromCharCode(65 + (i % 5))}`,
+  description: `This is the master description for Product ${i + 1}.`,
 }));
+
+
+// Generate a pool of inventory items that can be referenced by other modules
+const INVENTORY_ITEMS_POOL_SIZE = 20;
+// Inventory is now a subset of the product catalog
+export const inventoryItemsPool = productCatalogPool.slice(0, INVENTORY_ITEMS_POOL_SIZE).map((item, i) => ({
+  ...item,
+  id: `item-${i + 1}`,
+  quantity: Math.floor(Math.random() * 100) + 1,
+}));
+
 
 // Generate a pool of vendors that can be referenced by other modules
 const VENDORS_POOL_SIZE = 12;
@@ -73,11 +83,14 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
   if (slug === 'vendors') {
     return vendorsPool;
   }
+  if (slug === 'product-catalog') {
+    return productCatalogPool;
+  }
 
 
   return Array.from({ length: count }, (_, i) => {
     const item: GenericItem = { id: `${slug}-item-${i + 1}` };
-    const randomInventoryItem = inventoryItemsPool[Math.floor(Math.random() * INVENTORY_ITEMS_POOL_SIZE)];
+    const randomInventoryItem = inventoryItemsPool[Math.floor(Math.random() * inventoryItemsPool.length)];
     const randomVendor = vendorsPool[Math.floor(Math.random() * VENDORS_POOL_SIZE)];
 
     fields.forEach(field => {
@@ -169,9 +182,9 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
 const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   inventory: { fields: ['itemName', 'sku', 'quantity', 'unitPrice', 'category'], count: INVENTORY_ITEMS_POOL_SIZE },
   'inventory-barcode': { fields: ['itemName', 'barcode', 'quantity'], count: 15 },
-  purchases: { fields: ['date', 'supplier', 'sku', 'itemName', 'quantity', 'totalCost'], count: 10 },
-  sales: { fields: ['date', 'customerName', 'orderId', 'sku', 'itemName', 'qtySold', 'qtyRtv', 'note', 'price', 'shipping', 'referralFees', 'shippingCost', 'paymentFees', 'totalSales'], count: 30 },
-  expenses: { fields: ['date', 'description', 'supplier', 'category', 'amount'], count: 12 },
+  purchases: { fields: ['purchaseDate', 'supplier', 'sku', 'itemName', 'quantity', 'totalCost'], count: 10 },
+  sales: { fields: ['saleDate', 'customerName', 'orderId', 'sku', 'itemName', 'qtySold', 'qtyRtv', 'note', 'price', 'shipping', 'referralFees', 'shippingCost', 'paymentFees', 'totalSales'], count: 30 },
+  expenses: { fields: ['expenseDate', 'description', 'supplier', 'category', 'amount'], count: 12 },
   customers: { fields: ['customerName', 'email', 'phone', 'address', 'joinDate'], count: 18 },
   vendors: { fields: ['vendorName', 'contactPerson', 'email', 'phone', 'productCategory'], count: VENDORS_POOL_SIZE },
   logistics: { fields: ['shipmentId', 'routeName', 'driverName', 'status', 'estimatedDeliveryDate'], count: 8 },
@@ -179,6 +192,7 @@ const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   ipbt: { fields: ['ipbtId', 'taskName', 'assignedTo', 'dueDate', 'priority'], count: 7 },
   'purchases-cal': { fields: ['eventTitle', 'eventType', 'eventDate', 'relatedPO', 'notes'], count: 9 },
   'bank-statement': { fields: ['transactionDate', 'description', 'debit', 'credit', 'balance'], count: 40 },
+  'product-catalog': { fields: ['itemName', 'sku', 'unitPrice', 'category', 'description'], count: 40 },
 };
 
 export const getMockData = (slug: string): GenericItem[] => {
@@ -227,6 +241,9 @@ export const getColumns = (slug: string): ColumnDefinition[] => {
 };
 
 export const getPageTitle = (slug: string): string => {
+  if (slug === 'product-catalog') {
+    return 'Product Catalog';
+  }
   return slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') + ' Management';
 };
 

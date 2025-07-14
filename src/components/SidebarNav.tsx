@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard, Package, Barcode, ShoppingCart, CreditCard, TrendingUp,
-  Users, Building, Truck, Layers, Combine, CalendarDays, Landmark, BotMessageSquare, Package2
+  Users, Building, Truck, Layers, Combine, CalendarDays, Landmark, BotMessageSquare, Package2, Library
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -19,6 +19,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/product-catalog', label: 'Product Catalog', icon: Library },
   { href: '/inventory', label: 'Inventory', icon: Package },
   { href: '/inventory-barcode', label: 'Inventory Barcode', icon: Barcode },
   { href: '/purchases', label: 'Purchases', icon: ShoppingCart },
