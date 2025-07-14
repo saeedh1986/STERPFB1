@@ -1,13 +1,18 @@
+
 "use client";
 
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { PageHeader } from '@/components/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { getDashboardSummaryData } from '@/lib/data';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, PieChart, Pie, Cell, Tooltip } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { ArrowRight, DollarSign, Package, TrendingUp, CreditCard } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 const aedSymbol = <Image src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/UAE_Dirham_Symbol.svg/1377px-UAE_Dirham_Symbol.svg.png" alt="AED" width={14} height={14} className="inline-block" />;
 
@@ -24,158 +29,198 @@ const numberFormatter = (value: number) => {
 };
 
 
-const SummaryRow = ({ category, description, amount }: { category?: string; description: string; amount: number; }) => {
-    const isNegative = amount < 0;
-    const isCategoryRow = !!category;
-
-    return (
-        <TableRow className={isCategoryRow ? 'bg-muted/50 font-semibold' : ''}>
-            <TableCell className="font-semibold">{category}</TableCell>
-            <TableCell>{description}</TableCell>
-            <TableCell className={`text-right font-mono ${isNegative ? 'text-red-500' : ''}`}>
-                 <div className="flex items-center justify-end gap-1">
-                    {aedSymbol} {currencyFormatter(amount)}
-                </div>
-            </TableCell>
-        </TableRow>
-    );
-};
-
-const InventoryRow = ({ description, amount }: { description: string; amount: number; }) => (
-    <TableRow>
-        <TableCell></TableCell>
-        <TableCell>{description}</TableCell>
-        <TableCell className="text-right font-mono">{numberFormatter(amount)}</TableCell>
-    </TableRow>
-);
-
-
 export default function DashboardPage() {
     const summaryData = React.useMemo(() => getDashboardSummaryData(), []);
 
-    const allFinancials = [
-        ...summaryData.financials,
-        ...summaryData.shipping,
-        ...summaryData.fees,
-        ...summaryData.combinedRevenue,
-    ].filter(item => item.category !== 'Sales' && item.category !== 'Net Sales' && item.category !== 'Net Total');
-
     const chartConfig = {
-      value: { label: "Value" },
-      purchases: { label: "Purchases", color: "hsl(var(--chart-1))" },
       sales: { label: "Sales", color: "hsl(var(--chart-2))" },
+      expenses: { label: "Expenses", color: "hsl(var(--chart-4))" },
     };
 
     return (
         <>
             <PageHeader title="Dashboard" />
             <main className="flex-1 p-4 md:p-6 space-y-6">
-                 <div className="grid gap-6 lg:grid-cols-5">
-                    <Card className="shadow-lg lg:col-span-3">
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+                            <DollarSign className="h-4 w-4 text-muted-foreground" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold flex items-center gap-2">{aedSymbol} {currencyFormatter(summaryData.financials.totalRevenue)}</div>
+                            <p className="text-xs text-muted-foreground">Based on all completed sales</p>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Net Profit</CardTitle>
+                            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold flex items-center gap-2">{aedSymbol} {currencyFormatter(summaryData.financials.netProfit)}</div>
+                            <p className="text-xs text-muted-foreground">Revenue minus costs & expenses</p>
+                        </CardContent>
+                    </Card>
+                     <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Sales</CardTitle>
+                            <Package className="h-4 w-4 text-muted-foreground" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">{numberFormatter(summaryData.orders.totalOrders)}</div>
+                            <p className="text-xs text-muted-foreground">{numberFormatter(summaryData.orders.itemsSold)} total items sold</p>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
+                            <CreditCard className="h-4 w-4 text-muted-foreground" />
+                        </CardHeader>
+                        <CardContent>
+                             <div className="text-2xl font-bold flex items-center gap-2">{aedSymbol} {currencyFormatter(summaryData.financials.totalExpenses)}</div>
+                            <p className="text-xs text-muted-foreground">Includes COGS and operating expenses</p>
+                        </CardContent>
+                    </Card>
+                </div>
+                
+                 <div className="grid gap-6 lg:grid-cols-3">
+                    <Card className="shadow-lg lg:col-span-2">
                         <CardHeader>
-                            <CardTitle>Financial Summary</CardTitle>
-                            <CardDescription>An overview of your key financial metrics.</CardDescription>
+                            <CardTitle>Revenue and Expenses Overview</CardTitle>
+                            <CardDescription>Comparison of sales vs. expenses over the last few months.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="h-[350px]">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={summaryData.chartData.barChart}>
+                                    <CartesianGrid vertical={false} />
+                                    <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
+                                    <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `AED ${value/1000}k`} />
+                                    <Tooltip
+                                        content={<ChartTooltipContent
+                                            formatter={(value) => currencyFormatter(value as number)} 
+                                        />} 
+                                    />
+                                    <Legend />
+                                    <Bar dataKey="sales" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
+                                    <Bar dataKey="expenses" fill="hsl(var(--chart-4))" radius={[4, 4, 0, 0]} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="shadow-lg">
+                        <CardHeader>
+                            <CardTitle>Inventory Distribution</CardTitle>
+                            <CardDescription>Current state of your top inventory items by quantity.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="h-[350px]">
+                           <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    <Tooltip
+                                        cursor={false}
+                                        content={<ChartTooltipContent
+                                            formatter={(value, name) => `${name}: ${numberFormatter(value as number)}`}
+                                            hideIndicator
+                                        />}
+                                    />
+                                    <Pie
+                                        data={summaryData.chartData.pieChart}
+                                        dataKey="value"
+                                        nameKey="name"
+                                        cx="50%"
+                                        cy="50%"
+                                        innerRadius={60}
+                                        outerRadius={100}
+                                        paddingAngle={5}
+                                        labelLine={false}
+                                        label={({ percent, name }) => `${name.split(' ').pop()}: ${(percent * 100).toFixed(0)}%`}
+                                    >
+                                       {summaryData.chartData.pieChart.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                                        ))}
+                                    </Pie>
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </CardContent>
+                    </Card>
+                 </div>
+
+                 <div className="grid gap-6 lg:grid-cols-2">
+                    <Card>
+                        <CardHeader className="flex flex-row items-center">
+                            <div className="grid gap-2">
+                                <CardTitle>Recent Sales</CardTitle>
+                                <CardDescription>The last five sales made.</CardDescription>
+                            </div>
+                            <Button asChild size="sm" className="ml-auto gap-1">
+                                <Link href="/sales">View All <ArrowRight /></Link>
+                            </Button>
                         </CardHeader>
                         <CardContent>
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead className="w-[120px]">Category</TableHead>
-                                        <TableHead>Description</TableHead>
+                                        <TableHead>Customer</TableHead>
+                                        <TableHead>Item</TableHead>
                                         <TableHead className="text-right">Amount</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    <SummaryRow {...summaryData.financials.find(f => f.category === 'Sales')!} />
-                                    <SummaryRow {...summaryData.financials.find(f => f.category === 'Purchases')!} />
-                                    <SummaryRow {...summaryData.financials.find(f => f.category === 'Net Sales')!} />
-                                    <SummaryRow {...summaryData.financials.find(f => f.category === 'Expenses')!} />
-                                    <SummaryRow {...summaryData.financials.find(f => f.category === 'Net Total')!} />
-                                    
-                                    <TableRow className="bg-muted/50 font-semibold"><TableCell>Inventory</TableCell><TableCell></TableCell><TableCell></TableCell></TableRow>
-                                    {summaryData.inventory.map(item => <InventoryRow key={item.description} {...item} />)}
-                                    
-                                    <TableRow className="bg-muted/50 font-semibold"><TableCell>Returns</TableCell><TableCell></TableCell><TableCell></TableCell></TableRow>
-                                    {summaryData.returns.map(item => <InventoryRow key={item.description} {...item} />)}
-
-                                    <TableRow className="bg-muted/50 font-semibold"><TableCell>Sales Orders</TableCell><TableCell></TableCell><TableCell></TableCell></TableRow>
-                                    {summaryData.salesOrders.map(item => <InventoryRow key={item.description} {...item} />)}
-                                    
-                                    <TableRow className="bg-muted/50 font-semibold"><TableCell>Shipping</TableCell><TableCell></TableCell><TableCell></TableCell></TableRow>
-                                    {summaryData.shipping.map(item => <SummaryRow key={item.description} {...item} />)}
-
-                                    <TableRow className="bg-muted/50 font-semibold"><TableCell>Fees</TableCell><TableCell></TableCell><TableCell></TableCell></TableRow>
-                                    {summaryData.fees.map(item => <SummaryRow key={item.description} {...item} />)}
-                                    
-                                    <TableRow className="bg-muted/50 font-semibold"><TableCell>Combined Revenue</TableCell><TableCell></TableCell><TableCell></TableCell></TableRow>
-                                     <SummaryRow {...summaryData.combinedRevenue[0]} />
-
-                                    <TableRow className="bg-muted/50 font-semibold"><TableCell>Cost of Sales</TableCell><TableCell></TableCell><TableCell></TableCell></TableRow>
-                                    <SummaryRow {...summaryData.financials.find(f => f.category === 'Cost of Sales')!} />
+                                    {summaryData.recentSales.map((sale) => (
+                                        <TableRow key={sale.orderId}>
+                                            <TableCell>
+                                                <div className="font-medium">{sale.customerName}</div>
+                                                <div className="hidden text-sm text-muted-foreground md:inline">{sale.orderId}</div>
+                                            </TableCell>
+                                            <TableCell>{sale.itemName}</TableCell>
+                                            <TableCell className="text-right flex items-center justify-end gap-1">
+                                                {aedSymbol} {currencyFormatter(sale.totalSales)}
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
                                 </TableBody>
                             </Table>
                         </CardContent>
                     </Card>
-
-                    <div className="lg:col-span-2 space-y-6">
-                        <Card className="shadow-lg">
-                             <CardHeader>
-                                <CardTitle>Sales Performance</CardTitle>
-                                <CardDescription>Key revenue and expense figures.</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <ChartContainer config={chartConfig} className="h-64 w-full">
-                                    <BarChart data={summaryData.chartData.barChart} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
-                                        <CartesianGrid vertical={false} />
-                                        <XAxis dataKey="name" tickLine={false} tickMargin={10} axisLine={false} />
-                                        <YAxis />
-                                        <Tooltip
-                                            cursor={false}
-                                            content={<ChartTooltipContent 
-                                                formatter={(value) => currencyFormatter(value as number)} 
-                                            />} 
-                                        />
-                                        <Bar dataKey="value" fill="hsl(var(--chart-1))" radius={4} />
-                                    </BarChart>
-                                </ChartContainer>
-                            </CardContent>
-                        </Card>
-                         <Card className="shadow-lg">
-                             <CardHeader>
-                                <CardTitle>Inventory Distribution</CardTitle>
-                                <CardDescription>Current state of your inventory items.</CardDescription>
-                            </CardHeader>
-                           <CardContent>
-                                <ChartContainer config={{}} className="h-64 w-full">
-                                    <PieChart>
-                                        <Tooltip
-                                            cursor={false}
-                                            content={<ChartTooltipContent
-                                                formatter={(value, name) => `${name}: ${numberFormatter(value as number)}`}
-                                                hideIndicator
-                                            />}
-                                        />
-                                        <Pie
-                                            data={summaryData.chartData.pieChart}
-                                            dataKey="value"
-                                            nameKey="name"
-                                            cx="50%"
-                                            cy="50%"
-                                            outerRadius={100}
-                                            labelLine={false}
-                                            label={({ percent, name }) => `${name.split(' ').pop()}: ${(percent * 100).toFixed(0)}%`}
-                                        >
-                                           {summaryData.chartData.pieChart.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={entry.fill} />
-                                            ))}
-                                        </Pie>
-                                    </PieChart>
-                                </ChartContainer>
-                            </CardContent>
-                        </Card>
-                    </div>
+                     <Card>
+                        <CardHeader className="flex flex-row items-center">
+                             <div className="grid gap-2">
+                                <CardTitle>Low Stock Items</CardTitle>
+                                <CardDescription>Products that are running low in stock.</CardDescription>
+                            </div>
+                            <Button asChild size="sm" className="ml-auto gap-1">
+                                <Link href="/inventory">View All <ArrowRight /></Link>
+                            </Button>
+                        </CardHeader>
+                        <CardContent>
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Product</TableHead>
+                                        <TableHead className="text-right">Quantity Left</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {summaryData.lowStockItems.map((item) => (
+                                        <TableRow key={item.id}>
+                                            <TableCell>
+                                                <div className="font-medium">{item.itemName}</div>
+                                                <div className="text-sm text-muted-foreground">{item.sku}</div>
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                <Badge variant="destructive">{item.quantity}</Badge>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </CardContent>
+                    </Card>
                  </div>
+
             </main>
         </>
     );
 }
+

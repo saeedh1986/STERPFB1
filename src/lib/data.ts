@@ -46,7 +46,7 @@ const INVENTORY_ITEMS_POOL_SIZE = 20;
 export const inventoryItemsPool = productCatalogPool.slice(0, INVENTORY_ITEMS_POOL_SIZE).map((item, i) => ({
   ...item,
   id: `item-${i + 1}`,
-  quantity: Math.floor(Math.random() * 100) + 1,
+  quantity: Math.floor(Math.random() * 20) + 1, // Lowered max quantity to generate more low-stock items
 }));
 
 
@@ -511,6 +511,8 @@ export const getPageTitle = (slug: string): string => {
 
 export const moduleSlugs = Object.keys(moduleDataConfig);
 
+const LOW_STOCK_THRESHOLD = 10;
+
 // Sample structure for dashboard summary - actual calculation would be complex
 export const getDashboardSummaryData = () => {
     const salesData = getMockData('sales');
@@ -519,70 +521,75 @@ export const getDashboardSummaryData = () => {
     const inventoryData = getMockData('inventory');
     
     // --- FINANCIALS ---
-    const totalSalesAndShipping = salesData.reduce((acc, sale) => acc + (sale.price || 0) + (sale.shipping || 0), 0);
+    const totalRevenue = salesData.reduce((acc, sale) => acc + (sale.totalSales || 0), 0);
     const totalPurchases = purchasesData.reduce((acc, p) => acc + (p.totalCost || 0), 0);
-    const totalExpenses = expensesData.reduce((acc, e) => acc + (e.amount || 0), 0);
-    const totalShippingRevenue = salesData.reduce((acc, sale) => acc + (sale.shipping || 0), 0);
-    const totalShippingCosts = salesData.reduce((acc, sale) => acc + (sale.shippingCost || 0), 0);
-    const totalReferralFees = salesData.reduce((acc, sale) => acc + (sale.referralFees || 0), 0);
-    const totalPaymentFees = salesData.reduce((acc, sale) => acc + (sale.paymentFees || 0), 0);
-    const totalCostOfSales = totalReferralFees + totalShippingCosts; // Simplified
-    const totalSalesValue = salesData.reduce((acc, sale) => acc + (sale.totalSales || 0), 0);
-    const netSales = totalSalesValue - totalPurchases;
-    const netTotal = netSales - totalExpenses;
+    const totalOpEx = expensesData.reduce((acc, e) => acc + (e.amount || 0), 0);
+    const totalExpenses = totalPurchases + totalOpEx; // COGS + OpEx
+    const netProfit = totalRevenue - totalExpenses;
 
-    // --- INVENTORY & ORDERS ---
-    const qtySold = salesData.reduce((acc, sale) => acc + (sale.qtySold || 0), 0);
-    const qtyRtv = salesData.reduce((acc, sale) => acc + (sale.qtyRtv || 0), 0);
-    const qtyPurchased = purchasesData.reduce((acc, p) => acc + (p.quantity || 0), 0);
-    const qtyInStock = inventoryData.reduce((acc, i) => acc + (i.quantity || 0), 0);
-    const salesOrders = salesData.length;
+    // --- ORDERS & INVENTORY ---
+    const totalOrders = salesData.length;
+    const itemsSold = salesData.reduce((acc, sale) => acc + (sale.qtySold || 0), 0);
+    const topInventoryByQuantity = [...inventoryData].sort((a,b) => b.quantity - a.quantity).slice(0, 5);
+
+    // --- CHART DATA ---
+    const salesByMonth: Record<string, number> = {};
+    const expensesByMonth: Record<string, number> = {};
+
+    [...salesData, ...expensesData, ...purchasesData].forEach(item => {
+        const date = new Date(item.saleDate || item.expenseDate || item.purchaseDate);
+        const month = date.toLocaleString('default', { month: 'short', year: 'numeric' });
+        
+        if (item.totalSales) {
+            if (!salesByMonth[month]) salesByMonth[month] = 0;
+            salesByMonth[month] += item.totalSales;
+        }
+        if (item.amount) { // Operating Expense
+            if (!expensesByMonth[month]) expensesByMonth[month] = 0;
+            expensesByMonth[month] += item.amount;
+        }
+         if (item.totalCost) { // Purchase (COGS)
+            if (!expensesByMonth[month]) expensesByMonth[month] = 0;
+            expensesByMonth[month] += item.totalCost;
+        }
+    });
+
+    const allMonths = [...new Set([...Object.keys(salesByMonth), ...Object.keys(expensesByMonth)])];
+    // A simple sort that should work for "Mon YYYY" format for recent years
+    allMonths.sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+
+    const barChartData = allMonths.map(month => ({
+        name: month,
+        sales: salesByMonth[month] || 0,
+        expenses: expensesByMonth[month] || 0,
+    }));
+    
+    const pieChartData = topInventoryByQuantity.map((item, index) => ({
+        name: item.itemName,
+        value: item.quantity,
+        fill: `hsl(var(--chart-${index + 1}))`,
+    }));
+
+    // --- RECENT & LOW STOCK ---
+    const recentSales = salesData.sort((a,b) => new Date(b.saleDate).getTime() - new Date(a.saleDate).getTime()).slice(0, 5);
+    const lowStockItems = inventoryData.filter(item => item.quantity <= LOW_STOCK_THRESHOLD).sort((a,b) => a.quantity - b.quantity).slice(0, 5);
 
     return {
-        financials: [
-            { category: 'Sales', description: 'Total Sales and Shipping', amount: totalSalesAndShipping },
-            { category: 'Purchases', description: 'Purchases', amount: totalPurchases },
-            { category: 'Net Sales', description: 'Net Sales', amount: netSales },
-            { category: 'Expenses', description: 'Expenses', amount: totalExpenses },
-            { category: 'Net Total', description: 'Net Total', amount: netTotal },
-            { category: 'Cost of Sales', description: 'Total Cost of Sales', amount: totalCostOfSales },
-        ],
-        inventory: [
-            { description: 'Quantity of Items Sold', amount: qtySold },
-            { description: 'Quantity of Items Purchased', amount: qtyPurchased },
-            { description: 'Quantity in Stock', amount: qtyInStock },
-        ],
-        returns: [
-            { description: 'Total Quantity RTV', amount: qtyRtv },
-        ],
-        salesOrders: [
-            { description: 'Total Sales Orders', amount: salesOrders },
-        ],
-        shipping: [
-            { description: 'Total Shipping Revenue', amount: totalShippingRevenue },
-            { description: 'Total Shipping Costs', amount: totalShippingCosts },
-        ],
-        fees: [
-            { description: 'Total Paid Referral Fees', amount: totalReferralFees },
-            { description: 'Total Payment Fees', amount: totalPaymentFees },
-        ],
-        combinedRevenue: [
-            { description: 'Total Sales', amount: totalSalesValue },
-        ],
+        financials: {
+            totalRevenue,
+            totalExpenses,
+            netProfit,
+        },
+        orders: {
+            totalOrders,
+            itemsSold,
+        },
         chartData: {
-            barChart: [
-                { name: 'Purchases', value: totalPurchases },
-                { name: 'Sales', value: totalSalesAndShipping },
-                { name: 'Total Sales and Shipping', value: totalSalesAndShipping },
-                { name: 'Total Sales', value: totalSalesValue },
-                { name: 'Expenses', value: totalExpenses },
-                { name: 'Total Shipping Revenue', value: totalShippingRevenue },
-            ],
-            pieChart: [
-                { name: 'Quantity of Items Sold', value: qtySold, fill: 'hsl(var(--chart-1))' },
-                { name: 'Quantity in Stock', value: qtyInStock, fill: 'hsl(var(--chart-2))' },
-                { name: 'Total Quantity RTV', value: qtyRtv, fill: 'hsl(var(--chart-3))' },
-            ]
-        }
+            barChart: barChartData,
+            pieChart: pieChartData,
+        },
+        recentSales,
+        lowStockItems,
     };
 };
+
