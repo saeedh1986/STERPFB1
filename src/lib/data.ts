@@ -84,6 +84,38 @@ export const expenseCategories = [
 
 export const USD_TO_AED_RATE = 3.6725;
 
+// Data for Bank Statement page
+export const bankAccountDetails = {
+    accountName: 'Saeed Store Electronics',
+    accountNumber: '1012-XXXXXX-001',
+    accountType: 'Business Advantage',
+    cardNumber: 'XXXX XXXX XXXX 9876',
+    accountIban: 'AE89033000001012XXXXXX001',
+    accountCurrency: 'AED',
+};
+
+let runningBalance = 25480.50;
+export const bankTransactionsData = Array.from({ length: 40 }, (_, i) => {
+    const isCredit = Math.random() > 0.6; // More debits than credits
+    const amount = parseFloat((Math.random() * (isCredit ? 800 : 250) + 20).toFixed(2));
+    if (isCredit) {
+        runningBalance += amount;
+    } else {
+        runningBalance -= amount;
+    }
+    return {
+        id: `txn-${i + 1}`,
+        date: new Date(Date.now() - (i * 86400000 * Math.random() * 3)).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '-'),
+        transactionType: isCredit ? 'Incoming Transfer' : (Math.random() > 0.5 ? 'Card Payment' : 'Outgoing Transfer'),
+        refNumber: `${Math.floor(Math.random() * 90000000) + 10000000}`,
+        description: isCredit ? `Payment from Customer #${Math.floor(Math.random() * 1000)}` : `Purchase from ${vendorsPool[i % vendorsPool.length].vendorName}`,
+        debit: isCredit ? 0 : amount,
+        credit: isCredit ? amount : 0,
+        balance: runningBalance,
+    };
+}).reverse();
+
+
 const createMockData = (count: number, fields: string[], slug: string): GenericItem[] => {
   if (slug === 'inventory') {
     return inventoryItemsPool;
@@ -94,16 +126,12 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
   if (slug === 'product-catalog') {
     return productCatalogPool;
   }
-  if (slug === 'invoices') {
-    return []; // Invoice data will be handled by the form, not mock data.
-  }
-  if (slug === 'purchases-cal') {
-    // This page has a custom data structure, handled separately
+  if (slug === 'invoices' || slug === 'purchases-cal' || slug === 'bank-statement') {
+    // These pages have custom data handling
     return [];
   }
 
 
-  let runningBalance = 5000;
   const data = Array.from({ length: count }, (_, i) => {
     const item: GenericItem = { id: `${slug}-item-${i + 1}` };
     const randomInventoryItem = inventoryItemsPool[Math.floor(Math.random() * inventoryItemsPool.length)];
@@ -152,24 +180,15 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
             item[field] = parseFloat((Math.random() * 5 + 1).toFixed(4));
             break;
         case 'totalCost':
-             // This is now calculated dynamically in the mock data creation
             break;
         case 'totalCostPerUnit':
-            // This is now calculated dynamically in the mock data creation
             break;
         case 'amount':
            item[field] = parseFloat((Math.random() * 1500 + 30).toFixed(2));
            break;
-        case 'credit':
-        case 'debit':
-          item[field] = parseFloat((Math.random() * 500 + 20).toFixed(2));
-          break;
-        case 'balance':
-           // calculated post-loop
-           break;
-        case 'totalAmount': // Kept for backward compatibility if other parts use it
+        case 'totalAmount':
            const quantityTA = item['quantity'] || 1;
-           const unitCostTA = item['unitCost'] || item['unitPrice'] || randomInventoryItem.unitPrice * 0.8; // Assume purchase cost is lower
+           const unitCostTA = item['unitCost'] || item['unitPrice'] || randomInventoryItem.unitPrice * 0.8;
            item[field] = parseFloat((quantityTA * unitCostTA).toFixed(2));
            break;
         case 'shipping':
@@ -198,7 +217,7 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
           item[field] = new Date(Date.now() - Math.floor(Math.random() * 1e10)).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '-');
           break;
         case 'barcode':
-          item[field] = randomInventoryItem.sku; // Use SKU for barcode data
+          item[field] = randomInventoryItem.sku;
           break;
         case 'orderId':
             item[field] = `${Math.floor(Math.random()*100)}-${Math.floor(Math.random()*1000000)}-${Math.floor(Math.random()*1000000)}`;
@@ -227,12 +246,6 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
         case 'imageUrl':
           item[field] = `https://placehold.co/100x100.png`;
           break;
-        case 'refNumber':
-            item[field] = `${Math.floor(Math.random() * 90000000) + 10000000}`;
-            break;
-        case 'transactionType':
-            item[field] = Math.random() > 0.5 ? 'Transfers' : 'Card Payment';
-            break;
         default:
           if (field.toLowerCase().includes('name') || field.toLowerCase().includes('item')) {
             item[field] = `Sample ${field.charAt(0).toUpperCase() + field.slice(1)} ${i + 1}`;
@@ -242,7 +255,6 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
       }
     });
 
-    // Recalculate IPCC totals after all values are set
     if (slug === 'ipcc') {
         const exchangeRate = item['exchangeRate'] || USD_TO_AED_RATE;
         item['aed'] = parseFloat(((item['usd'] || 0) * exchangeRate).toFixed(4));
@@ -257,29 +269,10 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
         const qty = item['quantity'] || 1;
         item['totalCostPerUnit'] = parseFloat((totalCost / qty).toFixed(4));
     }
-     if (slug === 'bank-statement') {
-        const isCredit = Math.random() > 0.6; // More debits than credits
-        const amount = parseFloat((Math.random() * (isCredit ? 800 : 250) + 20).toFixed(2));
-        if (isCredit) {
-            item['credit'] = amount;
-            item['debit'] = 0;
-            runningBalance += amount;
-        } else {
-            item['debit'] = amount;
-            item['credit'] = 0;
-            runningBalance -= amount;
-        }
-        item['balance'] = runningBalance;
-    }
-
 
     return item;
   });
 
-  // Reverse the array so the latest transaction is first, and balance makes sense
-  if (slug === 'bank-statement') {
-    return data.reverse();
-  }
   return data;
 };
 
@@ -313,14 +306,13 @@ const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   ipcc: { fields: ['date', 'sku', 'quantity', 'usd', 'exchangeRate', 'aed', 'customsFees', 'shippingFees', 'bankCharges', 'totalCost', 'totalCostPerUnit'], count: 20 },
   ipbt: { fields: ['ipbtId', 'taskName', 'assignedTo', 'dueDate', 'priority'], count: 7 },
   'purchases-cal': { fields: [], count: 0 },
-  'bank-statement': { fields: ['transactionDate', 'transactionType', 'refNumber', 'description', 'debit', 'credit', 'balance'], count: 40 },
+  'bank-statement': { fields: [], count: 0 }, // Using custom page now
   'product-catalog': { fields: ['imageUrl', 'itemName', 'sku', 'unitPrice', 'category', 'description', 'productWeight', 'productDimensions', 'packageWeight', 'packageDimensions'], count: 40 },
 };
 
 export const getMockData = (slug: string): GenericItem[] => {
   const config = moduleDataConfig[slug];
   if (!config) return [];
-  // For inventory-barcode, we just need the items themselves
   if (slug === 'inventory-barcode') {
     return inventoryItemsPool;
   }
@@ -333,10 +325,9 @@ export const getColumns = (slug: string): ColumnDefinition[] => {
   
   const columns = config.fields.map(field => ({
     accessorKey: field,
-    header: field.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()), // Format field name to readable header
+    header: field.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()),
   }));
 
-  // Example of custom cell rendering for price/amount fields
   columns.forEach(col => {
     if (col.accessorKey === 'imageUrl') {
         col.header = 'Image';
@@ -420,6 +411,9 @@ export const getPageTitle = (slug: string): string => {
   }
    if (slug === 'purchases-cal') {
     return 'Purchases Calculator';
+  }
+  if (slug === 'bank-statement') {
+    return 'Bank Statement';
   }
   return slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') + ' Management';
 };
