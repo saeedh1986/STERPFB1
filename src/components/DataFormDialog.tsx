@@ -18,6 +18,7 @@ import { CalendarIcon, ChevronsUpDown, Check } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 
 interface DataFormDialogProps {
@@ -186,7 +187,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>
@@ -194,317 +195,321 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4 py-4">
-            {columns.map((col) => {
-             
-             const isCalculated = isCostCalculator && calculatedFields.includes(col.accessorKey);
+          <form onSubmit={form.handleSubmit(handleFormSubmit)} className="flex-1 min-h-0">
+            <ScrollArea className="h-full">
+                <div className="space-y-4 py-4 px-6">
+                    {columns.map((col) => {
+                    
+                    const isCalculated = isCostCalculator && calculatedFields.includes(col.accessorKey);
 
-             if (col.accessorKey.toLowerCase().includes('date')) {
-                return (
-                  <FormField
-                    key={col.accessorKey}
-                    control={form.control}
-                    name={col.accessorKey as keyof FormValues}
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>{col.header}</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant={"outline"}
-                                className={cn(
-                                  "w-full pl-3 text-left font-normal",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                {field.value ? (
-                                  format(new Date(field.value), "PPP")
-                                ) : (
-                                  <span>Pick a date</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value ? new Date(field.value) : undefined}
-                              onSelect={field.onChange}
-                              disabled={(date) =>
-                                date > new Date() || date < new Date("1900-01-01")
-                              }
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                );
-              }
-
-              if (isSkuSelectMode && col.accessorKey === 'sku') {
-                return (
-                   <FormField
-                    key={col.accessorKey}
-                    control={form.control}
-                    name={col.accessorKey as keyof FormValues}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{col.header}</FormLabel>
-                        <Select onValueChange={(value) => {
-                          field.onChange(value);
-                          handleSkuChange(value);
-                        }} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder={`Select an ${col.header.toLowerCase()}`} />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {inventoryItemsPool.map(item => (
-                              <SelectItem key={item.sku} value={item.sku}>
-                                {item.sku}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                );
-              }
-              
-              if ((isExpenseMode || title.includes('Purchases')) && col.accessorKey === 'supplier') {
-                  return (
-                      <FormField
-                          key={col.accessorKey}
-                          control={form.control}
-                          name={col.accessorKey as keyof FormValues}
-                          render={({ field }) => (
-                              <FormItem>
-                                  <FormLabel>{col.header}</FormLabel>
-                                  <FormControl>
-                                      <Input placeholder={`Enter ${col.header.toLowerCase()}...`} {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                              </FormItem>
-                          )}
-                      />
-                  );
-              }
-              
-              if (isExpenseMode && col.accessorKey === 'category') {
-                return (
-                  <FormField
-                    key={col.accessorKey}
-                    control={form.control}
-                    name={col.accessorKey as keyof FormValues}
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>{col.header}</FormLabel>
-                        <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant="outline"
-                                role="combobox"
-                                className={cn(
-                                  "w-full justify-between",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                {field.value
-                                  ? expenseCategories.find(
-                                      (category) => category === field.value
-                                    )
-                                  : "Select a category"}
-                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                            <Command>
-                              <CommandInput 
-                                placeholder="Search or create..."
-                                value={newCategoryValue}
-                                onValueChange={setNewCategoryValue}
-                              />
-                              <CommandList>
-                                <CommandEmpty>
-                                   <Button variant="ghost" className="w-full" onClick={handleCreateCategory}>
-                                      Create "{newCategoryValue}"
-                                   </Button>
-                                </CommandEmpty>
-                                <CommandGroup>
-                                  {expenseCategories.map((category) => (
-                                    <CommandItem
-                                      value={category}
-                                      key={category}
-                                      onSelect={() => {
-                                        form.setValue(col.accessorKey as keyof FormValues, category)
-                                        setComboboxOpen(false)
-                                      }}
-                                    >
-                                      <Check
+                    if (col.accessorKey.toLowerCase().includes('date')) {
+                        return (
+                        <FormField
+                            key={col.accessorKey}
+                            control={form.control}
+                            name={col.accessorKey as keyof FormValues}
+                            render={({ field }) => (
+                            <FormItem className="flex flex-col">
+                                <FormLabel>{col.header}</FormLabel>
+                                <Popover>
+                                <PopoverTrigger asChild>
+                                    <FormControl>
+                                    <Button
+                                        variant={"outline"}
                                         className={cn(
-                                          "mr-2 h-4 w-4",
-                                          category === field.value
-                                            ? "opacity-100"
-                                            : "opacity-0"
+                                        "w-full pl-3 text-left font-normal",
+                                        !field.value && "text-muted-foreground"
                                         )}
-                                      />
-                                      {category}
-                                    </CommandItem>
-                                  ))}
-                                </CommandGroup>
-                              </CommandList>
-                            </Command>
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                );
-              }
-
-              if (isSkuSelectMode && col.accessorKey === 'itemName') {
-                return (
-                   <FormField
-                    key={col.accessorKey}
-                    control={form.control}
-                    name={col.accessorKey as keyof FormValues}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{col.header}</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Auto-filled" {...field} readOnly className="bg-muted" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                );
-              }
-
-              if (isProductCatalog && col.accessorKey === 'imageUrl') {
-                return (
-                  <div key={col.accessorKey} className="space-y-2">
-                    <FormField
-                      control={form.control}
-                      name={col.accessorKey as keyof FormValues}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Image URL</FormLabel>
-                          <FormControl>
-                            <Input placeholder="https://... or upload a file below" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                     <FormItem>
-                        <FormLabel>Or Upload Image</FormLabel>
-                        <FormControl>
-                            <Input type="file" accept="image/*" onChange={handleImageUpload} />
-                        </FormControl>
-                        <FormDescription>The uploaded image will replace the URL above.</FormDescription>
-                    </FormItem>
-                  </div>
-                );
-              }
-
-              // Do not render balance field in bank statement form
-              if (isBankStatement && col.accessorKey === 'balance') {
-                return null;
-              }
-
-
-              return (
-                <FormField
-                  key={col.accessorKey}
-                  control={form.control}
-                  name={col.accessorKey as keyof FormValues}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{col.header}</FormLabel>
-                      <FormControl>
-                        <Input 
-                            placeholder={`Enter ${col.header.toLowerCase()}...`}
-                            {...field}
-                            type={typeof field.value === 'number' ? 'number' : 'text'}
-                            step="any"
-                            readOnly={isCalculated}
-                            className={isCalculated ? 'bg-muted' : ''}
-                            onChange={(e) => {
-                                if (typeof field.value === 'number') {
-                                    field.onChange(e.target.valueAsNumber || 0);
-                                } else {
-                                    field.onChange(e.target.value);
-                                }
-                            }}
-                         />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              );
-            })}
-             {isBankStatement && (
-                <>
-                     <FormField
-                        control={form.control}
-                        name={"debit" as keyof FormValues}
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Debit</FormLabel>
-                                <FormControl>
-                                    <Input 
-                                        type="number" 
-                                        step="any" 
-                                        {...field} 
-                                        placeholder="Enter debit amount" 
-                                        onChange={(e) => {
-                                            field.onChange(e.target.valueAsNumber || 0);
-                                            form.setValue('credit' as keyof FormValues, 0);
-                                        }}
+                                    >
+                                        {field.value ? (
+                                        format(new Date(field.value), "PPP")
+                                        ) : (
+                                        <span>Pick a date</span>
+                                        )}
+                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                    </Button>
+                                    </FormControl>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0" align="start">
+                                    <Calendar
+                                    mode="single"
+                                    selected={field.value ? new Date(field.value) : undefined}
+                                    onSelect={field.onChange}
+                                    disabled={(date) =>
+                                        date > new Date() || date < new Date("1900-01-01")
+                                    }
+                                    initialFocus
                                     />
+                                </PopoverContent>
+                                </Popover>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                        );
+                    }
+
+                    if (isSkuSelectMode && col.accessorKey === 'sku') {
+                        return (
+                        <FormField
+                            key={col.accessorKey}
+                            control={form.control}
+                            name={col.accessorKey as keyof FormValues}
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>{col.header}</FormLabel>
+                                <Select onValueChange={(value) => {
+                                field.onChange(value);
+                                handleSkuChange(value);
+                                }} defaultValue={field.value}>
+                                <FormControl>
+                                    <SelectTrigger>
+                                    <SelectValue placeholder={`Select an ${col.header.toLowerCase()}`} />
+                                    </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    {inventoryItemsPool.map(item => (
+                                    <SelectItem key={item.sku} value={item.sku}>
+                                        {item.sku}
+                                    </SelectItem>
+                                    ))}
+                                </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                        );
+                    }
+                    
+                    if ((isExpenseMode || title.includes('Purchases')) && col.accessorKey === 'supplier') {
+                        return (
+                            <FormField
+                                key={col.accessorKey}
+                                control={form.control}
+                                name={col.accessorKey as keyof FormValues}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>{col.header}</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder={`Enter ${col.header.toLowerCase()}...`} {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        );
+                    }
+                    
+                    if (isExpenseMode && col.accessorKey === 'category') {
+                        return (
+                        <FormField
+                            key={col.accessorKey}
+                            control={form.control}
+                            name={col.accessorKey as keyof FormValues}
+                            render={({ field }) => (
+                            <FormItem className="flex flex-col">
+                                <FormLabel>{col.header}</FormLabel>
+                                <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
+                                <PopoverTrigger asChild>
+                                    <FormControl>
+                                    <Button
+                                        variant="outline"
+                                        role="combobox"
+                                        className={cn(
+                                        "w-full justify-between",
+                                        !field.value && "text-muted-foreground"
+                                        )}
+                                    >
+                                        {field.value
+                                        ? expenseCategories.find(
+                                            (category) => category === field.value
+                                            )
+                                        : "Select a category"}
+                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                    </Button>
+                                    </FormControl>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                                    <Command>
+                                    <CommandInput 
+                                        placeholder="Search or create..."
+                                        value={newCategoryValue}
+                                        onValueChange={setNewCategoryValue}
+                                    />
+                                    <CommandList>
+                                        <CommandEmpty>
+                                        <Button variant="ghost" className="w-full" onClick={handleCreateCategory}>
+                                            Create "{newCategoryValue}"
+                                        </Button>
+                                        </CommandEmpty>
+                                        <CommandGroup>
+                                        {expenseCategories.map((category) => (
+                                            <CommandItem
+                                            value={category}
+                                            key={category}
+                                            onSelect={() => {
+                                                form.setValue(col.accessorKey as keyof FormValues, category)
+                                                setComboboxOpen(false)
+                                            }}
+                                            >
+                                            <Check
+                                                className={cn(
+                                                "mr-2 h-4 w-4",
+                                                category === field.value
+                                                    ? "opacity-100"
+                                                    : "opacity-0"
+                                                )}
+                                            />
+                                            {category}
+                                            </CommandItem>
+                                        ))}
+                                        </CommandGroup>
+                                    </CommandList>
+                                    </Command>
+                                </PopoverContent>
+                                </Popover>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                        );
+                    }
+
+                    if (isSkuSelectMode && col.accessorKey === 'itemName') {
+                        return (
+                        <FormField
+                            key={col.accessorKey}
+                            control={form.control}
+                            name={col.accessorKey as keyof FormValues}
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>{col.header}</FormLabel>
+                                <FormControl>
+                                <Input placeholder="Auto-filled" {...field} readOnly className="bg-muted" />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name={"credit" as keyof FormValues}
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Credit</FormLabel>
+                            )}
+                        />
+                        );
+                    }
+
+                    if (isProductCatalog && col.accessorKey === 'imageUrl') {
+                        return (
+                        <div key={col.accessorKey} className="space-y-2">
+                            <FormField
+                            control={form.control}
+                            name={col.accessorKey as keyof FormValues}
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>Image URL</FormLabel>
                                 <FormControl>
-                                    <Input 
-                                        type="number" 
-                                        step="any" 
-                                        {...field} 
-                                        placeholder="Enter credit amount"
-                                        onChange={(e) => {
-                                            field.onChange(e.target.valueAsNumber || 0);
-                                            form.setValue('debit' as keyof FormValues, 0);
-                                        }}
-                                    />
+                                    <Input placeholder="https://... or upload a file below" {...field} />
                                 </FormControl>
                                 <FormMessage />
+                                </FormItem>
+                            )}
+                            />
+                            <FormItem>
+                                <FormLabel>Or Upload Image</FormLabel>
+                                <FormControl>
+                                    <Input type="file" accept="image/*" onChange={handleImageUpload} />
+                                </FormControl>
+                                <FormDescription>The uploaded image will replace the URL above.</FormDescription>
+                            </FormItem>
+                        </div>
+                        );
+                    }
+
+                    // Do not render balance field in bank statement form
+                    if (isBankStatement && col.accessorKey === 'balance') {
+                        return null;
+                    }
+
+
+                    return (
+                        <FormField
+                        key={col.accessorKey}
+                        control={form.control}
+                        name={col.accessorKey as keyof FormValues}
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>{col.header}</FormLabel>
+                            <FormControl>
+                                <Input 
+                                    placeholder={`Enter ${col.header.toLowerCase()}...`}
+                                    {...field}
+                                    type={typeof field.value === 'number' ? 'number' : 'text'}
+                                    step="any"
+                                    readOnly={isCalculated}
+                                    className={isCalculated ? 'bg-muted' : ''}
+                                    onChange={(e) => {
+                                        if (typeof field.value === 'number') {
+                                            field.onChange(e.target.valueAsNumber || 0);
+                                        } else {
+                                            field.onChange(e.target.value);
+                                        }
+                                    }}
+                                />
+                            </FormControl>
+                            <FormMessage />
                             </FormItem>
                         )}
-                    />
-                </>
-            )}
-            <DialogFooter>
+                        />
+                    );
+                    })}
+                    {isBankStatement && (
+                        <>
+                            <FormField
+                                control={form.control}
+                                name={"debit" as keyof FormValues}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Debit</FormLabel>
+                                        <FormControl>
+                                            <Input 
+                                                type="number" 
+                                                step="any" 
+                                                {...field} 
+                                                placeholder="Enter debit amount" 
+                                                onChange={(e) => {
+                                                    field.onChange(e.target.valueAsNumber || 0);
+                                                    form.setValue('credit' as keyof FormValues, 0);
+                                                }}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name={"credit" as keyof FormValues}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Credit</FormLabel>
+                                        <FormControl>
+                                            <Input 
+                                                type="number" 
+                                                step="any" 
+                                                {...field} 
+                                                placeholder="Enter credit amount"
+                                                onChange={(e) => {
+                                                    field.onChange(e.target.valueAsNumber || 0);
+                                                    form.setValue('debit' as keyof FormValues, 0);
+                                                }}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </>
+                    )}
+                </div>
+            </ScrollArea>
+            <DialogFooter className="px-6 pt-4 border-t">
               <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
               <Button type="submit">{defaultValues ? 'Save Changes' : 'Create Record'}</Button>
             </DialogFooter>
@@ -514,3 +519,5 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
     </Dialog>
   );
 }
+
+    
