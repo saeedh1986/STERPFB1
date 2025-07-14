@@ -15,27 +15,47 @@ import QRCode from 'qrcode.react';
 import Barcode from 'react-barcode';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
-// Component to be printed
-const PrintableLabel = React.forwardRef<HTMLDivElement, { item: any, codeValue: string }>(({ item, codeValue }, ref) => {
-    return (
-        <div ref={ref} className="p-4 border border-dashed border-gray-400 rounded-lg bg-white text-black">
-            <h3 className="text-center font-bold text-lg mb-2">{item.itemName}</h3>
-            <p className="text-center text-sm mb-4">{codeValue}</p>
-            <div className="flex justify-center items-center gap-4">
-                 <div className="text-center">
-                    <p className="font-semibold mb-1">Barcode (Code 128)</p>
-                    <Barcode value={codeValue} width={1.5} height={50} fontSize={12} />
-                </div>
+type PrintType = "both" | "barcode" | "qrcode";
+
+// Component for a single label in the printable sheet
+const LabelContent: React.FC<{ item: any, codeValue: string, printType: PrintType }> = ({ item, codeValue, printType }) => (
+    <div className="p-2 border border-dashed border-gray-400 rounded-lg bg-white text-black break-inside-avoid">
+        <h3 className="text-center font-bold text-base mb-1 truncate">{item.itemName}</h3>
+        <p className="text-center text-xs mb-2">{codeValue}</p>
+        <div className="flex justify-center items-center gap-4">
+            {(printType === 'both' || printType === 'barcode') && (
                 <div className="text-center">
-                    <p className="font-semibold mb-1">QR Code</p>
-                    <QRCode value={codeValue} size={100} level="H" />
+                    <p className="font-semibold text-xs mb-1">Barcode</p>
+                    <Barcode value={codeValue} width={1.2} height={40} fontSize={10} margin={2} />
                 </div>
+            )}
+            {(printType === 'both' || printType === 'qrcode') && (
+                <div className="text-center">
+                    <p className="font-semibold text-xs mb-1">QR Code</p>
+                    <QRCode value={codeValue} size={64} level="H" />
+                </div>
+            )}
+        </div>
+    </div>
+);
+
+
+// Component to be printed, which now handles multiple labels
+const PrintableSheet = React.forwardRef<HTMLDivElement, { item: any; codeValue: string; printCount: number; printType: PrintType }>(({ item, codeValue, printCount, printType }, ref) => {
+    return (
+        <div ref={ref}>
+            <div className="grid grid-cols-2 gap-2">
+                {Array.from({ length: printCount }).map((_, i) => (
+                    <LabelContent key={i} item={item} codeValue={codeValue} printType={printType} />
+                ))}
             </div>
         </div>
     );
 });
-PrintableLabel.displayName = 'PrintableLabel';
+PrintableSheet.displayName = 'PrintableSheet';
+
 
 export default function GenerateBarcodePage() {
   const searchParams = useSearchParams();
@@ -47,6 +67,8 @@ export default function GenerateBarcodePage() {
   }, [sku]);
   
   const [codeValue, setCodeValue] = useState(item?.sku || '');
+  const [printCount, setPrintCount] = useState(1);
+  const [printType, setPrintType] = useState<PrintType>("both");
 
   useEffect(() => {
       if(item) {
@@ -58,7 +80,6 @@ export default function GenerateBarcodePage() {
   const handlePrint = useReactToPrint({
     content: () => printableRef.current,
     documentTitle: `${item?.sku || 'label'}-barcode-qr`,
-    onAfterPrint: () => alert('Print job sent!'),
   });
 
   if (!item) {
@@ -91,23 +112,69 @@ export default function GenerateBarcodePage() {
           <CardHeader>
             <CardTitle>Generated Codes for {item.itemName}</CardTitle>
             <CardDescription>
-              Here are the generated barcode and QR code for SKU: <strong>{item.sku}</strong>. You can edit the value below and print the label for your inventory.
+              Customize the value, print type, and quantity, then print the label for your inventory.
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col items-center justify-center space-y-6">
             
-            <div className="w-full max-w-md space-y-2">
-                <Label htmlFor="code-value">Barcode/QR Code Value</Label>
-                <Input 
-                    id="code-value"
-                    value={codeValue}
-                    onChange={(e) => setCodeValue(e.target.value)}
-                    className="text-center"
-                />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl">
+                <div className="space-y-2">
+                    <Label htmlFor="code-value">Barcode/QR Code Value</Label>
+                    <Input 
+                        id="code-value"
+                        value={codeValue}
+                        onChange={(e) => setCodeValue(e.target.value)}
+                    />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="print-count">Number of Labels to Print</Label>
+                    <Input 
+                        id="print-count"
+                        type="number"
+                        value={printCount}
+                        onChange={(e) => setPrintCount(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                        min="1"
+                    />
+                </div>
+                <div className="space-y-3 md:col-span-2">
+                     <Label>Print Type</Label>
+                     <RadioGroup 
+                        value={printType} 
+                        onValueChange={(value: PrintType) => setPrintType(value)}
+                        className="flex items-center space-x-4"
+                     >
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="both" id="r-both" />
+                            <Label htmlFor="r-both">Both</Label>
+                        </div>
+                         <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="barcode" id="r-barcode" />
+                            <Label htmlFor="r-barcode">Barcode Only</Label>
+                        </div>
+                         <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="qrcode" id="r-qrcode" />
+                            <Label htmlFor="r-qrcode">QR Code Only</Label>
+                        </div>
+                     </RadioGroup>
+                </div>
             </div>
-            
-            <div className="w-full max-w-lg">
-               <PrintableLabel item={item} codeValue={codeValue} ref={printableRef} />
+
+            <div className="w-full max-w-lg p-4 border rounded-md bg-muted/50">
+               <h3 className="text-center font-semibold mb-4">Preview (Both Codes Shown)</h3>
+               <div className="p-4 border border-dashed border-gray-400 rounded-lg bg-white text-black">
+                    <h3 className="text-center font-bold text-lg mb-2">{item.itemName}</h3>
+                    <p className="text-center text-sm mb-4">{codeValue}</p>
+                    <div className="flex justify-center items-center gap-4">
+                        <div className="text-center">
+                            <p className="font-semibold mb-1">Barcode</p>
+                            <Barcode value={codeValue} width={1.5} height={50} fontSize={12} />
+                        </div>
+                        <div className="text-center">
+                            <p className="font-semibold mb-1">QR Code</p>
+                            <QRCode value={codeValue} size={100} level="H" />
+                        </div>
+                    </div>
+                </div>
             </div>
             
             <div className="flex gap-4">
@@ -116,12 +183,23 @@ export default function GenerateBarcodePage() {
                     <ArrowLeft className="mr-2 h-4 w-4" /> Back
                     </Link>
                 </Button>
-                <Button onClick={handlePrint} disabled={!codeValue}>
-                    <Printer className="mr-2 h-4 w-4" /> Print Label
+                <Button onClick={handlePrint} disabled={!codeValue || printCount < 1}>
+                    <Printer className="mr-2 h-4 w-4" /> Print Labels
                 </Button>
             </div>
           </CardContent>
         </Card>
+
+        {/* Hidden component for printing */}
+        <div className="absolute -left-[9999px] -top-[9999px]">
+            <PrintableSheet 
+                ref={printableRef} 
+                item={item} 
+                codeValue={codeValue}
+                printCount={printCount}
+                printType={printType}
+             />
+        </div>
       </main>
     </>
   );
