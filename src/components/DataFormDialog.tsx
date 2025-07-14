@@ -10,13 +10,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { GenericItem, ColumnDefinition } from '@/lib/data';
-import { inventoryItemsPool, expenseCategories, vendorsPool, USD_TO_AED_RATE } from '@/lib/data';
-import { useEffect } from 'react';
+import { inventoryItemsPool, expenseCategories as defaultExpenseCategories, vendorsPool, USD_TO_AED_RATE } from '@/lib/data';
+import { useState, useEffect } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, ChevronsUpDown, Check } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+
 
 interface DataFormDialogProps {
   isOpen: boolean;
@@ -41,6 +43,10 @@ const fileToDataURI = (file: File): Promise<string> => {
 export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, columns, title }: DataFormDialogProps) {
 
   const isBankStatement = title.includes('Bank Statement');
+  const [expenseCategories, setExpenseCategories] = useState(defaultExpenseCategories);
+  const [comboboxOpen, setComboboxOpen] = useState(false);
+  const [newCategoryValue, setNewCategoryValue] = useState('');
+
 
   // Create a dynamic Zod schema from columns
   const formSchemaObject = columns.reduce((acc, col) => {
@@ -167,6 +173,15 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
     }
   };
 
+  const handleCreateCategory = () => {
+    if (newCategoryValue && !expenseCategories.includes(newCategoryValue)) {
+      setExpenseCategories(prev => [...prev, newCategoryValue]);
+      form.setValue('category' as keyof FormValues, newCategoryValue);
+      setComboboxOpen(false);
+      setNewCategoryValue('');
+    }
+  };
+
   const calculatedFields = ['aed', 'totalCost', 'totalCostPerUnit'];
 
   return (
@@ -285,27 +300,72 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
               
               if (isExpenseMode && col.accessorKey === 'category') {
                 return (
-                   <FormField
+                  <FormField
                     key={col.accessorKey}
                     control={form.control}
                     name={col.accessorKey as keyof FormValues}
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex flex-col">
                         <FormLabel>{col.header}</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder={`Select a ${col.header.toLowerCase()}`} />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {expenseCategories.map(category => (
-                              <SelectItem key={category} value={category}>
-                                {category}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant="outline"
+                                role="combobox"
+                                className={cn(
+                                  "w-full justify-between",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value
+                                  ? expenseCategories.find(
+                                      (category) => category === field.value
+                                    )
+                                  : "Select a category"}
+                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                            <Command>
+                              <CommandInput 
+                                placeholder="Search or create..."
+                                value={newCategoryValue}
+                                onValueChange={setNewCategoryValue}
+                              />
+                              <CommandList>
+                                <CommandEmpty>
+                                   <Button variant="ghost" className="w-full" onClick={handleCreateCategory}>
+                                      Create "{newCategoryValue}"
+                                   </Button>
+                                </CommandEmpty>
+                                <CommandGroup>
+                                  {expenseCategories.map((category) => (
+                                    <CommandItem
+                                      value={category}
+                                      key={category}
+                                      onSelect={() => {
+                                        form.setValue(col.accessorKey as keyof FormValues, category)
+                                        setComboboxOpen(false)
+                                      }}
+                                    >
+                                      <Check
+                                        className={cn(
+                                          "mr-2 h-4 w-4",
+                                          category === field.value
+                                            ? "opacity-100"
+                                            : "opacity-0"
+                                        )}
+                                      />
+                                      {category}
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
                         <FormMessage />
                       </FormItem>
                     )}
