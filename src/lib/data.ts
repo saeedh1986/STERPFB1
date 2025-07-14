@@ -16,7 +16,7 @@ export interface ColumnDefinition {
 
 // Generate a pool of inventory items that can be referenced by other modules
 const INVENTORY_ITEMS_POOL_SIZE = 20;
-const inventoryItemsPool = Array.from({ length: INVENTORY_ITEMS_POOL_SIZE }, (_, i) => ({
+export const inventoryItemsPool = Array.from({ length: INVENTORY_ITEMS_POOL_SIZE }, (_, i) => ({
   id: `item-${i + 1}`,
   itemName: `Sample Item ${i + 1}`,
   sku: `SKU-${String(10001 + i)}`,
