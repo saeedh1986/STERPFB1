@@ -262,7 +262,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                     <FormItem>
                       <FormLabel>{col.header}</FormLabel>
                       <FormControl>
-                        <Input placeholder={`Enter ${col.header.toLowerCase()}...`} {...field} />
+                        <Input placeholder={col.accessorKey === 'imageUrl' ? 'https://...' : `Enter ${col.header.toLowerCase()}...`} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

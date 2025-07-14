@@ -1,5 +1,6 @@
 
 import React from 'react';
+import Image from 'next/image';
 
 // Mock data for various ERP modules
 
@@ -26,6 +27,8 @@ export const productCatalogPool: GenericItem[] = Array.from({ length: 40 }, (_, 
   productDimensions: `${(Math.random() * 20).toFixed(1)}x${(Math.random() * 15).toFixed(1)}x${(Math.random() * 10).toFixed(1)} cm`,
   packageWeight: `${(Math.random() * 2 + 0.1).toFixed(2)} kg`,
   packageDimensions: `${(Math.random() * 20 + 2).toFixed(1)}x${(Math.random() * 15 + 2).toFixed(1)}x${(Math.random() * 10 + 2).toFixed(1)} cm`,
+  imageUrl: `https://placehold.co/100x100.png`,
+  dataAiHint: `product photo`,
 }));
 
 
@@ -182,6 +185,9 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
         case 'packageDimensions':
           item[field] = `${(Math.random() * 20 + 2).toFixed(1)}x${(Math.random() * 15 + 2).toFixed(1)}x${(Math.random() * 10 + 2).toFixed(1)} cm`;
           break;
+        case 'imageUrl':
+          item[field] = `https://placehold.co/100x100.png`;
+          break;
         default:
           if (field.toLowerCase().includes('name') || field.toLowerCase().includes('item')) {
             item[field] = `Sample ${field.charAt(0).toUpperCase() + field.slice(1)} ${i + 1}`;
@@ -208,7 +214,7 @@ const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   ipbt: { fields: ['ipbtId', 'taskName', 'assignedTo', 'dueDate', 'priority'], count: 7 },
   'purchases-cal': { fields: ['eventTitle', 'eventType', 'eventDate', 'relatedPO', 'notes'], count: 9 },
   'bank-statement': { fields: ['transactionDate', 'description', 'debit', 'credit', 'balance'], count: 40 },
-  'product-catalog': { fields: ['itemName', 'sku', 'unitPrice', 'category', 'description', 'productWeight', 'productDimensions', 'packageWeight', 'packageDimensions'], count: 40 },
+  'product-catalog': { fields: ['imageUrl', 'itemName', 'sku', 'unitPrice', 'category', 'description', 'productWeight', 'productDimensions', 'packageWeight', 'packageDimensions'], count: 40 },
 };
 
 export const getMockData = (slug: string): GenericItem[] => {
@@ -228,6 +234,22 @@ export const getColumns = (slug: string): ColumnDefinition[] => {
 
   // Example of custom cell rendering for price/amount fields
   columns.forEach(col => {
+    if (col.accessorKey === 'imageUrl') {
+        col.header = 'Image';
+        col.cell = ({ row }) => {
+            const imageUrl = row.getValue('imageUrl') as string;
+            const itemName = row.getValue('itemName') as string;
+            const dataAiHint = row.original.dataAiHint || 'product photo';
+            return React.createElement(Image, { 
+                src: imageUrl, 
+                alt: itemName, 
+                className: 'h-16 w-16 object-cover rounded-md',
+                width: 64,
+                height: 64,
+                'data-ai-hint': dataAiHint,
+            });
+        };
+    }
     if (['price', 'shipping', 'referralFees', 'shippingCost', 'paymentFees', 'totalSales', 'amount', 'unitCost', 'debit', 'credit', 'balance', 'totalAmount', 'unitPrice', 'totalCost'].includes(col.accessorKey)) {
       col.cell = ({ row }) => {
         const amount = parseFloat(row.getValue(col.accessorKey));
