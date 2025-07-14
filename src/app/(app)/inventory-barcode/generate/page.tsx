@@ -24,6 +24,14 @@ import qz from 'qz-tray';
 
 type PrintType = "both" | "barcode" | "qrcode";
 
+const labelSizes = [
+    { name: "40mm x 25mm", widthDots: 320, heightDots: 200 },
+    { name: "50mm x 30mm", widthDots: 400, heightDots: 240 },
+    { name: "60mm x 40mm", widthDots: 480, heightDots: 320 },
+];
+type LabelSize = typeof labelSizes[0];
+
+
 // Component for a single label in the printable sheet
 const LabelContent: React.FC<{ item: any, codeValue: string, printType: PrintType }> = ({ item, codeValue, printType }) => (
     <div className="p-2 border border-dashed border-gray-400 rounded-lg bg-white text-black break-inside-avoid">
@@ -81,6 +89,8 @@ export default function GenerateBarcodePage() {
   const [qzLoading, setQzLoading] = useState(false);
   const [printers, setPrinters] = useState<string[]>([]);
   const [selectedPrinter, setSelectedPrinter] = useState<string>('');
+  const [selectedLabelSize, setSelectedLabelSize] = useState<LabelSize>(labelSizes[0]);
+
 
   useEffect(() => {
       if(item) {
@@ -124,32 +134,33 @@ export default function GenerateBarcodePage() {
 
     try {
         const config = qz.configs.create(selectedPrinter);
-        
-        // Assuming 8 dots/mm (203 dpi)
-        const labelWidthDots = 40 * 8; // 320
-        const labelHeightDots = 25 * 8; // 200
+        const { widthDots, heightDots } = selectedLabelSize;
 
-        // Generate ZPL commands for a 40mm x 25mm label
-        const zplData = [
+        let zplData = [
             '^XA', // Start
-            `^LL${labelHeightDots}`, // Label Length (height)
-            `^PW${labelWidthDots}`, // Label Width
+            `^LL${heightDots}`, // Label Length (height)
+            `^PW${widthDots}`, // Label Width
             '^CI28', // UTF-8 Character Set
             
             // Item Name (centered) - Fit up to ~25 chars
-            `^FO0,15,^FB${labelWidthDots},1,0,C,0^A0N,22,22^FD${item.itemName.substring(0, 25)}^FS`,
-            
-            // Barcode (centered, below item name)
-            `^FO20,50^BY2,2,45^BCN,45,N,N,N,A^FD${codeValue}^FS`,
-            
-            // SKU text (below barcode)
-            `^FO0,105,^FB${labelWidthDots},1,0,C,0^A0N,18,18^FD${codeValue}^FS`,
-            
-            // QR Code (right aligned)
-            `^FO${labelWidthDots - 100},125^BQN,2,4^FDQA,${codeValue}^FS`,
-            
-            '^XZ' // End
+            `^FO0,15,^FB${widthDots},1,0,C,0^A0N,22,22^FD${item.itemName.substring(0, 25)}^FS`,
         ];
+
+        if (printType === 'barcode') {
+            zplData.push(`^FO0,50,^FB${widthDots},1,0,C,0^BY2,2,45^BCN,45,N,N,N,A^FD${codeValue}^FS`);
+            zplData.push(`^FO0,105,^FB${widthDots},1,0,C,0^A0N,18,18^FD${codeValue}^FS`);
+        } else if (printType === 'qrcode') {
+             zplData.push(`^FO0,50,^FB${widthDots},1,0,C,0^BQN,2,5^FDQA,${codeValue}^FS`);
+        } else { // 'both'
+             // Barcode (left)
+            zplData.push(`^FO20,50^BY2,2,45^BCN,45,N,N,N,A^FD${codeValue}^FS`);
+            // SKU text (below barcode)
+            zplData.push(`^FO20,105,^FB180,1,0,C,0^A0N,18,18^FD${codeValue}^FS`);
+            // QR Code (right)
+            zplData.push(`^FO${widthDots - 120},50^BQN,2,4^FDQA,${codeValue}^FS`);
+        }
+        
+        zplData.push('^XZ'); // End
         
         await qz.print(config, zplData);
         toast({ title: "Print Successful", description: `Label sent to printer: ${selectedPrinter}`});
@@ -221,7 +232,7 @@ export default function GenerateBarcodePage() {
                         />
                     </div>
                     <div className="space-y-3 md:col-span-2">
-                        <Label>Print Type (for browser print)</Label>
+                        <Label>Print Type</Label>
                         <RadioGroup 
                             value={printType} 
                             onValueChange={(value: PrintType) => setPrintType(value)}
@@ -245,20 +256,7 @@ export default function GenerateBarcodePage() {
 
                 <div className="w-full p-4 border rounded-md bg-muted/50">
                 <h3 className="text-center font-semibold mb-4">Preview</h3>
-                <div className="p-4 border border-dashed border-gray-400 rounded-lg bg-white text-black">
-                        <h3 className="text-center font-bold text-lg mb-2">{item.itemName}</h3>
-                        <p className="text-center text-sm mb-4">{codeValue}</p>
-                        <div className="flex justify-center items-center gap-4">
-                            <div className="text-center">
-                                <p className="font-semibold mb-1">Barcode</p>
-                                <Barcode value={codeValue} width={1.5} height={50} fontSize={12} />
-                            </div>
-                            <div className="text-center">
-                                <p className="font-semibold mb-1">QR Code</p>
-                                <QRCode value={codeValue} size={100} level="H" />
-                            </div>
-                        </div>
-                    </div>
+                 <LabelContent item={item} codeValue={codeValue} printType={printType} />
                 </div>
             </CardContent>
             </Card>
@@ -292,24 +290,45 @@ export default function GenerateBarcodePage() {
                                 </div>
                             </div>
                             {qzConnected && (
-                                <div className="space-y-2">
-                                <Label>Select Printer</Label>
-                                <Select value={selectedPrinter} onValueChange={setSelectedPrinter}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select a printer" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {printers.map(p => (
-                                            <SelectItem key={p} value={p}>{p}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>Select Printer</Label>
+                                        <Select value={selectedPrinter} onValueChange={setSelectedPrinter}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select a printer" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {printers.map(p => (
+                                                    <SelectItem key={p} value={p}>{p}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Select Label Size</Label>
+                                         <Select 
+                                            value={selectedLabelSize.name} 
+                                            onValueChange={(name) => {
+                                                const size = labelSizes.find(s => s.name === name);
+                                                if (size) setSelectedLabelSize(size);
+                                            }}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select a size" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {labelSizes.map(s => (
+                                                    <SelectItem key={s.name} value={s.name}>{s.name}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
                                 </div>
                             )}
                         </CardContent>
                         <CardFooter>
                             <Button onClick={printWithQz} disabled={!qzConnected || !selectedPrinter || !codeValue}>
-                                <Printer className="mr-2 h-4 w-4" /> Print with QZ Tray (40mm x 25mm)
+                                <Printer className="mr-2 h-4 w-4" /> Print with QZ Tray ({selectedLabelSize.name})
                             </Button>
                         </CardFooter>
                     </Card>
