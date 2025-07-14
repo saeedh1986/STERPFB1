@@ -52,7 +52,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
       }
       else {
         // For IPCC, some fields are numeric, so we coerce them.
-        if (title.includes('Cost Calculator') && ['usd', 'quantity', 'customsFees', 'shippingFees', 'bankCharges', 'aed', 'totalCost', 'totalCostPerUnit'].includes(col.accessorKey)) {
+        if (title.includes('Cost Calculator') && ['usd', 'quantity', 'customsFees', 'shippingFees', 'bankCharges', 'aed', 'totalCost', 'totalCostPerUnit', 'exchangeRate'].includes(col.accessorKey)) {
           acc[col.accessorKey] = z.coerce.number().optional();
         } else {
            acc[col.accessorKey] = z.string().min(1, `${col.header} is required.`);
@@ -70,12 +70,13 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
   });
 
   const isCostCalculator = title.includes('Cost Calculator');
-  const watchedFields = form.watch(['usd', 'quantity', 'customsFees', 'shippingFees', 'bankCharges']);
+  const watchedFields = form.watch(['usd', 'quantity', 'customsFees', 'shippingFees', 'bankCharges', 'exchangeRate']);
 
   useEffect(() => {
     if (isCostCalculator) {
-        const [usd, quantity, customsFees, shippingFees, bankCharges] = watchedFields;
-        const aed = parseFloat((usd || 0).toString()) * USD_TO_AED_RATE;
+        const [usd, quantity, customsFees, shippingFees, bankCharges, exchangeRate] = watchedFields;
+        const finalExchangeRate = parseFloat((exchangeRate || 0).toString()) || USD_TO_AED_RATE;
+        const aed = parseFloat((usd || 0).toString()) * finalExchangeRate;
         const totalCost = aed + parseFloat((customsFees || 0).toString()) + parseFloat((shippingFees || 0).toString()) + parseFloat((bankCharges || 0).toString());
         const totalCostPerUnit = totalCost / (parseFloat((quantity || 1).toString()) || 1);
 
@@ -90,6 +91,10 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
     if (isOpen) {
         // When opening the dialog, transform date strings from mock data into Date objects for the picker
         const transformedDefaults = { ...defaultValues };
+        if (isCostCalculator && !transformedDefaults.exchangeRate) {
+            (transformedDefaults as any).exchangeRate = USD_TO_AED_RATE;
+        }
+
         columns.forEach(col => {
             if (col.accessorKey.toLowerCase().includes('date') && defaultValues?.[col.accessorKey]) {
                 const dateParts = (defaultValues[col.accessorKey] as string).split('-');
@@ -104,7 +109,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
         });
         form.reset(transformedDefaults || {});
     }
-  }, [isOpen, defaultValues, form, columns]);
+  }, [isOpen, defaultValues, form, columns, isCostCalculator]);
 
 
   const handleFormSubmit: SubmitHandler<FormValues> = (data) => {
@@ -347,6 +352,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                             placeholder={`Enter ${col.header.toLowerCase()}...`}
                             {...field}
                             type={typeof field.value === 'number' ? 'number' : 'text'}
+                            step="any"
                             readOnly={isCalculated}
                             className={isCalculated ? 'bg-muted' : ''}
                             onChange={(e) => {

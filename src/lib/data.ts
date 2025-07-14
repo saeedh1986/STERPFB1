@@ -131,11 +131,14 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
         case 'usd':
             item[field] = parseFloat((Math.random() * 75 + 5).toFixed(2));
             break;
+        case 'exchangeRate':
+            item[field] = USD_TO_AED_RATE;
+            break;
         case 'aed':
-            item[field] = parseFloat((item['usd'] * USD_TO_AED_RATE).toFixed(4));
+            item[field] = parseFloat((item['usd'] * (item['exchangeRate'] || USD_TO_AED_RATE)).toFixed(4));
             break;
         case 'customsFees':
-            item[field] = parseFloat(((item['usd'] * USD_TO_AED_RATE) * 0.05).toFixed(4)); // 5% of AED
+            item[field] = parseFloat(((item['usd'] * (item['exchangeRate'] || USD_TO_AED_RATE)) * 0.05).toFixed(4)); // 5% of AED
             break;
         case 'shippingFees':
             item[field] = parseFloat((Math.random() * 20 + 5).toFixed(4));
@@ -223,6 +226,9 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
 
     // Recalculate IPCC totals after all values are set
     if (slug === 'ipcc') {
+        const exchangeRate = item['exchangeRate'] || USD_TO_AED_RATE;
+        item['aed'] = parseFloat(((item['usd'] || 0) * exchangeRate).toFixed(4));
+        
         const aed = item['aed'] || 0;
         const customs = item['customsFees'] || 0;
         const shipping = item['shippingFees'] || 0;
@@ -250,7 +256,7 @@ const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   customers: { fields: ['customerName', 'email', 'phone', 'address', 'joinDate'], count: 18 },
   vendors: { fields: ['vendorName', 'contactPerson', 'email', 'phone', 'productCategory'], count: VENDORS_POOL_SIZE },
   logistics: { fields: ['shipmentId', 'routeName', 'driverName', 'status', 'estimatedDeliveryDate'], count: 8 },
-  ipcc: { fields: ['date', 'sku', 'quantity', 'usd', 'aed', 'customsFees', 'shippingFees', 'bankCharges', 'totalCost', 'totalCostPerUnit'], count: 20 },
+  ipcc: { fields: ['date', 'sku', 'quantity', 'usd', 'exchangeRate', 'aed', 'customsFees', 'shippingFees', 'bankCharges', 'totalCost', 'totalCostPerUnit'], count: 20 },
   ipbt: { fields: ['ipbtId', 'taskName', 'assignedTo', 'dueDate', 'priority'], count: 7 },
   'purchases-cal': { fields: ['eventTitle', 'eventType', 'eventDate', 'relatedPO', 'notes'], count: 9 },
   'bank-statement': { fields: ['transactionDate', 'description', 'debit', 'credit', 'balance'], count: 40 },
@@ -305,13 +311,24 @@ export const getColumns = (slug: string): ColumnDefinition[] => {
         const amount = parseFloat(row.getValue(col.accessorKey));
         const formatOptions: Intl.NumberFormatOptions = {
           minimumFractionDigits: 2,
-          maximumFractionDigits: col.accessorKey.match(/aed|Fees|Charges|Cost|PerUnit|usd/i) ? 4 : 2
+          maximumFractionDigits: col.accessorKey.match(/aed|Fees|Charges|Cost|PerUnit|usd|exchangeRate/i) ? 4 : 2
         };
-        const formatted = new Intl.NumberFormat("en-US", formatOptions).format(amount);
+        const formatted = new Intl.NumberFormat("en-US", formatOptions).format(amount || 0);
+        
+        if (col.accessorKey === 'exchangeRate') {
+            return React.createElement('div', { className: 'text-right' }, formatted);
+        }
+
         const currencySymbol = col.accessorKey === 'usd' ? '$ ' : 'د.إ ';
         return React.createElement('div', { className: 'text-right font-medium' }, `${currencySymbol}${formatted}`);
       };
     }
+     if (col.accessorKey === 'exchangeRate') {
+        col.cell = ({ row }) => {
+            const rate = parseFloat(row.getValue(col.accessorKey));
+            return React.createElement('div', { className: 'text-right' }, rate?.toFixed(4) || 'N/A');
+        };
+     }
     if (col.accessorKey.toLowerCase().includes('status')) {
        col.cell = ({ row }) => {
         const status = row.getValue(col.accessorKey) as string;
@@ -354,3 +371,5 @@ export const getDashboardSummary = () => ({
   totalPurchases: 62150,
   activeCustomers: 1280,
 });
+
+
