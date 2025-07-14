@@ -25,6 +25,18 @@ export const inventoryItemsPool = Array.from({ length: INVENTORY_ITEMS_POOL_SIZE
   category: `Category ${String.fromCharCode(65 + (i % 5))}`,
 }));
 
+// Generate a pool of vendors that can be referenced by other modules
+const VENDORS_POOL_SIZE = 12;
+export const vendorsPool = Array.from({ length: VENDORS_POOL_SIZE }, (_, i) => ({
+  id: `vendor-${i + 1}`,
+  vendorName: `Supplier Co ${String.fromCharCode(65 + i)}`,
+  contactPerson: `Contact ${String.fromCharCode(65 + i)}`,
+  email: `contact@supplier${String.fromCharCode(65 + i)}.com`,
+  phone: `+971 55 555 100${i}`,
+  productCategory: `Category ${String.fromCharCode(65 + (i % 4))}`
+}));
+
+
 const mockExpenseDescriptions = [
   "Domain subscription",
   "Business Lounge VIP Services",
@@ -38,20 +50,6 @@ const mockExpenseDescriptions = [
   "Software License Renewal",
   "FBN Charge for Shipment",
   "Warehouse Storage Fee"
-];
-const mockExpenseSuppliers = [
-  "Only Domains",
-  "DET Business Lounge VIP",
-  "DET",
-  "Godaddy",
-  "Theme forest",
-  "Office Depot",
-  "Etisalat",
-  "DEWA",
-  "Google Ads",
-  "Microsoft",
-  "Amazon FBN",
-  "Warehouse Co."
 ];
 
 export const expenseCategories = [
@@ -72,10 +70,15 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
   if (slug === 'inventory') {
     return inventoryItemsPool;
   }
+  if (slug === 'vendors') {
+    return vendorsPool;
+  }
+
 
   return Array.from({ length: count }, (_, i) => {
     const item: GenericItem = { id: `${slug}-item-${i + 1}` };
     const randomInventoryItem = inventoryItemsPool[Math.floor(Math.random() * INVENTORY_ITEMS_POOL_SIZE)];
+    const randomVendor = vendorsPool[Math.floor(Math.random() * VENDORS_POOL_SIZE)];
 
     fields.forEach(field => {
       switch (field) {
@@ -142,7 +145,7 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
             item[field] = `${Math.floor(Math.random()*100)}-${Math.floor(Math.random()*1000000)}-${Math.floor(Math.random()*1000000)}`;
             break;
         case 'supplier':
-            item[field] = slug === 'expenses' ? mockExpenseSuppliers[i % mockExpenseSuppliers.length] : `Supplier ${String.fromCharCode(65 + (i % 5))}`;
+            item[field] = slug === 'expenses' ? randomVendor.vendorName : randomVendor.vendorName;
             break;
         case 'category':
              item[field] = slug === 'expenses' ? expenseCategories[i % expenseCategories.length] : `Category ${String.fromCharCode(65 + (i % 5))}`;
@@ -170,7 +173,7 @@ const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   sales: { fields: ['date', 'customerName', 'orderId', 'sku', 'itemName', 'qtySold', 'qtyRtv', 'note', 'price', 'shipping', 'referralFees', 'shippingCost', 'paymentFees', 'totalSales'], count: 30 },
   expenses: { fields: ['date', 'description', 'supplier', 'category', 'amount'], count: 12 },
   customers: { fields: ['customerName', 'email', 'phone', 'address', 'joinDate'], count: 18 },
-  vendors: { fields: ['vendorName', 'contactPerson', 'email', 'phone', 'productCategory'], count: 12 },
+  vendors: { fields: ['vendorName', 'contactPerson', 'email', 'phone', 'productCategory'], count: VENDORS_POOL_SIZE },
   logistics: { fields: ['shipmentId', 'routeName', 'driverName', 'status', 'estimatedDeliveryDate'], count: 8 },
   ipcc: { fields: ['ipccId', 'description', 'relatedModule', 'status', 'lastUpdated'], count: 5 },
   ipbt: { fields: ['ipbtId', 'taskName', 'assignedTo', 'dueDate', 'priority'], count: 7 },
