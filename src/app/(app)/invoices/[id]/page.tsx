@@ -54,16 +54,16 @@ const PrintableInvoice = React.forwardRef<HTMLDivElement, { invoice: any }>(({ i
                 </div>
             </header>
             
-             <section className="grid grid-cols-3 gap-6 mb-10 border-t border-b border-gray-200 py-4">
-                <div>
+             <section className="flex justify-between mb-10 border-t border-b border-gray-200 py-4">
+                <div className="w-1/3">
                     <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Bill To</h3>
                     <p className="font-medium text-gray-800">{invoice.billTo}</p>
                 </div>
-                 <div>
+                 <div className="w-1/3">
                     <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Ship To</h3>
                     <p className="font-medium text-gray-800">{invoice.shipTo}</p>
                 </div>
-                <div className="text-right">
+                <div className="w-1/3 text-right">
                     <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Invoice Date</h3>
                     <p className="font-medium text-gray-800">{invoice.invoiceDate}</p>
                 </div>
