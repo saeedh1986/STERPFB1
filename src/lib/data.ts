@@ -15,6 +15,14 @@ export interface ColumnDefinition {
   cell?: ({ row }: { row: { getValue: (key: string) => any, original: GenericItem } }) => JSX.Element | string | number;
 }
 
+export const labelSizes = [
+    { name: "40mm x 25mm", widthDots: 320, heightDots: 200 },
+    { name: "50mm x 30mm", widthDots: 400, heightDots: 240 },
+    { name: "60mm x 40mm", widthDots: 480, heightDots: 320 },
+];
+export type LabelSize = typeof labelSizes[0];
+
+
 // Master product catalog
 export const productCatalogPool: GenericItem[] = Array.from({ length: 40 }, (_, i) => ({
   id: `cat-item-${i + 1}`,

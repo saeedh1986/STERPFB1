@@ -7,9 +7,9 @@ import Link from 'next/link';
 import { PageHeader } from '@/components/PageHeader';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { inventoryItemsPool, type LabelSize, labelSizes } from '@/lib/data';
+import { inventoryItemsPool } from '@/lib/data';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { ArrowLeft, Printer, AlertTriangle, RefreshCw, CheckCircle, XCircle, Settings } from 'lucide-react';
+import { ArrowLeft, Printer, AlertTriangle, RefreshCw, CheckCircle, XCircle } from 'lucide-react';
 import { useReactToPrint } from 'react-to-print';
 import QRCode from 'qrcode.react';
 import Barcode from 'react-barcode';
@@ -18,20 +18,18 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PrintSettingsDialog } from '@/components/inventory/PrintSettingsDialog';
-
 
 // QZ Tray integration
 import qz from 'qz-tray';
 
 type PrintType = "both" | "barcode" | "qrcode";
 
-export interface PrintSettings {
-    printer: string;
-    labelSize: LabelSize;
-    offsetX: number;
-    offsetY: number;
-}
+const labelSizes = [
+    { name: "40mm x 25mm", widthDots: 320, heightDots: 200 },
+    { name: "50mm x 30mm", widthDots: 400, heightDots: 240 },
+    { name: "60mm x 40mm", widthDots: 480, heightDots: 320 },
+];
+type LabelSize = typeof labelSizes[0];
 
 
 // Component for a single label in the printable sheet
@@ -90,27 +88,13 @@ export default function GenerateBarcodePage() {
   const [qzConnected, setQzConnected] = useState(false);
   const [qzLoading, setQzLoading] = useState(false);
   const [printers, setPrinters] = useState<string[]>([]);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  
-  const [printSettings, setPrintSettings] = useState<PrintSettings>({
-    printer: '',
-    labelSize: labelSizes[0],
-    offsetX: 0,
-    offsetY: 0,
-  });
+  const [selectedPrinter, setSelectedPrinter] = useState<string>('');
+  const [selectedLabelSize, setSelectedLabelSize] = useState<LabelSize>(labelSizes[0]);
 
 
   useEffect(() => {
       if(item) {
           setCodeValue(item.sku);
-      }
-      // Load settings from localStorage
-      const savedSettings = localStorage.getItem('saeedErpPrintSettings');
-      if (savedSettings) {
-        const parsed = JSON.parse(savedSettings);
-        // Ensure the labelSize object is the one from our defined list
-        const matchingLabelSize = labelSizes.find(s => s.name === parsed.labelSize?.name) || labelSizes[0];
-        setPrintSettings({ ...parsed, labelSize: matchingLabelSize });
       }
   }, [item]);
   
@@ -122,8 +106,8 @@ export default function GenerateBarcodePage() {
       toast({ title: "QZ Tray Connected", description: "Successfully connected to the QZ Tray service." });
       const printerList = await qz.printers.find();
       setPrinters(printerList);
-      if (printerList.length > 0 && !printSettings.printer) {
-        handleSettingsChange({ printer: printerList[0] });
+      if (printerList.length > 0) {
+        setSelectedPrinter(printerList[0]);
       }
     } catch (err: any) {
       console.error(err);
@@ -138,17 +122,9 @@ export default function GenerateBarcodePage() {
     }
   };
 
-  const handleSettingsChange = (newSettings: Partial<PrintSettings>) => {
-    setPrintSettings(prev => {
-        const updated = {...prev, ...newSettings};
-        localStorage.setItem('saeedErpPrintSettings', JSON.stringify(updated));
-        return updated;
-    });
-  };
-
   const printWithQz = async () => {
-    if (!printSettings.printer) {
-        toast({ title: "No Printer Selected", description: "Please select a printer in Settings.", variant: "destructive"});
+    if (!selectedPrinter) {
+        toast({ title: "No Printer Selected", description: "Please select a printer first.", variant: "destructive"});
         return;
     }
      if (!item) {
@@ -157,16 +133,13 @@ export default function GenerateBarcodePage() {
     }
 
     try {
-        const config = qz.configs.create(printSettings.printer);
-        const { widthDots, heightDots } = printSettings.labelSize;
-        const { offsetX, offsetY } = printSettings;
-
+        const config = qz.configs.create(selectedPrinter);
+        const { widthDots, heightDots } = selectedLabelSize;
 
         let zplData = [
             '^XA', // Start
             `^LL${heightDots}`, // Label Length (height)
             `^PW${widthDots}`, // Label Width
-            `^LH${offsetX},${offsetY}`, // Label Home (X,Y offsets)
             '^CI28', // UTF-8 Character Set
             
             // Item Name (centered) - Fit up to ~25 chars
@@ -190,7 +163,7 @@ export default function GenerateBarcodePage() {
         zplData.push('^XZ'); // End
         
         await qz.print(config, {data: zplData});
-        toast({ title: "Print Successful", description: `Label sent to printer: ${printSettings.printer}`});
+        toast({ title: "Print Successful", description: `Label sent to printer: ${selectedPrinter}`});
     } catch (err: any) {
         console.error(err);
         toast({ title: "Print Failed", description: err.message, variant: "destructive"});
@@ -298,18 +271,10 @@ export default function GenerateBarcodePage() {
                 <CardContent className="space-y-6">
                     <Card>
                         <CardHeader>
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <CardTitle className="text-lg">Direct Label Printing (QZ Tray)</CardTitle>
-                                    <CardDescription>
-                                        Connect to QZ Tray to print directly to a label printer.
-                                    </CardDescription>
-                                </div>
-                                <Button variant="outline" size="icon" onClick={() => setIsSettingsOpen(true)} disabled={!qzConnected}>
-                                    <Settings className="h-4 w-4" />
-                                    <span className="sr-only">Print Settings</span>
-                                </Button>
-                            </div>
+                            <CardTitle className="text-lg">Direct Label Printing (QZ Tray)</CardTitle>
+                            <CardDescription>
+                                Connect to QZ Tray to print directly to a label printer (e.g., Zebra). Requires QZ Tray software to be running on your computer.
+                            </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="flex items-center gap-4">
@@ -325,16 +290,45 @@ export default function GenerateBarcodePage() {
                                 </div>
                             </div>
                             {qzConnected && (
-                                <div className="text-sm text-muted-foreground p-3 bg-accent/30 rounded-md">
-                                    <p><b>Selected Printer:</b> {printSettings.printer || 'None'}</p>
-                                    <p><b>Label Size:</b> {printSettings.labelSize.name}</p>
-                                    <p><b>Offsets:</b> X: {printSettings.offsetX}, Y: {printSettings.offsetY}</p>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>Select Printer</Label>
+                                        <Select value={selectedPrinter} onValueChange={setSelectedPrinter}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select a printer" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {printers.map(p => (
+                                                    <SelectItem key={p} value={p}>{p}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Select Label Size</Label>
+                                         <Select 
+                                            value={selectedLabelSize.name} 
+                                            onValueChange={(name) => {
+                                                const size = labelSizes.find(s => s.name === name);
+                                                if (size) setSelectedLabelSize(size);
+                                            }}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select a size" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {labelSizes.map(s => (
+                                                    <SelectItem key={s.name} value={s.name}>{s.name}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
                                 </div>
                             )}
                         </CardContent>
                         <CardFooter>
-                            <Button onClick={printWithQz} disabled={!qzConnected || !printSettings.printer || !codeValue}>
-                                <Printer className="mr-2 h-4 w-4" /> Print with QZ Tray
+                            <Button onClick={printWithQz} disabled={!qzConnected || !selectedPrinter || !codeValue}>
+                                <Printer className="mr-2 h-4 w-4" /> Print with QZ Tray ({selectedLabelSize.name})
                             </Button>
                         </CardFooter>
                     </Card>
@@ -373,15 +367,9 @@ export default function GenerateBarcodePage() {
                 printType={printType}
              />
         </div>
-
-        <PrintSettingsDialog
-            isOpen={isSettingsOpen}
-            onClose={() => setIsSettingsOpen(false)}
-            printers={printers}
-            settings={printSettings}
-            onSettingsChange={handleSettingsChange}
-        />
       </main>
     </>
   );
 }
+
+    
