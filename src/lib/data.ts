@@ -22,6 +22,10 @@ export const productCatalogPool: GenericItem[] = Array.from({ length: 40 }, (_, 
   unitPrice: parseFloat((Math.random() * 500 + 10).toFixed(2)),
   category: `Category ${String.fromCharCode(65 + (i % 5))}`,
   description: `This is the master description for Product ${i + 1}.`,
+  productWeight: `${(Math.random() * 2).toFixed(2)} kg`,
+  productDimensions: `${(Math.random() * 20).toFixed(1)}x${(Math.random() * 15).toFixed(1)}x${(Math.random() * 10).toFixed(1)} cm`,
+  packageWeight: `${(Math.random() * 2 + 0.1).toFixed(2)} kg`,
+  packageDimensions: `${(Math.random() * 20 + 2).toFixed(1)}x${(Math.random() * 15 + 2).toFixed(1)}x${(Math.random() * 10 + 2).toFixed(1)} cm`,
 }));
 
 
@@ -166,6 +170,18 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
         case 'description':
              item[field] = slug === 'expenses' ? mockExpenseDescriptions[i % mockExpenseDescriptions.length] : `Sample Description ${i + 1}`;
              break;
+        case 'productWeight':
+          item[field] = `${(Math.random() * 2).toFixed(2)} kg`;
+          break;
+        case 'productDimensions':
+          item[field] = `${(Math.random() * 20).toFixed(1)}x${(Math.random() * 15).toFixed(1)}x${(Math.random() * 10).toFixed(1)} cm`;
+          break;
+        case 'packageWeight':
+          item[field] = `${(Math.random() * 2 + 0.1).toFixed(2)} kg`;
+          break;
+        case 'packageDimensions':
+          item[field] = `${(Math.random() * 20 + 2).toFixed(1)}x${(Math.random() * 15 + 2).toFixed(1)}x${(Math.random() * 10 + 2).toFixed(1)} cm`;
+          break;
         default:
           if (field.toLowerCase().includes('name') || field.toLowerCase().includes('item')) {
             item[field] = `Sample ${field.charAt(0).toUpperCase() + field.slice(1)} ${i + 1}`;
@@ -192,7 +208,7 @@ const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   ipbt: { fields: ['ipbtId', 'taskName', 'assignedTo', 'dueDate', 'priority'], count: 7 },
   'purchases-cal': { fields: ['eventTitle', 'eventType', 'eventDate', 'relatedPO', 'notes'], count: 9 },
   'bank-statement': { fields: ['transactionDate', 'description', 'debit', 'credit', 'balance'], count: 40 },
-  'product-catalog': { fields: ['itemName', 'sku', 'unitPrice', 'category', 'description'], count: 40 },
+  'product-catalog': { fields: ['itemName', 'sku', 'unitPrice', 'category', 'description', 'productWeight', 'productDimensions', 'packageWeight', 'packageDimensions'], count: 40 },
 };
 
 export const getMockData = (slug: string): GenericItem[] => {
