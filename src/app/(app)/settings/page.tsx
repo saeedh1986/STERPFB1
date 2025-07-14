@@ -4,16 +4,27 @@
 import React, { useState } from 'react';
 import { useTheme } from "next-themes";
 import { PageHeader } from "@/components/PageHeader";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Moon, Sun, Monitor, FilePenLine, PlusCircle } from "lucide-react";
+import { Moon, Sun, Monitor, FilePenLine, PlusCircle, AlertTriangle, Trash2 } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { chartOfAccountsData as initialChartOfAccountsData, getColumns, type GenericItem } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataFormDialog } from '@/components/DataFormDialog';
 import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const getBadgeVariantForAccountType = (type: string) => {
     switch (type) {
@@ -58,6 +69,18 @@ export default function SettingsPage() {
     }
     setIsDialogOpen(false);
   };
+  
+  const handleResetData = () => {
+    localStorage.clear();
+    toast({
+      title: "Application Reset",
+      description: "All data has been cleared. The application will now reload.",
+    });
+    // Use a timeout to ensure the toast has time to show before the page reloads
+    setTimeout(() => {
+      window.location.reload();
+    }, 1500);
+  };
 
 
   return (
@@ -66,40 +89,84 @@ export default function SettingsPage() {
       <main className="flex-1 p-4 md:p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         <div className="space-y-6">
             <Card className="shadow-lg">
-            <CardHeader>
-                <CardTitle>Appearance</CardTitle>
-                <CardDescription>
-                Customize the look and feel of the application. Changes are saved automatically.
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
-                <div className="space-y-4">
-                <Label htmlFor="theme">Theme</Label>
-                <RadioGroup
-                    id="theme"
-                    value={theme}
-                    onValueChange={setTheme}
-                    className="grid grid-cols-1 sm:grid-cols-3 gap-4"
-                >
-                    <Label htmlFor="light" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
-                    <RadioGroupItem value="light" id="light" className="sr-only" />
-                    <Sun className="h-5 w-5" />
-                    <span>Light</span>
-                    </Label>
-                    <Label htmlFor="dark" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
-                    <RadioGroupItem value="dark" id="dark" className="sr-only" />
-                    <Moon className="h-5 w-5" />
-                    <span>Dark</span>
-                    </Label>
-                    <Label htmlFor="system" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
-                    <RadioGroupItem value="system" id="system" className="sr-only" />
-                    <Monitor className="h-5 w-5" />
-                    <span>System</span>
-                    </Label>
-                </RadioGroup>
-                </div>
-            </CardContent>
+                <CardHeader>
+                    <CardTitle>Appearance</CardTitle>
+                    <CardDescription>
+                    Customize the look and feel of the application. Changes are saved automatically.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-4">
+                    <Label htmlFor="theme">Theme</Label>
+                    <RadioGroup
+                        id="theme"
+                        value={theme}
+                        onValueChange={setTheme}
+                        className="grid grid-cols-1 sm:grid-cols-3 gap-4"
+                    >
+                        <Label htmlFor="light" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
+                        <RadioGroupItem value="light" id="light" className="sr-only" />
+                        <Sun className="h-5 w-5" />
+                        <span>Light</span>
+                        </Label>
+                        <Label htmlFor="dark" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
+                        <RadioGroupItem value="dark" id="dark" className="sr-only" />
+                        <Moon className="h-5 w-5" />
+                        <span>Dark</span>
+                        </Label>
+                        <Label htmlFor="system" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
+                        <RadioGroupItem value="system" id="system" className="sr-only" />
+                        <Monitor className="h-5 w-5" />
+                        <span>System</span>
+                        </Label>
+                    </RadioGroup>
+                    </div>
+                </CardContent>
             </Card>
+
+             <Card className="shadow-lg border-destructive/50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-destructive">
+                  <AlertTriangle />
+                  Danger Zone
+                </CardTitle>
+                <CardDescription>
+                  These actions are destructive and cannot be undone.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm mb-2">
+                  Resetting the application will clear all stored data, including inventory, sales, expenses, and settings.
+                </p>
+                <p className="text-sm font-medium">
+                  The application will be restored to its original demonstration state.
+                </p>
+              </CardContent>
+              <CardFooter>
+                 <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                        <Button variant="destructive">
+                            <Trash2 className="mr-2 h-4 w-4" /> Reset Application Data
+                        </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete all application data from your browser's local storage and reload the page.
+                        </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleResetData} className="bg-destructive hover:bg-destructive/90">
+                            Yes, Reset Data
+                        </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+              </CardFooter>
+            </Card>
+
         </div>
 
         <Card className="shadow-lg">
