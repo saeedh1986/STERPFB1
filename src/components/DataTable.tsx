@@ -3,6 +3,7 @@
 
 import type { GenericItem, ColumnDefinition } from '@/lib/data';
 import React, { useState, useMemo } from 'react';
+import Link from 'next/link';
 import {
   Table,
   TableBody,
@@ -21,7 +22,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import { FilePlus, FilePenLine, Trash2, ChevronDown, Upload, Download } from 'lucide-react';
+import { FilePlus, FilePenLine, Trash2, ChevronDown, Upload, Download, Barcode } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import {
   AlertDialog,
@@ -225,6 +226,15 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
                         <DropdownMenuItem onClick={() => handleUpdate(item)}>
                           <FilePenLine className="mr-2 h-4 w-4" /> Update
                         </DropdownMenuItem>
+
+                        {pageTitle === 'Product Catalog' && (
+                           <DropdownMenuItem asChild>
+                                <Link href={`/inventory-barcode/generate?sku=${item.sku}`}>
+                                    <Barcode className="mr-2 h-4 w-4" /> Generate Code
+                                </Link>
+                           </DropdownMenuItem>
+                        )}
+                        
                         <DropdownMenuSeparator />
                          <AlertDialog>
                             <AlertDialogTrigger asChild>
