@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import InventoryBarcodePage from '../inventory-barcode/page';
 import PurchasesCalPage from '../purchases-cal/page';
 import BankStatementPage from '../bank-statement/page';
+import GeneralLedgerPage from '../general-ledger/page';
 
 export default function ModulePage() {
   const params = useParams();
@@ -23,6 +24,9 @@ export default function ModulePage() {
   }
   if (slug === 'bank-statement') {
     return <BankStatementPage />;
+  }
+   if (slug === 'general-ledger') {
+    return <GeneralLedgerPage />;
   }
 
   const data = getMockData(slug);

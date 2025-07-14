@@ -136,7 +136,7 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
   if (slug === 'product-catalog') {
     return productCatalogPool;
   }
-  if (slug === 'invoices' || slug === 'purchases-cal' || slug === 'bank-statement') {
+  if (slug === 'invoices' || slug === 'purchases-cal' || slug === 'bank-statement' || slug === 'general-ledger') {
     // These pages have custom data handling
     return [];
   }
@@ -235,7 +235,7 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
         case 'lastUpdated':
         case 'eventDate':
         case 'transactionDate':
-          item[field] = new Date(Date.now() - Math.floor(Math.random() * 1e10)).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '-');
+          item[field] = new Date(Date.now() - Math.floor(Math.random() * 3e9)).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '-');
           break;
         case 'barcode':
           item[field] = randomInventoryItem.sku;
@@ -317,18 +317,19 @@ export const purchasesCalDetailsData = [
 const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   inventory: { fields: ['itemName', 'sku', 'quantity', 'unitPrice', 'category'], count: INVENTORY_ITEMS_POOL_SIZE },
   'inventory-barcode': { fields: ['itemName', 'barcode', 'quantity'], count: INVENTORY_ITEMS_POOL_SIZE },
-  purchases: { fields: ['purchaseDate', 'supplier', 'sku', 'itemName', 'quantity', 'unitCost', 'totalCost'], count: 10 },
-  sales: { fields: ['saleDate', 'customerName', 'orderId', 'sku', 'itemName', 'qtySold', 'qtyRtv', 'note', 'price', 'shipping', 'referralFees', 'shippingCost', 'paymentFees', 'totalSales'], count: 30 },
+  purchases: { fields: ['purchaseDate', 'supplier', 'sku', 'itemName', 'quantity', 'unitCost', 'totalCost'], count: 25 },
+  sales: { fields: ['saleDate', 'customerName', 'orderId', 'sku', 'itemName', 'qtySold', 'qtyRtv', 'note', 'price', 'shipping', 'referralFees', 'shippingCost', 'paymentFees', 'totalSales'], count: 40 },
   invoices: { fields: [], count: 0 },
-  expenses: { fields: ['expenseDate', 'description', 'supplier', 'category', 'amount'], count: 12 },
+  expenses: { fields: ['expenseDate', 'description', 'supplier', 'category', 'amount'], count: 20 },
   customers: { fields: ['name', 'contact', 'email', 'address', 'city', 'country'], count: customersPool.length },
   vendors: { fields: ['name', 'contact', 'email', 'address', 'website', 'city', 'country'], count: vendorsPool.length },
   logistics: { fields: ['companyName', 'type', 'serviceDescription', 'contactDetails', 'location', 'notes'], count: 6 },
   ipcc: { fields: ['date', 'sku', 'quantity', 'usd', 'exchangeRate', 'aed', 'customsFees', 'shippingFees', 'bankCharges', 'totalCost', 'totalCostPerUnit'], count: 20 },
   ipbt: { fields: ['ipbtId', 'taskName', 'assignedTo', 'dueDate', 'priority'], count: 7 },
   'purchases-cal': { fields: [], count: 0 },
-  'bank-statement': { fields: [], count: 0 }, // Using custom page now
+  'bank-statement': { fields: [], count: 0 }, 
   'product-catalog': { fields: ['imageUrl', 'itemName', 'sku', 'unitPrice', 'category', 'description', 'productWeight', 'productDimensions', 'packageWeight', 'packageDimensions'], count: 40 },
+  'general-ledger': { fields: [], count: 0 },
 };
 
 export const getMockData = (slug: string): GenericItem[] => {
@@ -370,7 +371,7 @@ export const getColumns = (slug: string): ColumnDefinition[] => {
       col.cell = ({ row }) => {
         const value = row.getValue(col.accessorKey) as string;
         if (!value) return '';
-        const href = col.accessorKey === 'email' ? `mailto:${value}` : value;
+        const href = col.accessorKey === 'email' ? `mailto:${value}` : value.startsWith('http') ? value : `https://${value}`;
         return React.createElement('a', { href: href, target: '_blank', rel: 'noopener noreferrer', className: 'text-blue-600 hover:underline' }, value);
       };
     }
@@ -446,6 +447,9 @@ export const getPageTitle = (slug: string): string => {
   }
   if (slug === 'vendors') {
     return 'Vendors Management';
+  }
+   if (slug === 'general-ledger') {
+    return 'General Ledger';
   }
   return slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') + ' Management';
 };

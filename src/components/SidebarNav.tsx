@@ -7,10 +7,12 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard, Package, Barcode, ShoppingCart, CreditCard, TrendingUp,
-  Users, Building, Truck, Layers, Combine, CalendarDays, Landmark, BotMessageSquare, Package2, Library, FileText, Calculator
+  Users, Building, Truck, Layers, Combine, CalendarDays, Landmark, BotMessageSquare, Package2, Library, FileText, Calculator, BookOpen
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+
 
 interface NavItem {
   href: string;
@@ -33,8 +35,12 @@ const navItems: NavItem[] = [
   { href: '/ipcc', label: 'Cost Calculator', icon: Calculator },
   { href: '/ipbt', label: 'IPBT', icon: Combine },
   { href: '/purchases-cal', label: 'Purchases Cal.', icon: CalendarDays },
-  { href: '/bank-statement', label: 'Bank Statement', icon: Landmark },
   { href: '/logistics-insights', label: 'Logistics Insights', icon: BotMessageSquare },
+];
+
+const accountingNavItems: NavItem[] = [
+    { href: '/general-ledger', label: 'General Ledger', icon: BookOpen },
+    { href: '/bank-statement', label: 'Bank Statement', icon: Landmark },
 ];
 
 export function SidebarNav() {
@@ -65,6 +71,37 @@ export function SidebarNav() {
               {item.label}
             </Link>
           ))}
+          
+          <Accordion type="single" collapsible defaultValue="accounting" className="w-full">
+            <AccordionItem value="accounting" className="border-b-0">
+              <AccordionTrigger className="px-3 py-2.5 text-sm hover:no-underline hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-lg [&[data-state=open]]:bg-sidebar-accent">
+                <span className="flex items-center gap-3">
+                  <Layers className="h-5 w-5" />
+                  Accounting
+                </span>
+              </AccordionTrigger>
+              <AccordionContent className="pl-7 pt-1">
+                 <div className="flex flex-col gap-1">
+                  {accountingNavItems.map((item) => (
+                     <Link
+                      key={item.label}
+                      href={item.href}
+                      className={cn(
+                        'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+                        pathname.startsWith(item.href)
+                          ? 'bg-sidebar-primary text-sidebar-primary-foreground font-medium'
+                          : 'text-sidebar-foreground'
+                      )}
+                    >
+                      <item.icon className="h-5 w-5" />
+                      {item.label}
+                    </Link>
+                  ))}
+                 </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+
         </nav>
       </ScrollArea>
     </div>
