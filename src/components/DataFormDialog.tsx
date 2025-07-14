@@ -12,6 +12,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { GenericItem, ColumnDefinition } from '@/lib/data';
 import { inventoryItemsPool, expenseCategories, vendorsPool } from '@/lib/data';
 import { useEffect } from 'react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
+import { CalendarIcon } from 'lucide-react';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
 
 interface DataFormDialogProps {
   isOpen: boolean;
@@ -46,13 +51,34 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
 
   useEffect(() => {
     if (isOpen) {
-      form.reset(defaultValues || {});
+        // When opening the dialog, transform date strings from mock data into Date objects for the picker
+        const transformedDefaults = { ...defaultValues };
+        columns.forEach(col => {
+            if (col.accessorKey.toLowerCase().includes('date') && defaultValues?.[col.accessorKey]) {
+                const dateParts = (defaultValues[col.accessorKey] as string).split('-');
+                if (dateParts.length === 3) {
+                    // Assuming format is DD-Mon-YYYY e.g., "01-Jan-2023"
+                    const date = new Date(`${dateParts[1]} ${dateParts[0]}, ${dateParts[2]}`);
+                    if (!isNaN(date.getTime())) {
+                        (transformedDefaults as any)[col.accessorKey] = date;
+                    }
+                }
+            }
+        });
+        form.reset(transformedDefaults || {});
     }
-  }, [isOpen, defaultValues, form]);
+  }, [isOpen, defaultValues, form, columns]);
 
 
   const handleFormSubmit: SubmitHandler<FormValues> = (data) => {
-    onSubmit(data);
+    // Transform Date objects back to string format before submitting
+    const formattedData = { ...data };
+    columns.forEach(col => {
+        if (col.accessorKey.toLowerCase().includes('date') && data[col.accessorKey]) {
+            (formattedData as any)[col.accessorKey] = format(new Date(data[col.accessorKey]), 'dd-MMM-yyyy');
+        }
+    });
+    onSubmit(formattedData);
   };
   
   const isSkuSelectMode = title.includes('Sales') || title.includes('Purchases');
@@ -78,6 +104,53 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4 py-4">
             {columns.map((col) => {
+
+             if (col.accessorKey.toLowerCase().includes('date')) {
+                return (
+                  <FormField
+                    key={col.accessorKey}
+                    control={form.control}
+                    name={col.accessorKey as keyof FormValues}
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>{col.header}</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-full pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(new Date(field.value), "PPP")
+                                ) : (
+                                  <span>Pick a date</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value ? new Date(field.value) : undefined}
+                              onSelect={field.onChange}
+                              disabled={(date) =>
+                                date > new Date() || date < new Date("1900-01-01")
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                );
+              }
 
               if (isSkuSelectMode && col.accessorKey === 'sku') {
                 return (
@@ -110,6 +183,25 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                     )}
                   />
                 );
+              }
+              
+              if ((isExpenseMode || title.includes('Purchases')) && col.accessorKey === 'supplier') {
+                  return (
+                      <FormField
+                          key={col.accessorKey}
+                          control={form.control}
+                          name={col.accessorKey as keyof FormValues}
+                          render={({ field }) => (
+                              <FormItem>
+                                  <FormLabel>{col.header}</FormLabel>
+                                  <FormControl>
+                                      <Input placeholder={`Enter ${col.header.toLowerCase()}...`} {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                              </FormItem>
+                          )}
+                      />
+                  );
               }
               
               if (isExpenseMode && col.accessorKey === 'category') {
