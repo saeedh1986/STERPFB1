@@ -14,8 +14,12 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { productCatalogPool } from '@/lib/data';
-import { Trash2, PlusCircle, Check, ChevronsUpDown, Upload } from 'lucide-react';
+import { Trash2, PlusCircle, Check, ChevronsUpDown, Upload, CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import QRCode from 'qrcode.react';
+
 
 const lineItemSchema = z.object({
   productId: z.string().optional(),
@@ -26,7 +30,7 @@ const lineItemSchema = z.object({
 
 const invoiceSchema = z.object({
   invoiceNumber: z.string().min(1, 'Invoice number is required.'),
-  invoiceDate: z.string().min(1, 'Invoice date is required.'),
+  invoiceDate: z.date({ required_error: "Invoice date is required."}),
   billTo: z.string().min(1, 'Bill To is required.'),
   shipTo: z.string().min(1, 'Ship To is required.'),
   instructions: z.string().optional(),
@@ -46,8 +50,8 @@ export function CreateInvoiceForm() {
   const form = useForm<InvoiceFormValues>({
     resolver: zodResolver(invoiceSchema),
     defaultValues: {
-      invoiceNumber: '119',
-      invoiceDate: new Date().toLocaleDateString('en-CA'),
+      invoiceNumber: `INV-${Date.now()}`,
+      invoiceDate: new Date(),
       billTo: 'Saif',
       shipTo: 'Saif',
       instructions: 'Amazon.ae # 408-3345681-9845153',
@@ -63,20 +67,18 @@ export function CreateInvoiceForm() {
     name: "lineItems",
   });
 
-  const lineItems = form.watch('lineItems');
-  const vat = form.watch('vat');
-  const shipping = form.watch('shipping');
-  const codFees = form.watch('codFees');
+  const watchedFormValues = form.watch();
 
   useEffect(() => {
-    const newSubtotal = lineItems.reduce((acc, item) => acc + (item.quantity * item.unitPrice), 0);
+    const newSubtotal = watchedFormValues.lineItems.reduce((acc, item) => acc + (item.quantity * item.unitPrice), 0);
     setSubtotal(newSubtotal);
-  }, [lineItems]);
+  }, [watchedFormValues.lineItems]);
 
   useEffect(() => {
-    const newTotal = subtotal + vat + shipping + codFees;
+    const { vat, shipping, codFees } = watchedFormValues;
+    const newTotal = subtotal + (vat || 0) + (shipping || 0) + (codFees || 0);
     setTotal(newTotal);
-  }, [subtotal, vat, shipping, codFees]);
+  }, [subtotal, watchedFormValues.vat, watchedFormValues.shipping, watchedFormValues.codFees, watchedFormValues]);
 
   const handleProductSelect = (productId: string, index: number) => {
     const product = productCatalogPool.find(p => p.id === productId);
@@ -111,9 +113,20 @@ export function CreateInvoiceForm() {
   };
 
   const onSubmit = (data: InvoiceFormValues) => {
-    // In a real app, you would submit this data to a backend.
-    console.log({ ...data, subtotal, total, logo: logoSrc });
+    const submissionData = {
+      ...data,
+      invoiceDate: format(data.invoiceDate, 'yyyy-MM-dd'),
+      subtotal,
+      total,
+      logo: logoSrc,
+    };
+    console.log(submissionData);
     alert('Invoice Submitted! Check the console for the data.');
+  };
+
+  const getQrCodeValue = () => {
+    const { invoiceNumber, invoiceDate } = watchedFormValues;
+    return `Invoice No: ${invoiceNumber}\nDate: ${format(invoiceDate || new Date(), 'PPP')}\nTotal: د.إ ${total.toFixed(2)}`;
   };
 
   return (
@@ -121,17 +134,9 @@ export function CreateInvoiceForm() {
       <CardContent className="p-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <header className="flex justify-between items-start">
-              <div>
-                <h2 className="text-2xl font-bold">Saeed Store Electronics</h2>
-                <p>Dubai, United Arab Emirates</p>
-                <p>Website: S3eed.ae</p>
-                <p>Email: info@s3eed.ae</p>
-                <p>WhatsApp: +971553813831</p>
-              </div>
-              <div className="text-right">
-                 <div className="flex justify-end items-center gap-4">
-                  <div className="flex flex-col items-center gap-2">
+            <header className="flex justify-between items-start gap-4">
+               <div className="flex items-start gap-4">
+                <div className="flex flex-col items-center gap-2">
                     {logoSrc ? (
                         <Image src={logoSrc} alt="Uploaded Logo" width={100} height={100} className="object-contain" />
                     ) : (
@@ -146,7 +151,21 @@ export function CreateInvoiceForm() {
                         </div>
                     </label>
                     <input id="logo-upload" type="file" className="hidden" accept="image/*" onChange={handleLogoUpload} />
-                   </div>
+                </div>
+                 <div>
+                    <h2 className="text-2xl font-bold">Saeed Store Electronics</h2>
+                    <p>Dubai, United Arab Emirates</p>
+                    <p>Website: S3eed.ae</p>
+                    <p>Email: info@s3eed.ae</p>
+                    <p>WhatsApp: +971553813831</p>
+                </div>
+              </div>
+
+              <div className="text-right">
+                <div className="flex justify-end items-center gap-4">
+                  <div className="p-2 border rounded-md">
+                     <QRCode value={getQrCodeValue()} size={80} level="H" />
+                  </div>
                 </div>
               </div>
             </header>
@@ -160,26 +179,50 @@ export function CreateInvoiceForm() {
                             <FormControl>
                                 <div className="flex items-center">
                                     <span className="font-bold text-lg mr-2">INVOICE NO.</span>
-                                    <Input {...field} className="bg-gray-800 border-none text-white w-24" />
+                                    <Input {...field} className="bg-gray-800 border-none text-white w-36 font-mono" readOnly />
                                 </div>
                             </FormControl>
                         </FormItem>
                     )}
                 />
-                <FormField
+                 <FormField
                     control={form.control}
                     name="invoiceDate"
                     render={({ field }) => (
-                         <FormItem>
+                      <FormItem className="flex items-center">
+                        <FormLabel className="font-bold text-lg mr-2 mt-2">DATE</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
                             <FormControl>
-                                <div className="flex items-center">
-                                    <span className="font-bold text-lg mr-2">DATE</span>
-                                    <Input type="date" {...field} className="bg-gray-800 border-none text-white" />
-                                </div>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-[240px] pl-3 text-left font-normal bg-gray-800 border-none text-white hover:bg-gray-700 hover:text-white",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>Pick a date</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
                             </FormControl>
-                        </FormItem>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
                     )}
-                />
+                  />
             </div>
 
             <div className="grid grid-cols-3 gap-6">
@@ -262,7 +305,7 @@ export function CreateInvoiceForm() {
                         <FormField control={form.control} name={`lineItems.${index}.unitPrice`} render={({ field }) => ( <FormItem><FormControl><Input type="number" step="0.01" {...field} className="text-right" /></FormControl></FormItem> )} />
                       </TableCell>
                       <TableCell className="text-right font-medium">
-                        د.إ {(lineItems[index].quantity * lineItems[index].unitPrice).toFixed(2)}
+                        د.إ {(watchedFormValues.lineItems[index]?.quantity * watchedFormValues.lineItems[index]?.unitPrice || 0).toFixed(2)}
                       </TableCell>
                       <TableCell>
                         <Button variant="ghost" size="icon" onClick={() => remove(index)}>
