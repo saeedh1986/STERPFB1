@@ -117,17 +117,37 @@ export default function GenerateBarcodePage() {
         toast({ title: "No Printer Selected", description: "Please select a printer first.", variant: "destructive"});
         return;
     }
+     if (!item) {
+        toast({ title: "Item not found", description: "Cannot print without item data.", variant: "destructive"});
+        return;
+    }
 
     try {
         const config = qz.configs.create(selectedPrinter);
+        
+        // Assuming 8 dots/mm (203 dpi)
+        const labelWidthDots = 40 * 8; // 320
+        const labelHeightDots = 25 * 8; // 200
 
-        // Generate ZPL commands for the label
+        // Generate ZPL commands for a 40mm x 25mm label
         const zplData = [
             '^XA', // Start
-            '^FO50,50^A0N,30,30^FD' + item?.itemName.substring(0, 25) + '^FS', // Item Name
-            '^FO50,90^A0N,25,25^FD' + codeValue + '^FS', // SKU
-            '^FO60,130^BY2,2,60^BCN,60,Y,N,N,A^FD' + codeValue + '^FS', // Barcode
-            '^FO350,130^BQN,2,4^FDQA,' + codeValue + '^FS', // QR Code
+            `^LL${labelHeightDots}`, // Label Length (height)
+            `^PW${labelWidthDots}`, // Label Width
+            '^CI28', // UTF-8 Character Set
+            
+            // Item Name (centered) - Fit up to ~25 chars
+            `^FO0,15,^FB${labelWidthDots},1,0,C,0^A0N,22,22^FD${item.itemName.substring(0, 25)}^FS`,
+            
+            // Barcode (centered, below item name)
+            `^FO20,50^BY2,2,45^BCN,45,N,N,N,A^FD${codeValue}^FS`,
+            
+            // SKU text (below barcode)
+            `^FO0,105,^FB${labelWidthDots},1,0,C,0^A0N,18,18^FD${codeValue}^FS`,
+            
+            // QR Code (right aligned)
+            `^FO${labelWidthDots - 100},125^BQN,2,4^FDQA,${codeValue}^FS`,
+            
             '^XZ' // End
         ];
         
@@ -289,7 +309,7 @@ export default function GenerateBarcodePage() {
                         </CardContent>
                         <CardFooter>
                             <Button onClick={printWithQz} disabled={!qzConnected || !selectedPrinter || !codeValue}>
-                                <Printer className="mr-2 h-4 w-4" /> Print with QZ Tray
+                                <Printer className="mr-2 h-4 w-4" /> Print with QZ Tray (40mm x 25mm)
                             </Button>
                         </CardFooter>
                     </Card>
@@ -332,3 +352,5 @@ export default function GenerateBarcodePage() {
     </>
   );
 }
+
+    
