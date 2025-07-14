@@ -143,6 +143,14 @@ export const chartOfAccountsData: GenericItem[] = [
   { id: 'coa-13', code: '5030', name: 'Shipping & Logistics Fees', type: 'Expense' },
   { id: 'coa-14', code: '5040', name: 'Marketing Expenses', type: 'Expense' },
   { id: 'coa-15', code: '5050', name: 'Utilities', type: 'Expense' },
+  { id: 'coa-16', code: '5060', name: 'IT & Software Subscriptions', type: 'Expense' },
+  { id: 'coa-17', code: '5070', name: 'Government & Licensing', type: 'Expense' },
+  { id: 'coa-18', code: '5080', name: 'Transport Expense', type: 'Expense' },
+  { id: 'coa-19', code: '5090', name: 'FBN Charges', type: 'Expense' },
+  { id: 'coa-20', code: '5100', name: 'Storage Expenses', type: 'Expense' },
+  { id: 'coa-21', code: '5110', name: 'Freelance Services', type: 'Expense' },
+
+
 ];
 
 
@@ -159,7 +167,7 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
   if (slug === 'product-catalog') {
     return productCatalogPool;
   }
-  if (slug === 'invoices' || slug === 'purchases-cal' || slug === 'bank-statement' || slug === 'general-ledger' || slug === 'chart-of-accounts') {
+  if (slug === 'invoices' || slug === 'purchases-cal' || slug === 'bank-statement' || slug === 'general-ledger' || slug === 'chart-of-accounts' || slug === 'trial-balance' || slug === 'balance-sheet') {
     // These pages have custom data handling
     return [];
   }
@@ -354,6 +362,8 @@ const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   'product-catalog': { fields: ['imageUrl', 'itemName', 'sku', 'unitPrice', 'category', 'description', 'productWeight', 'productDimensions', 'packageWeight', 'packageDimensions'], count: 40 },
   'general-ledger': { fields: [], count: 0 },
   'chart-of-accounts': { fields: ['code', 'name', 'type'], count: 0 },
+  'trial-balance': { fields: [], count: 0 },
+  'balance-sheet': { fields: [], count: 0 },
 };
 
 export const getMockData = (slug: string): GenericItem[] => {
@@ -477,6 +487,12 @@ export const getPageTitle = (slug: string): string => {
   }
   if (slug === 'chart-of-accounts') {
     return 'Chart of Accounts';
+  }
+   if (slug === 'trial-balance') {
+    return 'Trial Balance';
+  }
+   if (slug === 'balance-sheet') {
+    return 'Balance Sheet';
   }
   return slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') + ' Management';
 };

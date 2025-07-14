@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard, Package, Barcode, ShoppingCart, CreditCard, TrendingUp,
-  Users, Building, Truck, Layers, Combine, CalendarDays, Landmark, BotMessageSquare, Package2, Library, FileText, Calculator, BookOpen, Settings
+  Users, Building, Truck, Layers, Combine, CalendarDays, Landmark, BotMessageSquare, Package2, Library, FileText, Calculator, BookOpen, Settings, Scale, FileSpreadsheet
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -41,6 +41,8 @@ const navItems: NavItem[] = [
 const accountingNavItems: NavItem[] = [
     { href: '/general-ledger', label: 'General Ledger', icon: BookOpen },
     { href: '/bank-statement', label: 'Bank Statement', icon: Landmark },
+    { href: '/trial-balance', label: 'Trial Balance', icon: Scale },
+    { href: '/balance-sheet', label: 'Balance Sheet', icon: FileSpreadsheet },
 ];
 
 export function SidebarNav() {

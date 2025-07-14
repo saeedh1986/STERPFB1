@@ -10,6 +10,8 @@ import InventoryBarcodePage from '../inventory-barcode/page';
 import PurchasesCalPage from '../purchases-cal/page';
 import BankStatementPage from '../bank-statement/page';
 import GeneralLedgerPage from '../general-ledger/page';
+import TrialBalancePage from '../trial-balance/page';
+import BalanceSheetPage from '../balance-sheet/page';
 
 export default function ModulePage() {
   const params = useParams();
@@ -28,6 +30,13 @@ export default function ModulePage() {
    if (slug === 'general-ledger') {
     return <GeneralLedgerPage />;
   }
+  if (slug === 'trial-balance') {
+    return <TrialBalancePage />;
+  }
+  if (slug === 'balance-sheet') {
+    return <BalanceSheetPage />;
+  }
+
 
   const data = getMockData(slug);
   const columns = getColumns(slug);
