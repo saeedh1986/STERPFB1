@@ -49,7 +49,7 @@ export function PrintSettingsDialog({ isOpen, onClose, printers, settings, onSet
         
         const dataToSend = testData.join('\n');
         
-        // Data must be an array of print jobs
+        // Correctly format the data as an array of print job objects
         await qz.print(config, [
           { type: 'raw', format: 'zpl', data: dataToSend }
         ]);

@@ -191,7 +191,7 @@ export default function GenerateBarcodePage() {
         
         const dataToSend = zplData.join('\n');
         
-        // Data must be an array of print jobs
+        // Correctly format the data as an array of print job objects
         await qz.print(config, [
           { type: 'raw', format: 'zpl', data: dataToSend }
         ]);
