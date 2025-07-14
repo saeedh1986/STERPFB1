@@ -30,7 +30,7 @@ import { Separator } from '@/components/ui/separator';
 import { useAccessibility } from '@/context/AccessibilityContext';
 import { useCompanyProfile, type CompanyProfile } from '@/context/CompanyProfileContext';
 import { Input } from '@/components/ui/input';
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
 
 const getBadgeVariantForAccountType = (type: string) => {
