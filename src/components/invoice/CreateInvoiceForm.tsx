@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -13,7 +14,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { productCatalogPool } from '@/lib/data';
-import { Trash2, PlusCircle, Check, ChevronsUpDown } from 'lucide-react';
+import { Trash2, PlusCircle, Check, ChevronsUpDown, Upload } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const lineItemSchema = z.object({
@@ -40,6 +41,7 @@ type InvoiceFormValues = z.infer<typeof invoiceSchema>;
 export function CreateInvoiceForm() {
   const [subtotal, setSubtotal] = useState(0);
   const [total, setTotal] = useState(0);
+  const [logoSrc, setLogoSrc] = useState<string | null>(null);
 
   const form = useForm<InvoiceFormValues>({
     resolver: zodResolver(invoiceSchema),
@@ -96,10 +98,21 @@ export function CreateInvoiceForm() {
       unitPrice: 0,
     });
   };
+  
+  const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setLogoSrc(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+    }
+  };
 
   const onSubmit = (data: InvoiceFormValues) => {
     // In a real app, you would submit this data to a backend.
-    console.log({ ...data, subtotal, total });
+    console.log({ ...data, subtotal, total, logo: logoSrc });
     alert('Invoice Submitted! Check the console for the data.');
   };
 
@@ -117,16 +130,23 @@ export function CreateInvoiceForm() {
                 <p>WhatsApp: +971553813831</p>
               </div>
               <div className="text-right">
-                <div className="flex justify-end items-center gap-4">
-                  <div className="text-right">
-                    <p className="text-3xl font-bold tracking-tight" style={{ color: '#004E8A' }}>S3EED STORE</p>
-                    <p className="text-2xl font-semibold" style={{ color: '#004E8A' }}>سعيد ستور</p>
-                  </div>
-                  <svg width="80" height="80" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M79.1667 25H87.5L75 8.33333H25L12.5 25H20.8333M20.8333 25V83.3333C20.8333 85.5424 21.7115 87.662 23.2741 89.2246C24.8366 90.7871 26.9562 91.6667 29.1667 91.6667H70.8333C73.0428 91.6667 75.1624 90.7871 76.7249 89.2246C78.2875 87.662 79.1667 85.5424 79.1667 83.3333V25H20.8333Z" stroke="#25A9E0" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M12.5 25H87.5" stroke="#25A9E0" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M56.25 43.75C56.25 46.5826 55.1306 49.3038 53.1812 51.2533C51.2317 53.2027 48.5106 54.3223 45.6777 54.3223C42.8448 54.3223 40.1237 53.2027 38.1742 51.2533C36.2248 49.3038 35.1052 46.5826 35.1052 43.75C35.1052 40.0917 37.523 36.8556 40.9115 35.5398C44.2999 34.2241 48.1633 34.6158 51.2247 36.5843C54.286 38.5529 56.25 41.9213 56.25 45.625" fill="#004E8A" transform="matrix(1, 0, 0, 1, 4, 0)" />
-                  </svg>
+                 <div className="flex justify-end items-center gap-4">
+                  <div className="flex flex-col items-center gap-2">
+                    {logoSrc ? (
+                        <Image src={logoSrc} alt="Uploaded Logo" width={100} height={100} className="object-contain" />
+                    ) : (
+                        <div className="w-24 h-24 bg-muted rounded-md flex items-center justify-center text-muted-foreground text-sm text-center p-2">
+                           Upload Your Logo
+                        </div>
+                    )}
+                    <label htmlFor="logo-upload" className="text-sm text-primary underline cursor-pointer hover:text-primary/80">
+                        <div className="flex items-center gap-1">
+                          <Upload className="h-3 w-3" />
+                          <span>Change Logo</span>
+                        </div>
+                    </label>
+                    <input id="logo-upload" type="file" className="hidden" accept="image/*" onChange={handleLogoUpload} />
+                   </div>
                 </div>
               </div>
             </header>
