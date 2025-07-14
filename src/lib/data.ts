@@ -14,22 +14,69 @@ export interface ColumnDefinition {
   cell?: ({ row }: { row: { getValue: (key: string) => any } }) => JSX.Element | string | number;
 }
 
-const createMockData = (count: number, fields: string[]): GenericItem[] => {
+// Generate a pool of inventory items that can be referenced by other modules
+const INVENTORY_ITEMS_POOL_SIZE = 20;
+const inventoryItemsPool = Array.from({ length: INVENTORY_ITEMS_POOL_SIZE }, (_, i) => ({
+  id: `item-${i + 1}`,
+  itemName: `Sample Item ${i + 1}`,
+  sku: `SKU-${String(10001 + i)}`,
+  quantity: Math.floor(Math.random() * 100) + 1,
+  unitPrice: parseFloat((Math.random() * 500 + 10).toFixed(2)),
+  category: `Category ${String.fromCharCode(65 + (i % 5))}`,
+}));
+
+
+const createMockData = (count: number, fields: string[], slug: string): GenericItem[] => {
+  if (slug === 'inventory') {
+    return inventoryItemsPool;
+  }
+
   return Array.from({ length: count }, (_, i) => {
-    const item: GenericItem = { id: `item-${i + 1}` };
+    const item: GenericItem = { id: `${slug}-item-${i + 1}` };
+    const randomInventoryItem = inventoryItemsPool[Math.floor(Math.random() * INVENTORY_ITEMS_POOL_SIZE)];
+
     fields.forEach(field => {
-      if (field.toLowerCase().includes('name') || field.toLowerCase().includes('item')) {
-        item[field] = `Sample ${field.charAt(0).toUpperCase() + field.slice(1)} ${i + 1}`;
-      } else if (field.toLowerCase().includes('quantity') || field.toLowerCase().includes('stock')) {
-        item[field] = Math.floor(Math.random() * 100) + 1;
-      } else if (field.toLowerCase().includes('price') || field.toLowerCase().includes('amount') || field.toLowerCase().includes('cost')) {
-        item[field] = parseFloat((Math.random() * 500 + 10).toFixed(2));
-      } else if (field.toLowerCase().includes('date')) {
-        item[field] = new Date(Date.now() - Math.floor(Math.random() * 1e10)).toLocaleDateString();
-      } else if (field.toLowerCase().includes('barcode')) {
-        item[field] = `BC-${String(Math.floor(Math.random() * 1e8)).padStart(8, '0')}`;
-      } else {
-        item[field] = `Value ${i + 1}`;
+      switch (field) {
+        case 'itemName':
+          item[field] = randomInventoryItem.itemName;
+          break;
+        case 'sku':
+          item[field] = randomInventoryItem.sku;
+          break;
+        case 'quantity':
+        case 'stock':
+          item[field] = Math.floor(Math.random() * 20) + 1;
+          break;
+        case 'unitPrice':
+        case 'amount':
+        case 'unitCost':
+          item[field] = parseFloat((randomInventoryItem.unitPrice * (0.8 + Math.random() * 0.4)).toFixed(2));
+          break;
+        case 'totalAmount':
+           const quantity = item['quantity'] || 1;
+           const unitCost = item['unitCost'] || item['unitPrice'] || randomInventoryItem.unitPrice;
+           item[field] = parseFloat((quantity * unitCost).toFixed(2));
+           break;
+        case 'date':
+        case 'purchaseDate':
+        case 'saleDate':
+        case 'expenseDate':
+        case 'joinDate':
+        case 'estimatedDeliveryDate':
+        case 'lastUpdated':
+        case 'eventDate':
+        case 'transactionDate':
+          item[field] = new Date(Date.now() - Math.floor(Math.random() * 1e10)).toLocaleDateString();
+          break;
+        case 'barcode':
+          item[field] = `BC-${String(Math.floor(Math.random() * 1e8)).padStart(8, '0')}`;
+          break;
+        default:
+          if (field.toLowerCase().includes('name') || field.toLowerCase().includes('item')) {
+            item[field] = `Sample ${field.charAt(0).toUpperCase() + field.slice(1)} ${i + 1}`;
+          } else {
+             item[field] = `Value ${i + 1}`;
+          }
       }
     });
     return item;
@@ -38,10 +85,10 @@ const createMockData = (count: number, fields: string[]): GenericItem[] => {
 
 
 const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
-  inventory: { fields: ['itemName', 'sku', 'quantity', 'unitPrice', 'category'], count: 20 },
+  inventory: { fields: ['itemName', 'sku', 'quantity', 'unitPrice', 'category'], count: INVENTORY_ITEMS_POOL_SIZE },
   'inventory-barcode': { fields: ['itemName', 'barcode', 'quantity'], count: 15 },
-  purchases: { fields: ['purchaseOrder', 'vendorName', 'purchaseDate', 'totalAmount', 'status'], count: 10 },
-  sales: { fields: ['invoiceNumber', 'customerName', 'saleDate', 'totalAmount', 'paymentStatus'], count: 30 },
+  purchases: { fields: ['purchaseOrder', 'vendorName', 'itemName', 'sku', 'quantity', 'unitCost', 'totalAmount', 'purchaseDate', 'status'], count: 10 },
+  sales: { fields: ['invoiceNumber', 'customerName', 'itemName', 'sku', 'quantity', 'unitPrice', 'totalAmount', 'saleDate', 'paymentStatus'], count: 30 },
   expenses: { fields: ['expenseCategory', 'expenseDate', 'amount', 'description', 'paidTo'], count: 25 },
   customers: { fields: ['customerName', 'email', 'phone', 'address', 'joinDate'], count: 18 },
   vendors: { fields: ['vendorName', 'contactPerson', 'email', 'phone', 'productCategory'], count: 12 },
@@ -55,7 +102,7 @@ const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
 export const getMockData = (slug: string): GenericItem[] => {
   const config = moduleDataConfig[slug];
   if (!config) return [];
-  return createMockData(config.count, config.fields);
+  return createMockData(config.count, config.fields, slug);
 };
 
 export const getColumns = (slug: string): ColumnDefinition[] => {
@@ -69,7 +116,7 @@ export const getColumns = (slug: string): ColumnDefinition[] => {
 
   // Example of custom cell rendering for price/amount fields
   columns.forEach(col => {
-    if (col.accessorKey.toLowerCase().includes('price') || col.accessorKey.toLowerCase().includes('amount') || col.accessorKey.toLowerCase().includes('cost') || col.accessorKey.toLowerCase().includes('debit') || col.accessorKey.toLowerCase().includes('credit')) {
+    if (col.accessorKey.toLowerCase().includes('price') || col.accessorKey.toLowerCase().includes('amount') || col.accessorKey.toLowerCase().includes('cost') || col.accessorKey.toLowerCase().includes('debit') || col.accessorKey.toLowerCase().includes('credit') || col.accessorKey.toLowerCase().includes('balance')) {
       col.cell = ({ row }) => {
         const amount = parseFloat(row.getValue(col.accessorKey));
         const formatted = new Intl.NumberFormat("en-AE", {
