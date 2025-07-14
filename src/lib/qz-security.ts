@@ -25,7 +25,7 @@ yqnlp//jCOs51USfEpq36EsNkew1SWBYF+bodKTxWOhL/FjT2gg6t4559pzx1ReZ
 oYaHdn+UfvJbvvIb83cHN/oSQ4uYr87GX2v6VJD9gwAUjRo/fxKVseaBVb3YUEg+
 45x5I0Thft5c9XZb6ZqHAgMBAAGjRTBDMBIGA1UdEwEB/wQIMAYBAf8CAQEwDgYD
 VR0PAQH/BAQDAgEGMB0GA1UdDgQWBBRwpbbFEWf1SO2l8Wbu1DtjH30H5jANBgkq
-hkiGw0BAQsFAAOCAQEAXA5Q/P+r5Vzl1R9nlKa1eTmVw+2QHAWZtJTUyHsV0HCV
+hkiG9w0BAQsFAAOCAQEAXA5Q/P+r5Vzl1R9nlKa1eTmVw+2QHAWZtJTUyHsV0HCV
 w2vzocYwMOiSP+dOrS4mmw66potPUBifB4r2NN5ExavuenbOqhTBNBPI4dOxZ6sk
 mTpWgRbzjdHB70yaLKt/xNfplDLPWi4Y3vRAwOSV4+0MGMBARnUcTCDwRGBdwkc2
 6OExlD446G42PidLfCZTqY/GEEYuzvhhajDPcOah45xaWBeQSXFofFkgd2KUdAif
@@ -36,7 +36,7 @@ PXRWIxSCEmztSrWvbtChwIInGtNLN8rJgx2Oy8uTVw==
 
 const PRIVATE_KEY = `
 -----BEGIN PRIVATE KEY-----
-MIIEvwIBADANBgkqhkiGw0BAQEFAASCBKkwggSlAgEAAoIBAQDPjrVZorKaT9DG
+MIIEvwIBADANBgkqhkiG9b3DQEBAQEFAASCBKkwggSlAgEAAoIBAQDPjrVZorKaT9DG
 zGHW250TR0fUzD9KHbhLA+VLKkAPQhzARlzJ4+mmXRGfrnRebSuuf03Q/ePiMXdE
 5K+CVDQT7kVKVx3aTnJAnITUJOrq4uxl4A71mryTksdDwJv2aKE7+THYbqoTdfN6
 tn4E+2U88HUV7WP9YqsganW1GSQi2F0IZN4g6L2rYT5J2tWQoKlXyqnlp//jCOs5
@@ -65,23 +65,27 @@ JRyXUq7/xSDhPwjyHQMj2czy7Q==
 -----END PRIVATE KEY-----
 `.trim();
 
+// Helper to convert a hexadecimal string to a Base64 string
+function hexToBase64(hex: string) {
+    let binary = '';
+    for (let i = 0; i < hex.length / 2; i++) {
+        binary += String.fromCharCode(parseInt(hex.substr(i * 2, 2), 16));
+    }
+    return btoa(binary);
+}
 
 // Signs the data with the private key
-function signData(data: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-        try {
-            const sig = new KJUR.crypto.Signature({ "alg": ALGORITHM });
-            sig.init(PRIVATE_KEY);
-            sig.updateString(data);
-            const hex = sig.sign();
-            // Convert hex to base64
-            const base64 = btoa(hex.match(/\w{2}/g)!.map(a => String.fromCharCode(parseInt(a, 16))).join(""));
-            resolve(base64);
-        } catch (err) {
-            console.error(err);
-            reject(err);
-        }
-    });
+async function signData(data: string): Promise<string> {
+    try {
+        const sig = new KJUR.crypto.Signature({ "alg": ALGORITHM });
+        sig.init(PRIVATE_KEY);
+        sig.updateString(data);
+        const hex = sig.sign();
+        return hexToBase64(hex);
+    } catch (err) {
+        console.error(err);
+        return Promise.reject(err);
+    }
 }
 
 // Sets up the signature and certificate promises for QZ Tray
