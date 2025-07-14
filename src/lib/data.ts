@@ -436,7 +436,7 @@ export const getColumns = (slug: string): ColumnDefinition[] => {
         };
         const formatted = new Intl.NumberFormat("en-US", formatOptions).format(amount || 0);
         
-        const currencySymbol = col.accessorKey === 'usd' ? '$ ' : React.createElement(Image, { src: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/UAE_Dirham_Symbol.svg/1377px-UAE_Dirham_Symbol.svg.png", alt: "AED", width: 14, height: 14, className: "inline-block" });
+        const currencySymbol = col.accessorKey === 'usd' ? '$ ' : React.createElement(Image, { src: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/UAE_Dirham_Symbol.svg/1377px-UAE_Dirham_Symbol.svg.png", alt: "AED", width: 14, height: 14, className: "inline-block dark:invert" });
 
         return React.createElement(
           'div', 
@@ -592,4 +592,3 @@ export const getDashboardSummaryData = () => {
         lowStockItems,
     };
 };
-
