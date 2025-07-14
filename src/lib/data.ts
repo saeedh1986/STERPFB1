@@ -72,9 +72,9 @@ export const getColumns = (slug: string): ColumnDefinition[] => {
     if (col.accessorKey.toLowerCase().includes('price') || col.accessorKey.toLowerCase().includes('amount') || col.accessorKey.toLowerCase().includes('cost') || col.accessorKey.toLowerCase().includes('debit') || col.accessorKey.toLowerCase().includes('credit')) {
       col.cell = ({ row }) => {
         const amount = parseFloat(row.getValue(col.accessorKey));
-        const formatted = new Intl.NumberFormat("en-US", {
+        const formatted = new Intl.NumberFormat("en-AE", {
           style: "currency",
-          currency: "USD", // Or any relevant currency
+          currency: "AED",
         }).format(amount);
         return React.createElement('div', { className: "text-right font-medium" }, formatted);
       };
@@ -109,4 +109,3 @@ export const getDashboardSummary = () => ({
   totalPurchases: 62150,
   activeCustomers: 1280,
 });
-
