@@ -25,6 +25,37 @@ export const inventoryItemsPool = Array.from({ length: INVENTORY_ITEMS_POOL_SIZE
   category: `Category ${String.fromCharCode(65 + (i % 5))}`,
 }));
 
+const mockExpenseDescriptions = [
+  "Domain subscription",
+  "Business Lounge VIP Services",
+  "Trade License fees",
+  "Web Hosting Services",
+  "WoodMart Premium WordPress Theme",
+  "Office Supplies",
+  "Internet Bill",
+  "Electricity Bill",
+  "Marketing Campaign",
+  "Software License Renewal"
+];
+const mockExpenseSuppliers = [
+  "Only Domains",
+  "DET Business Lounge VIP",
+  "DET",
+  "Godaddy",
+  "Theme forest",
+  "Office Depot",
+  "Etisalat",
+  "DEWA",
+  "Google Ads",
+  "Microsoft"
+];
+const mockExpenseCategories = [
+  "IT & Software Subscriptions",
+  "Government & Licensing",
+  "Office Utilities",
+  "Marketing",
+];
+
 
 const createMockData = (count: number, fields: string[], slug: string): GenericItem[] => {
   if (slug === 'inventory') {
@@ -56,10 +87,12 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
            break;
         case 'price':
         case 'unitPrice':
-        case 'amount':
         case 'unitCost':
           item[field] = parseFloat((randomInventoryItem.unitPrice * (0.9 + Math.random() * 0.2)).toFixed(2));
           break;
+        case 'amount':
+           item[field] = parseFloat((Math.random() * 1500 + 30).toFixed(2));
+           break;
         case 'totalAmount': // Kept for backward compatibility if other parts use it
         case 'totalCost': // For purchases
            const quantity = item['quantity'] || 1;
@@ -89,7 +122,7 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
         case 'lastUpdated':
         case 'eventDate':
         case 'transactionDate':
-          item[field] = new Date(Date.now() - Math.floor(Math.random() * 1e10)).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' }).replace(/ /g, '-');
+          item[field] = new Date(Date.now() - Math.floor(Math.random() * 1e10)).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '-');
           break;
         case 'barcode':
           item[field] = `BC-${String(Math.floor(Math.random() * 1e8)).padStart(8, '0')}`;
@@ -98,8 +131,14 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
             item[field] = `${Math.floor(Math.random()*100)}-${Math.floor(Math.random()*1000000)}-${Math.floor(Math.random()*1000000)}`;
             break;
         case 'supplier':
-            item[field] = `Supplier ${String.fromCharCode(65 + (i % 5))}`;
+            item[field] = slug === 'expenses' ? mockExpenseSuppliers[i % mockExpenseSuppliers.length] : `Supplier ${String.fromCharCode(65 + (i % 5))}`;
             break;
+        case 'category':
+             item[field] = slug === 'expenses' ? mockExpenseCategories[i % mockExpenseCategories.length] : `Category ${String.fromCharCode(65 + (i % 5))}`;
+             break;
+        case 'description':
+             item[field] = slug === 'expenses' ? mockExpenseDescriptions[i % mockExpenseDescriptions.length] : `Sample Description ${i + 1}`;
+             break;
         default:
           if (field.toLowerCase().includes('name') || field.toLowerCase().includes('item')) {
             item[field] = `Sample ${field.charAt(0).toUpperCase() + field.slice(1)} ${i + 1}`;
@@ -118,7 +157,7 @@ const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   'inventory-barcode': { fields: ['itemName', 'barcode', 'quantity'], count: 15 },
   purchases: { fields: ['date', 'supplier', 'sku', 'itemName', 'quantity', 'totalCost'], count: 10 },
   sales: { fields: ['date', 'customerName', 'orderId', 'sku', 'itemName', 'qtySold', 'qtyRtv', 'note', 'price', 'shipping', 'referralFees', 'shippingCost', 'paymentFees', 'totalSales'], count: 30 },
-  expenses: { fields: ['expenseCategory', 'expenseDate', 'amount', 'description', 'paidTo'], count: 25 },
+  expenses: { fields: ['date', 'description', 'supplier', 'category', 'amount'], count: 10 },
   customers: { fields: ['customerName', 'email', 'phone', 'address', 'joinDate'], count: 18 },
   vendors: { fields: ['vendorName', 'contactPerson', 'email', 'phone', 'productCategory'], count: 12 },
   logistics: { fields: ['shipmentId', 'routeName', 'driverName', 'status', 'estimatedDeliveryDate'], count: 8 },
