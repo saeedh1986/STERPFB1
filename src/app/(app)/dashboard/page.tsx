@@ -32,10 +32,16 @@ const numberFormatter = (value: number) => {
 export default function DashboardPage() {
     const summaryData = React.useMemo(() => getDashboardSummaryData(), []);
 
-    const chartConfig = {
+    const barChartConfig = {
       sales: { label: "Sales", color: "hsl(var(--chart-2))" },
       expenses: { label: "Expenses", color: "hsl(var(--chart-4))" },
     };
+    
+    const pieChartConfig = summaryData.chartData.pieChart.reduce((acc, item) => {
+        acc[item.name] = { label: item.name, color: item.fill };
+        return acc;
+    }, {} as any);
+
 
     return (
         <>
@@ -91,21 +97,21 @@ export default function DashboardPage() {
                             <CardDescription>Comparison of sales vs. expenses over the last few months.</CardDescription>
                         </CardHeader>
                         <CardContent className="h-[350px]">
-                            <ResponsiveContainer width="100%" height="100%">
+                            <ChartContainer config={barChartConfig}>
                                 <BarChart data={summaryData.chartData.barChart}>
                                     <CartesianGrid vertical={false} />
                                     <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
                                     <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `AED ${value/1000}k`} />
-                                    <Tooltip
+                                    <ChartTooltip
                                         content={<ChartTooltipContent
                                             formatter={(value) => currencyFormatter(value as number)} 
                                         />} 
                                     />
                                     <Legend />
-                                    <Bar dataKey="sales" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
-                                    <Bar dataKey="expenses" fill="hsl(var(--chart-4))" radius={[4, 4, 0, 0]} />
+                                    <Bar dataKey="sales" fill="var(--color-sales)" radius={[4, 4, 0, 0]} />
+                                    <Bar dataKey="expenses" fill="var(--color-expenses)" radius={[4, 4, 0, 0]} />
                                 </BarChart>
-                            </ResponsiveContainer>
+                            </ChartContainer>
                         </CardContent>
                     </Card>
 
@@ -115,12 +121,12 @@ export default function DashboardPage() {
                             <CardDescription>Current state of your top inventory items by quantity.</CardDescription>
                         </CardHeader>
                         <CardContent className="h-[350px]">
-                           <ResponsiveContainer width="100%" height="100%">
+                           <ChartContainer config={pieChartConfig} className="mx-auto aspect-square max-h-[250px]">
                                 <PieChart>
-                                    <Tooltip
+                                    <ChartTooltip
                                         cursor={false}
                                         content={<ChartTooltipContent
-                                            formatter={(value, name) => `${name}: ${numberFormatter(value as number)}`}
+                                            formatter={(value) => numberFormatter(value as number)}
                                             hideIndicator
                                         />}
                                     />
@@ -131,17 +137,17 @@ export default function DashboardPage() {
                                         cx="50%"
                                         cy="50%"
                                         innerRadius={60}
-                                        outerRadius={100}
-                                        paddingAngle={5}
+                                        outerRadius={80}
+                                        paddingAngle={2}
                                         labelLine={false}
                                         label={({ percent, name }) => `${name.split(' ').pop()}: ${(percent * 100).toFixed(0)}%`}
                                     >
-                                       {summaryData.chartData.pieChart.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                                       {summaryData.chartData.pieChart.map((entry) => (
+                                            <Cell key={entry.name} fill={entry.fill} />
                                         ))}
                                     </Pie>
                                 </PieChart>
-                            </ResponsiveContainer>
+                            </ChartContainer>
                         </CardContent>
                     </Card>
                  </div>
@@ -223,4 +229,3 @@ export default function DashboardPage() {
         </>
     );
 }
-
