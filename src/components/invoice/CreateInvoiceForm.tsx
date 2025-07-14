@@ -42,6 +42,9 @@ const invoiceSchema = z.object({
 
 type InvoiceFormValues = z.infer<typeof invoiceSchema>;
 
+const aedSymbol = <Image src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/UAE_Dirham_Symbol.svg/1377px-UAE_Dirham_Symbol.svg.png" alt="AED" width={16} height={16} className="inline-block" />;
+
+
 export function CreateInvoiceForm() {
   const [subtotal, setSubtotal] = useState(0);
   const [total, setTotal] = useState(0);
@@ -115,7 +118,7 @@ export function CreateInvoiceForm() {
 
   const getQrCodeValue = () => {
     const { invoiceNumber, invoiceDate } = watchedFormValues;
-    return `Invoice No: ${invoiceNumber}\nDate: ${format(invoiceDate || new Date(), 'PPP')}\nTotal: د.إ ${total.toFixed(2)}`;
+    return `Invoice No: ${invoiceNumber}\nDate: ${format(invoiceDate || new Date(), 'PPP')}\nTotal: AED ${total.toFixed(2)}`;
   };
 
   return (
@@ -281,7 +284,10 @@ export function CreateInvoiceForm() {
                         <FormField control={form.control} name={`lineItems.${index}.unitPrice`} render={({ field }) => ( <FormItem><FormControl><Input type="number" step="0.01" {...field} className="text-right" /></FormControl></FormItem> )} />
                       </TableCell>
                       <TableCell className="text-right font-medium">
-                        د.إ {(watchedFormValues.lineItems[index]?.quantity * watchedFormValues.lineItems[index]?.unitPrice || 0).toFixed(2)}
+                        <div className="flex items-center justify-end gap-1">
+                          {aedSymbol}
+                          <span>{(watchedFormValues.lineItems[index]?.quantity * watchedFormValues.lineItems[index]?.unitPrice || 0).toFixed(2)}</span>
+                        </div>
                       </TableCell>
                       <TableCell>
                         <Button variant="ghost" size="icon" onClick={() => remove(index)}>
@@ -304,7 +310,7 @@ export function CreateInvoiceForm() {
                 <div className="w-full max-w-sm space-y-4">
                      <div className="flex justify-between items-center border-b pb-2">
                         <span className="text-muted-foreground">SUBTOTAL</span>
-                        <span className="font-medium">د.إ {subtotal.toFixed(2)}</span>
+                        <span className="font-medium flex items-center gap-1">{aedSymbol} {subtotal.toFixed(2)}</span>
                     </div>
                     
                     <FormField
@@ -315,7 +321,7 @@ export function CreateInvoiceForm() {
                                 <FormLabel className="text-muted-foreground">VAT</FormLabel>
                                 <FormControl>
                                     <div className="flex items-center gap-2">
-                                        <span className="font-medium">د.إ</span>
+                                        <span className="font-medium flex items-center gap-1">{aedSymbol}</span>
                                         <Input type="number" step="0.01" {...field} className="w-24 text-right" />
                                     </div>
                                 </FormControl>
@@ -330,7 +336,7 @@ export function CreateInvoiceForm() {
                                 <FormLabel className="text-muted-foreground">SHIPPING & HANDLING</FormLabel>
                                 <FormControl>
                                     <div className="flex items-center gap-2">
-                                        <span className="font-medium">د.إ</span>
+                                        <span className="font-medium flex items-center gap-1">{aedSymbol}</span>
                                         <Input type="number" step="0.01" {...field} className="w-24 text-right" />
                                     </div>
                                 </FormControl>
@@ -345,7 +351,7 @@ export function CreateInvoiceForm() {
                                 <FormLabel className="text-muted-foreground">COLLECT ON DELIVERY FEES</FormLabel>
                                 <FormControl>
                                     <div className="flex items-center gap-2">
-                                        <span className="font-medium">د.إ</span>
+                                        <span className="font-medium flex items-center gap-1">{aedSymbol}</span>
                                         <Input type="number" step="0.01" {...field} className="w-24 text-right" />
                                     </div>
                                 </FormControl>
@@ -355,7 +361,7 @@ export function CreateInvoiceForm() {
 
                     <div className="flex justify-between items-center border-t pt-2">
                         <span className="font-bold text-lg">TOTAL</span>
-                        <span className="font-bold text-lg">د.إ {total.toFixed(2)}</span>
+                        <span className="font-bold text-lg flex items-center gap-1">{aedSymbol} {total.toFixed(2)}</span>
                     </div>
                 </div>
             </div>

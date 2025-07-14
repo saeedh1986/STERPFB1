@@ -4,10 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Landmark, Package, ShoppingCart, Users, AlertTriangle } from 'lucide-react';
 import Image from 'next/image';
 
+const aedSymbol = <Image src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/UAE_Dirham_Symbol.svg/1377px-UAE_Dirham_Symbol.svg.png" alt="AED" width={16} height={16} className="inline-block" />;
+
 const summaryData = [
-  { title: 'Total Sales', value: 'د.إ 125,670', icon: Landmark, trend: '+12%', trendColor: 'text-green-500', change: 'from last month' },
-  { title: 'Inventory Value', value: 'د.إ 85,300', icon: Package, trend: '-2%', trendColor: 'text-red-500', change: 'from last month' },
-  { title: 'Total Purchases', value: 'د.إ 62,150', icon: ShoppingCart, trend: '+8%', trendColor: 'text-green-500', change: 'from last month' },
+  { title: 'Total Sales', value: '125,670', icon: Landmark, trend: '+12%', trendColor: 'text-green-500', change: 'from last month' },
+  { title: 'Inventory Value', value: '85,300', icon: Package, trend: '-2%', trendColor: 'text-red-500', change: 'from last month' },
+  { title: 'Total Purchases', value: '62,150', icon: ShoppingCart, trend: '+8%', trendColor: 'text-green-500', change: 'from last month' },
   { title: 'Active Customers', value: '1,280', icon: Users, trend: '+50', trendColor: 'text-green-500', change: 'new this month' },
 ];
 
@@ -30,7 +32,7 @@ export default function DashboardPage() {
                 <item.icon className="h-5 w-5 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">{item.value}</div>
+                <div className="text-3xl font-bold flex items-center gap-1">{aedSymbol} {item.value}</div>
                 <p className={`text-xs ${item.trendColor} flex items-center`}>
                   {item.trend} <span className="text-muted-foreground ml-1">{item.change}</span>
                 </p>

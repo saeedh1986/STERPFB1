@@ -335,12 +335,14 @@ export const getColumns = (slug: string): ColumnDefinition[] => {
         };
         const formatted = new Intl.NumberFormat("en-US", formatOptions).format(amount || 0);
         
-        if (col.accessorKey === 'exchangeRate') {
-            return React.createElement('div', { className: 'text-right' }, formatted);
-        }
+        const currencySymbol = col.accessorKey === 'usd' ? '$ ' : <Image src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/UAE_Dirham_Symbol.svg/1377px-UAE_Dirham_Symbol.svg.png" alt="AED" width={14} height={14} className="inline-block" />;
 
-        const currencySymbol = col.accessorKey === 'usd' ? '$ ' : 'د.إ ';
-        return React.createElement('div', { className: 'text-right font-medium' }, `${currencySymbol}${formatted}`);
+        return React.createElement(
+          'div', 
+          { className: 'text-right font-medium flex items-center justify-end gap-1' }, 
+          currencySymbol,
+          formatted
+        );
       };
     }
      if (col.accessorKey === 'exchangeRate') {

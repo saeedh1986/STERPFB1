@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -23,6 +24,8 @@ const FormSchema = z.object({
 });
 
 type FormValues = z.infer<typeof FormSchema>;
+
+const aedSymbol = <Image src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/UAE_Dirham_Symbol.svg/1377px-UAE_Dirham_Symbol.svg.png" alt="AED" width={14} height={14} className="inline-block" />;
 
 // Helper to convert file to data URI
 const fileToDataURI = (file: File): Promise<string> => {
@@ -204,7 +207,9 @@ export function LogisticsOptimizationForm() {
                   <h4 className="font-medium">Estimated Costs:</h4>
                   {result.estimatedCosts.length > 0 ? (
                     <ul className="list-disc list-inside pl-4 text-muted-foreground">
-                      {result.estimatedCosts.map((cost, index) => <li key={index}>Route {index + 1}: د.إ {cost.toFixed(2)}</li>)}
+                      {result.estimatedCosts.map((cost, index) => (
+                        <li key={index} className="flex items-center gap-1">Route {index + 1}: {aedSymbol} {cost.toFixed(2)}</li>
+                      ))}
                     </ul>
                   ) : <p className="text-muted-foreground">No cost estimations.</p>}
                 </div>
