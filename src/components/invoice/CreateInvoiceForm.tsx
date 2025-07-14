@@ -14,7 +14,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { productCatalogPool } from '@/lib/data';
-import { Trash2, PlusCircle, Check, ChevronsUpDown, Upload, CalendarIcon } from 'lucide-react';
+import { Trash2, PlusCircle, Check, ChevronsUpDown, CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
@@ -45,7 +45,7 @@ type InvoiceFormValues = z.infer<typeof invoiceSchema>;
 export function CreateInvoiceForm() {
   const [subtotal, setSubtotal] = useState(0);
   const [total, setTotal] = useState(0);
-  const [logoSrc, setLogoSrc] = useState<string | null>("https://s3eed.ae/wp-content/uploads/2025/04/logo13.png");
+  const logoSrc = "https://s3eed.ae/wp-content/uploads/2025/04/logo13.png";
 
   const form = useForm<InvoiceFormValues>({
     resolver: zodResolver(invoiceSchema),
@@ -100,17 +100,6 @@ export function CreateInvoiceForm() {
       unitPrice: 0,
     });
   };
-  
-  const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            setLogoSrc(reader.result as string);
-        };
-        reader.readAsDataURL(file);
-    }
-  };
 
   const onSubmit = (data: InvoiceFormValues) => {
     const submissionData = {
@@ -137,20 +126,7 @@ export function CreateInvoiceForm() {
             <header className="flex justify-between items-start gap-4">
                <div className="flex items-start gap-4">
                 <div className="flex flex-col items-center gap-2">
-                    {logoSrc ? (
-                        <Image src={logoSrc} alt="Uploaded Logo" width={100} height={100} className="object-contain" />
-                    ) : (
-                        <div className="w-24 h-24 bg-muted rounded-md flex items-center justify-center text-muted-foreground text-sm text-center p-2">
-                           Upload Your Logo
-                        </div>
-                    )}
-                    <label htmlFor="logo-upload" className="text-sm text-primary underline cursor-pointer hover:text-primary/80">
-                        <div className="flex items-center gap-1">
-                          <Upload className="h-3 w-3" />
-                          <span>Change Logo</span>
-                        </div>
-                    </label>
-                    <input id="logo-upload" type="file" className="hidden" accept="image/*" onChange={handleLogoUpload} />
+                    <Image src={logoSrc} alt="Saeed Store Logo" width={100} height={100} className="object-contain" />
                 </div>
                  <div>
                     <h2 className="text-2xl font-bold">Saeed Store Electronics</h2>
@@ -398,3 +374,5 @@ export function CreateInvoiceForm() {
     </Card>
   );
 }
+
+    
