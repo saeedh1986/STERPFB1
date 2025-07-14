@@ -12,6 +12,7 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { useCompanyProfile } from '@/context/CompanyProfileContext';
 
 
 interface NavItem {
@@ -59,13 +60,14 @@ const reportsNavItems: NavItem[] = [
 
 export function SidebarNav() {
   const pathname = usePathname();
+  const { profile } = useCompanyProfile();
 
   return (
     <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
       <div className="flex h-16 items-center justify-center border-b border-sidebar-border px-4">
         <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
-           <Image src="https://s3eed.ae/wp-content/uploads/2025/04/logo13.png" alt="Saeed Store Logo" width={36} height={36} />
-          <span className="text-xl font-headline">Saeed ERP</span>
+           {profile.logo && <Image src={profile.logo} alt="Company Logo" width={36} height={36} className="object-contain" />}
+          <span className="text-xl font-headline">{profile.erpName}</span>
         </Link>
       </div>
       <ScrollArea className="flex-1">

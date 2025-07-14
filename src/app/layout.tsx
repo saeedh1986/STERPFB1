@@ -4,6 +4,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from '@/context/AuthContext';
 import { AccessibilityProvider } from '@/context/AccessibilityContext';
+import { CompanyProfileProvider } from '@/context/CompanyProfileContext';
 
 export const metadata: Metadata = {
   title: 'Saeed Store ERP Lite',
@@ -25,8 +26,10 @@ export default function RootLayout({
       <body className="font-body antialiased">
         <AuthProvider>
           <AccessibilityProvider>
-            {children}
-            <Toaster />
+            <CompanyProfileProvider>
+              {children}
+              <Toaster />
+            </CompanyProfileProvider>
           </AccessibilityProvider>
         </AuthProvider>
       </body>

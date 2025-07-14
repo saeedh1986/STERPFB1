@@ -2,12 +2,13 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { useForm, SubmitHandler } from 'react-hook-form';
 import { useTheme } from "next-themes";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Moon, Sun, Monitor, FilePenLine, PlusCircle, AlertTriangle, Trash2, TextQuote } from "lucide-react";
+import { Moon, Sun, Monitor, FilePenLine, PlusCircle, AlertTriangle, Trash2, TextQuote, Building, Save } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { chartOfAccountsData as initialChartOfAccountsData, getColumns, type GenericItem } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +28,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Separator } from '@/components/ui/separator';
 import { useAccessibility } from '@/context/AccessibilityContext';
+import { useCompanyProfile, type CompanyProfile } from '@/context/CompanyProfileContext';
+import { Input } from '@/components/ui/input';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+
 
 const getBadgeVariantForAccountType = (type: string) => {
     switch (type) {
@@ -51,9 +56,20 @@ const fontSizes = [
     { name: 'Large', value: 'text-xl' },
 ];
 
+// Helper to convert file to data URI
+const fileToDataURI = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+};
+
 export default function SettingsPage() {
   const { theme, setTheme, resolvedTheme, themes } = useTheme();
   const { fontSize, setFontSize } = useAccessibility();
+  const { profile, setProfile } = useCompanyProfile();
   const { toast } = useToast();
 
   const [accounts, setAccounts] = useState<GenericItem[]>(initialChartOfAccountsData);
@@ -61,6 +77,16 @@ export default function SettingsPage() {
   const [selectedAccount, setSelectedAccount] = useState<GenericItem | null>(null);
   
   const [currentColorTheme, setCurrentColorTheme] = useState('theme-amber');
+
+  const profileForm = useForm<CompanyProfile>({
+      defaultValues: profile,
+  });
+
+  useEffect(() => {
+    if(profile) {
+        profileForm.reset(profile);
+    }
+  }, [profile, profileForm]);
 
   useEffect(() => {
     const currentThemeClass = themes.find(t => t.startsWith('theme-') && document.documentElement.classList.contains(t));
@@ -70,12 +96,9 @@ export default function SettingsPage() {
 
   const handleThemeChange = (newTheme: string) => {
     const currentMode = resolvedTheme; // 'light' or 'dark'
-    // Remove existing color theme classes
     themeColors.forEach(t => document.documentElement.classList.remove(t.value));
-    // Set the theme, which adds the new class
     setTheme(newTheme);
     setCurrentColorTheme(newTheme);
-    // Re-apply the light/dark mode class if next-themes didn't handle it
     if (currentMode && !document.documentElement.classList.contains(currentMode)) {
       document.documentElement.classList.add(currentMode);
     }
@@ -113,10 +136,26 @@ export default function SettingsPage() {
       title: "Application Reset",
       description: "All data has been cleared. The application will now reload.",
     });
-    // Use a timeout to ensure the toast has time to show before the page reloads
     setTimeout(() => {
       window.location.reload();
     }, 1500);
+  };
+
+  const handleProfileSubmit: SubmitHandler<CompanyProfile> = (data) => {
+    setProfile(data);
+    toast({ title: "Profile Updated", description: "Your company profile has been saved." });
+  };
+  
+  const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+        try {
+            const dataUri = await fileToDataURI(file);
+            profileForm.setValue('logo', dataUri);
+        } catch (error) {
+            toast({ variant: "destructive", title: "Logo Upload Failed", description: "Could not read the selected file." });
+        }
+    }
   };
 
 
@@ -125,6 +164,41 @@ export default function SettingsPage() {
       <PageHeader title="Settings" />
       <main className="flex-1 p-4 md:p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         <div className="space-y-6">
+            <Card className="shadow-lg">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><Building /> Company Profile</CardTitle>
+                    <CardDescription>Update your company's information and logo.</CardDescription>
+                </CardHeader>
+                <Form {...profileForm}>
+                    <form onSubmit={profileForm.handleSubmit(handleProfileSubmit)}>
+                        <CardContent className="space-y-4">
+                            <FormField
+                                control={profileForm.control} name="logo"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Company Logo</FormLabel>
+                                        <div className="flex items-center gap-4">
+                                            {field.value && <img src={field.value} alt="Logo Preview" className="h-16 w-16 rounded-md object-contain border p-1" />}
+                                            <Input type="file" accept="image/*" onChange={handleLogoUpload} className="max-w-xs"/>
+                                        </div>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField control={profileForm.control} name="name" render={({ field }) => (<FormItem><FormLabel>Company Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={profileForm.control} name="erpName" render={({ field }) => (<FormItem><FormLabel>ERP System Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={profileForm.control} name="description" render={({ field }) => (<FormItem><FormLabel>Company Description / Address</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={profileForm.control} name="website" render={({ field }) => (<FormItem><FormLabel>Website</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={profileForm.control} name="email" render={({ field }) => (<FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={profileForm.control} name="whatsapp" render={({ field }) => (<FormItem><FormLabel>WhatsApp</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        </CardContent>
+                        <CardFooter>
+                            <Button type="submit"><Save className="mr-2" /> Save Profile</Button>
+                        </CardFooter>
+                    </form>
+                </Form>
+            </Card>
+
             <Card className="shadow-lg">
                 <CardHeader>
                     <CardTitle>Appearance</CardTitle>

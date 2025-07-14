@@ -15,6 +15,8 @@ import { ArrowLeft, Printer, AlertTriangle, FileDown, Loader2 } from 'lucide-rea
 import QRCode from 'qrcode.react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { useCompanyProfile } from '@/context/CompanyProfileContext';
+
 
 const aedSymbol = <Image src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/UAE_Dirham_Symbol.svg/1377px-UAE_Dirham_Symbol.svg.png" alt="AED" width={14} height={14} className="inline-block dark:invert" />;
 
@@ -28,7 +30,7 @@ const currencyFormatter = (value: number) => {
 };
 
 
-const PrintableInvoice = React.forwardRef<HTMLDivElement, { invoice: any }>(({ invoice }, ref) => {
+const PrintableInvoice = React.forwardRef<HTMLDivElement, { invoice: any, profile: any }>(({ invoice, profile }, ref) => {
     if (!invoice) return null;
 
      const getQrCodeValue = () => {
@@ -39,13 +41,13 @@ const PrintableInvoice = React.forwardRef<HTMLDivElement, { invoice: any }>(({ i
         <div ref={ref} className="bg-white text-black p-10 font-sans printable-content">
             <header className="flex justify-between items-start mb-10">
                 <div className="flex items-start gap-4">
-                    <Image src={invoice.logo} alt="Saeed Store Logo" width={80} height={80} className="object-contain" />
+                    {profile.logo && <Image src={profile.logo} alt="Company Logo" width={80} height={80} className="object-contain" />}
                     <div>
-                        <h2 className="text-2xl font-bold text-gray-800">Saeed Store Electronics</h2>
-                        <p className="text-sm text-gray-600">Dubai, United Arab Emirates</p>
-                        <p className="text-sm text-gray-600">Website: S3eed.ae</p>
-                        <p className="text-sm text-gray-600">Email: info@s3eed.ae</p>
-                        <p className="text-sm text-gray-600">WhatsApp: +971553813831</p>
+                        <h2 className="text-2xl font-bold text-gray-800">{profile.name}</h2>
+                        <p className="text-sm text-gray-600">{profile.description}</p>
+                        <p className="text-sm text-gray-600">Website: {profile.website}</p>
+                        <p className="text-sm text-gray-600">Email: {profile.email}</p>
+                        <p className="text-sm text-gray-600">WhatsApp: {profile.whatsapp}</p>
                     </div>
                 </div>
                 <div className="text-right">
@@ -127,6 +129,8 @@ export default function ViewInvoicePage() {
     const [loading, setLoading] = useState(true);
     const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
     const printRef = useRef<HTMLDivElement>(null);
+    const { profile } = useCompanyProfile();
+
 
     useEffect(() => {
         if (id) {
@@ -148,9 +152,9 @@ export default function ViewInvoicePage() {
 
         setIsGeneratingPdf(true);
         html2canvas(input, {
-            scale: 4, // Increased scale for better quality
+            scale: 4, 
             useCORS: true, 
-            logging: false, // Suppress logging for cleaner console
+            logging: false,
         }).then(canvas => {
             const imgData = canvas.toDataURL('image/png');
             const pdf = new jsPDF({
@@ -164,12 +168,10 @@ export default function ViewInvoicePage() {
             const canvasWidth = canvas.width;
             const canvasHeight = canvas.height;
             
-            // Maintain aspect ratio
             const ratio = canvasWidth / canvasHeight;
             let newCanvasWidth = pdfWidth;
             let newCanvasHeight = newCanvasWidth / ratio;
             
-            // If the calculated height is greater than the page height, scale down
             if (newCanvasHeight > pdfHeight) {
                 newCanvasHeight = pdfHeight;
                 newCanvasWidth = newCanvasHeight * ratio;
@@ -207,7 +209,7 @@ export default function ViewInvoicePage() {
                     The invoice with number `{id}` could not be found. It may have been deleted.
                     </AlertDescription>
                 </Alert>
-                <Button asChild variant="outline" className="mt-4">
+                <Button asChild variant="outline" className="mt-4" aria-label="Back to Invoices List">
                     <Link href="/invoices">
                     <ArrowLeft className="mr-2 h-4 w-4" /> Back to Invoices List
                     </Link>
@@ -222,7 +224,7 @@ export default function ViewInvoicePage() {
       <PageHeader title={`Invoice ${invoice.invoiceNumber}`} />
       <main className="flex-1 p-4 md:p-6 bg-muted/30">
         <div className="flex justify-end gap-2 mb-4">
-             <Button asChild variant="outline">
+             <Button asChild variant="outline" aria-label="Back to List">
                 <Link href="/invoices">
                     <ArrowLeft className="mr-2 h-4 w-4" /> Back to List
                 </Link>
@@ -237,7 +239,7 @@ export default function ViewInvoicePage() {
         </div>
         <Card className="shadow-lg max-w-4xl mx-auto">
             <CardContent className="p-0">
-               <PrintableInvoice invoice={invoice} ref={printRef} />
+               <PrintableInvoice invoice={invoice} profile={profile} ref={printRef} />
             </CardContent>
         </Card>
       </main>

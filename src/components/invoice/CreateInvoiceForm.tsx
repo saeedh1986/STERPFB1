@@ -21,6 +21,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import QRCode from 'qrcode.react';
 import { useToast } from "@/hooks/use-toast";
+import { useCompanyProfile } from '@/context/CompanyProfileContext';
 
 
 const lineItemSchema = z.object({
@@ -50,9 +51,9 @@ const aedSymbol = <Image src="https://upload.wikimedia.org/wikipedia/commons/thu
 export function CreateInvoiceForm() {
   const router = useRouter();
   const { toast } = useToast();
+  const { profile } = useCompanyProfile();
   const [subtotal, setSubtotal] = useState(0);
   const [total, setTotal] = useState(0);
-  const logoSrc = "https://s3eed.ae/wp-content/uploads/2025/04/logo13.png";
 
   const form = useForm<InvoiceFormValues>({
     resolver: zodResolver(invoiceSchema),
@@ -69,7 +70,7 @@ export function CreateInvoiceForm() {
     },
   });
 
-  const { fields, append, remove, update } = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "lineItems",
   });
@@ -115,12 +116,11 @@ export function CreateInvoiceForm() {
       invoiceDate: format(data.invoiceDate, 'dd-MMM-yyyy'),
       subtotal,
       total,
-      logo: logoSrc,
+      logo: profile.logo,
     };
     
-    // Save to localStorage
     const savedInvoices = JSON.parse(localStorage.getItem('invoices') || '[]');
-    savedInvoices.unshift(submissionData); // Add to the beginning
+    savedInvoices.unshift(submissionData);
     localStorage.setItem('invoices', JSON.stringify(savedInvoices));
 
     toast({
@@ -153,13 +153,13 @@ export function CreateInvoiceForm() {
             <div className="bg-white text-black p-4 sm:p-6 md:p-10 font-sans space-y-10">
               <header className="flex flex-col sm:flex-row justify-between items-start mb-10 gap-8">
                   <div className="flex items-start gap-4">
-                      <Image src={logoSrc} alt="Saeed Store Logo" width={80} height={80} className="object-contain" />
+                      {profile.logo && <Image src={profile.logo} alt="Company Logo" width={80} height={80} className="object-contain" />}
                       <div>
-                          <h2 className="text-2xl font-bold text-gray-800">Saeed Store Electronics</h2>
-                          <p className="text-sm text-gray-600">Dubai, United Arab Emirates</p>
-                          <p className="text-sm text-gray-600">Website: S3eed.ae</p>
-                          <p className="text-sm text-gray-600">Email: info@s3eed.ae</p>
-                          <p className="text-sm text-gray-600">WhatsApp: +971553813831</p>
+                          <h2 className="text-2xl font-bold text-gray-800">{profile.name}</h2>
+                          <p className="text-sm text-gray-600">{profile.description}</p>
+                          <p className="text-sm text-gray-600">Website: {profile.website}</p>
+                          <p className="text-sm text-gray-600">Email: {profile.email}</p>
+                          <p className="text-sm text-gray-600">WhatsApp: {profile.whatsapp}</p>
                       </div>
                   </div>
                   <div className="text-right w-full sm:w-auto">
