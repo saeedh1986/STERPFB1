@@ -181,12 +181,15 @@ export default function GenerateBarcodePage() {
         } else if (printType === 'qrcode') {
              zplDataArray.push(`^FO0,50,^FB${widthDots},1,0,C,0^BQN,2,5^FDQA,${codeValue}^FS`);
         } else { // 'both'
+            const qrCodeSize = 4; // ^BQN scale factor
+            const qrCodeDotWidth = 33 * qrCodeSize; // Approximate width of a QR code of scale 4
+            const qrCodeXPos = widthDots - qrCodeDotWidth - 20; // Calculate X position with a 20-dot margin
              // Barcode (left)
             zplDataArray.push(`^FO20,50^BY2,2,45^BCN,45,N,N,N,A^FD${codeValue}^FS`);
             // SKU text (below barcode)
             zplDataArray.push(`^FO20,105,^FB180,1,0,C,0^A0N,18,18^FD${codeValue}^FS`);
             // QR Code (right)
-            zplDataArray.push(`^FO${widthDots - 120},50^BQN,2,4^FDQA,${codeValue}^FS`);
+            zplDataArray.push(`^FO${qrCodeXPos},50^BQN,2,${qrCodeSize}^FDQA,${codeValue}^FS`);
         }
         
         zplDataArray.push('^XZ'); // End
