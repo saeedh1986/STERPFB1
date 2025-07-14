@@ -1,9 +1,14 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
   font-family: 'PT Sans', sans-serif;
+}
+
+html {
+    @apply text-base;
 }
 
 @layer base {

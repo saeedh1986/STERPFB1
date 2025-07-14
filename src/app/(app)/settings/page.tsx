@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Moon, Sun, Monitor, FilePenLine, PlusCircle, AlertTriangle, Trash2 } from "lucide-react";
+import { Moon, Sun, Monitor, FilePenLine, PlusCircle, AlertTriangle, Trash2, TextQuote } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { chartOfAccountsData as initialChartOfAccountsData, getColumns, type GenericItem } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +26,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Separator } from '@/components/ui/separator';
+import { useAccessibility } from '@/context/AccessibilityContext';
 
 const getBadgeVariantForAccountType = (type: string) => {
     switch (type) {
@@ -44,8 +45,15 @@ const themeColors = [
   { name: 'Green', value: 'theme-green', class: 'bg-green-500' },
 ];
 
+const fontSizes = [
+    { name: 'Default', value: 'text-base' },
+    { name: 'Medium', value: 'text-lg' },
+    { name: 'Large', value: 'text-xl' },
+];
+
 export default function SettingsPage() {
   const { theme, setTheme, resolvedTheme, themes } = useTheme();
+  const { fontSize, setFontSize } = useAccessibility();
   const { toast } = useToast();
 
   const [accounts, setAccounts] = useState<GenericItem[]>(initialChartOfAccountsData);
@@ -133,17 +141,17 @@ export default function SettingsPage() {
                             onValueChange={(value) => setTheme(value)}
                             className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-2"
                         >
-                            <Label htmlFor="light" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
+                            <Label htmlFor="light" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground" aria-label="Set light theme">
                             <RadioGroupItem value="light" id="light" className="sr-only" />
                             <Sun className="h-5 w-5" />
                             <span>Light</span>
                             </Label>
-                            <Label htmlFor="dark" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
+                            <Label htmlFor="dark" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground" aria-label="Set dark theme">
                             <RadioGroupItem value="dark" id="dark" className="sr-only" />
                             <Moon className="h-5 w-5" />
                             <span>Dark</span>
                             </Label>
-                            <Label htmlFor="system" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
+                            <Label htmlFor="system" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground" aria-label="Set system theme">
                             <RadioGroupItem value="system" id="system" className="sr-only" />
                             <Monitor className="h-5 w-5" />
                             <span>System</span>
@@ -166,6 +174,7 @@ export default function SettingsPage() {
                                  key={color.value}
                                  htmlFor={color.value} 
                                  className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:ring-2 has-[input:checked]:ring-primary"
+                                 aria-label={`Set ${color.name} theme color`}
                                >
                                     <RadioGroupItem value={color.value} id={color.value} className="sr-only" />
                                     <div className={`h-6 w-6 rounded-full ${color.class}`}></div>
@@ -176,6 +185,39 @@ export default function SettingsPage() {
                     </div>
 
                 </CardContent>
+            </Card>
+
+            <Card className="shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                    <TextQuote />
+                    Accessibility
+                </CardTitle>
+                <CardDescription>
+                  Adjust font sizes for better readability.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Label htmlFor="font-size">Font Size</Label>
+                <RadioGroup
+                    id="font-size"
+                    value={fontSize}
+                    onValueChange={setFontSize}
+                    className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-2"
+                >
+                    {fontSizes.map((size) => (
+                       <Label 
+                         key={size.value}
+                         htmlFor={size.value} 
+                         className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center justify-center has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground"
+                         aria-label={`Set font size to ${size.name}`}
+                       >
+                            <RadioGroupItem value={size.value} id={size.value} className="sr-only" />
+                            <span>{size.name}</span>
+                        </Label>
+                    ))}
+                </RadioGroup>
+              </CardContent>
             </Card>
 
              <Card className="shadow-lg border-destructive/50">
@@ -252,7 +294,7 @@ export default function SettingsPage() {
                                     </Badge>
                                 </TableCell>
                                 <TableCell className="text-right">
-                                     <Button variant="ghost" size="icon" onClick={() => handleUpdate(account)}>
+                                     <Button variant="ghost" size="icon" onClick={() => handleUpdate(account)} aria-label={`Edit account ${account.name}`}>
                                         <FilePenLine className="h-4 w-4" />
                                         <span className="sr-only">Edit Account for {account.name}</span>
                                     </Button>
