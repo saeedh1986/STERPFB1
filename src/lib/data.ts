@@ -122,6 +122,29 @@ export const bankTransactionsData = Array.from({ length: 40 }, (_, i) => {
     };
 }).reverse();
 
+export const chartOfAccountsData: GenericItem[] = [
+  // Assets
+  { id: 'coa-1', code: '1010', name: 'Cash and Bank', type: 'Asset' },
+  { id: 'coa-2', code: '1200', name: 'Accounts Receivable', type: 'Asset' },
+  { id: 'coa-3', code: '1400', name: 'Inventory Asset', type: 'Asset' },
+  { id: 'coa-4', code: '1500', name: 'Prepaid Expenses', type: 'Asset' },
+  // Liabilities
+  { id: 'coa-5', code: '2010', name: 'Accounts Payable', type: 'Liability' },
+  { id: 'coa-6', code: '2200', name: 'VAT Payable', type: 'Liability' },
+  // Equity
+  { id: 'coa-7', code: '3010', name: 'Owner\'s Equity', type: 'Equity' },
+  { id: 'coa-8', code: '3200', name: 'Retained Earnings', type: 'Equity' },
+  // Revenue
+  { id: 'coa-9', code: '4010', name: 'Sales Revenue', type: 'Revenue' },
+  { id: 'coa-10', code: '4020', name: 'Shipping Revenue', type: 'Revenue' },
+  // Expenses
+  { id: 'coa-11', code: '5010', name: 'Cost of Goods Sold', type: 'Expense' },
+  { id: 'coa-12', code: '5020', name: 'Bank Charges', type: 'Expense' },
+  { id: 'coa-13', code: '5030', name: 'Shipping & Logistics Fees', type: 'Expense' },
+  { id: 'coa-14', code: '5040', name: 'Marketing Expenses', type: 'Expense' },
+  { id: 'coa-15', code: '5050', name: 'Utilities', type: 'Expense' },
+];
+
 
 const createMockData = (count: number, fields: string[], slug: string): GenericItem[] => {
   if (slug === 'inventory') {
