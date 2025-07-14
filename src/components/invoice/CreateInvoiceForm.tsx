@@ -116,13 +116,17 @@ export function CreateInvoiceForm() {
                 <p>Email: info@s3eed.ae</p>
                 <p>WhatsApp: +971553813831</p>
               </div>
-              <div className="text-center">
-                 <div className="flex justify-center items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-shopping-bag"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight">SBEED STORE</h1>
-                        <p className="text-xl font-semibold">سعيد ستور</p>
-                    </div>
+              <div className="text-right">
+                <div className="flex justify-end items-center gap-4">
+                  <div className="text-right">
+                    <p className="text-3xl font-bold tracking-tight" style={{ color: '#004E8A' }}>S3EED STORE</p>
+                    <p className="text-2xl font-semibold" style={{ color: '#004E8A' }}>سعيد ستور</p>
+                  </div>
+                  <svg width="80" height="80" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M79.1667 25H87.5L75 8.33333H25L12.5 25H20.8333M20.8333 25V83.3333C20.8333 85.5424 21.7115 87.662 23.2741 89.2246C24.8366 90.7871 26.9562 91.6667 29.1667 91.6667H70.8333C73.0428 91.6667 75.1624 90.7871 76.7249 89.2246C78.2875 87.662 79.1667 85.5424 79.1667 83.3333V25H20.8333Z" stroke="#25A9E0" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M12.5 25H87.5" stroke="#25A9E0" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M56.25 43.75C56.25 46.5826 55.1306 49.3038 53.1812 51.2533C51.2317 53.2027 48.5106 54.3223 45.6777 54.3223C42.8448 54.3223 40.1237 53.2027 38.1742 51.2533C36.2248 49.3038 35.1052 46.5826 35.1052 43.75C35.1052 40.0917 37.523 36.8556 40.9115 35.5398C44.2999 34.2241 48.1633 34.6158 51.2247 36.5843C54.286 38.5529 56.25 41.9213 56.25 45.625" fill="#004E8A" transform="matrix(1, 0, 0, 1, 4, 0)" />
+                  </svg>
                 </div>
               </div>
             </header>
