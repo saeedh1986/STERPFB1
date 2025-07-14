@@ -1,13 +1,13 @@
 
 import { PageHeader } from '@/components/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { DollarSign, Package, ShoppingCart, Users, AlertTriangle } from 'lucide-react';
+import { Landmark, Package, ShoppingCart, Users, AlertTriangle } from 'lucide-react';
 import Image from 'next/image';
 
 const summaryData = [
-  { title: 'Total Sales', value: '$125,670', icon: DollarSign, trend: '+12%', trendColor: 'text-green-500', change: 'from last month' },
-  { title: 'Inventory Value', value: '$85,300', icon: Package, trend: '-2%', trendColor: 'text-red-500', change: 'from last month' },
-  { title: 'Total Purchases', value: '$62,150', icon: ShoppingCart, trend: '+8%', trendColor: 'text-green-500', change: 'from last month' },
+  { title: 'Total Sales', value: 'AED 125,670', icon: Landmark, trend: '+12%', trendColor: 'text-green-500', change: 'from last month' },
+  { title: 'Inventory Value', value: 'AED 85,300', icon: Package, trend: '-2%', trendColor: 'text-red-500', change: 'from last month' },
+  { title: 'Total Purchases', value: 'AED 62,150', icon: ShoppingCart, trend: '+8%', trendColor: 'text-green-500', change: 'from last month' },
   { title: 'Active Customers', value: '1,280', icon: Users, trend: '+50', trendColor: 'text-green-500', change: 'new this month' },
 ];
 
