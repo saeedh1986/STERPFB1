@@ -16,7 +16,7 @@ const currencyFormatter = (value: number) => {
     }).format(value);
 };
 
-const aedSymbol = <Image src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/UAE_Dirham_Symbol.svg/1377px-UAE_Dirham_Symbol.svg.png" alt="AED" width={14} height={14} className="inline-block" />;
+const aedSymbol = <Image src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/UAE_Dirham_Symbol.svg/1377px-UAE_Dirham_Symbol.svg.png" alt="AED" width={14} height={14} className="inline-block dark:invert" />;
 
 
 const ReportRow: React.FC<{ label: string; amount: number; isTotal?: boolean; isHeader?: boolean; isNetIncome?: boolean }> = ({ label, amount, isTotal, isHeader, isNetIncome }) => (
