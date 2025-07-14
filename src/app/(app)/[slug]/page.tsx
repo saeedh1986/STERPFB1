@@ -42,7 +42,7 @@ export default function ModulePage() {
   const columns = getColumns(slug);
   const title = getPageTitle(slug);
 
-  if (!slug || !moduleSlugs.includes(slug) || columns.length === 0) {
+  if (!slug || !moduleSlugs.includes(slug) || (columns.length === 0 && slug !== 'invoices')) { // Allow invoices page to be empty initially
     return (
       <>
         <PageHeader title="Error" />
@@ -55,6 +55,11 @@ export default function ModulePage() {
         </main>
       </>
     );
+  }
+
+  // The invoices page is handled by its own page.tsx now, so we can avoid rendering DataTable for it here.
+  if (slug === 'invoices') {
+    return null; 
   }
 
   return (

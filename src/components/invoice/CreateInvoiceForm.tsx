@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -14,11 +15,12 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { productCatalogPool } from '@/lib/data';
-import { Trash2, PlusCircle, Check, ChevronsUpDown, CalendarIcon } from 'lucide-react';
+import { Trash2, PlusCircle, Check, ChevronsUpDown, CalendarIcon, Save } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import QRCode from 'qrcode.react';
+import { useToast } from "@/hooks/use-toast";
 
 
 const lineItemSchema = z.object({
@@ -46,6 +48,8 @@ const aedSymbol = <Image src="https://upload.wikimedia.org/wikipedia/commons/thu
 
 
 export function CreateInvoiceForm() {
+  const router = useRouter();
+  const { toast } = useToast();
   const [subtotal, setSubtotal] = useState(0);
   const [total, setTotal] = useState(0);
   const logoSrc = "https://s3eed.ae/wp-content/uploads/2025/04/logo13.png";
@@ -112,8 +116,18 @@ export function CreateInvoiceForm() {
       total,
       logo: logoSrc,
     };
-    console.log(submissionData);
-    alert('Invoice Submitted! Check the console for the data.');
+    
+    // Save to localStorage
+    const savedInvoices = JSON.parse(localStorage.getItem('invoices') || '[]');
+    savedInvoices.unshift(submissionData); // Add to the beginning
+    localStorage.setItem('invoices', JSON.stringify(savedInvoices));
+
+    toast({
+        title: "Invoice Saved",
+        description: `Invoice ${submissionData.invoiceNumber} has been successfully saved.`,
+    });
+
+    router.push('/invoices');
   };
 
   const getQrCodeValue = () => {
@@ -371,8 +385,9 @@ export function CreateInvoiceForm() {
             </footer>
 
             <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline">Preview</Button>
-                <Button type="submit">Save Invoice</Button>
+                <Button type="submit">
+                    <Save className="mr-2 h-4 w-4" /> Save Invoice
+                </Button>
             </div>
           </form>
         </Form>
@@ -380,5 +395,3 @@ export function CreateInvoiceForm() {
     </Card>
   );
 }
-
-    
