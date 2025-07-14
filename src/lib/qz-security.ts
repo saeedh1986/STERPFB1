@@ -4,8 +4,8 @@
 import qz from 'qz-tray';
 import { KJUR } from 'jsrsasign';
 
-// Hashing algorithm
-const ALGORITHM = "SHA512";
+// Hashing algorithm - MUST MATCH the key generation algorithm
+const ALGORITHM = "SHA256";
 
 // Fetches the private key from the server
 async function getPrivateKey(): Promise<string> {
