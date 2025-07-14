@@ -34,7 +34,7 @@ const PrintableInvoice = React.forwardRef<HTMLDivElement, { invoice: any }>(({ i
     };
 
     return (
-        <div ref={ref} className="bg-white text-black p-8">
+        <div ref={ref} className="bg-white text-black p-8 printable-content">
             <header className="flex justify-between items-start gap-4">
                <div className="flex items-start gap-4">
                 <div className="flex flex-col items-center gap-2">
@@ -178,16 +178,10 @@ export default function ViewInvoicePage() {
         </div>
         <Card className="shadow-lg">
             <CardContent className="p-0">
-               {/* This is the visible component */}
-               <PrintableInvoice invoice={invoice} />
+               {/* This is the visible component that will also be printed */}
+               <PrintableInvoice invoice={invoice} ref={printRef} />
             </CardContent>
         </Card>
-
-        {/* This is the hidden component that will be used for printing */}
-        <div className="absolute -left-[9999px] -top-[9999px]">
-            <PrintableInvoice invoice={invoice} ref={printRef} />
-        </div>
-
       </main>
     </>
   );
