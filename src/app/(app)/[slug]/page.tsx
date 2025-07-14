@@ -7,6 +7,7 @@ import { DataTable } from '@/components/DataTable';
 import { getMockData, getColumns, getPageTitle, moduleSlugs } from '@/lib/data';
 import { Card, CardContent } from '@/components/ui/card';
 import InventoryBarcodePage from '../inventory-barcode/page'; // Adjust path if needed
+import PurchasesCalPage from '../purchases-cal/page';
 
 export default function ModulePage() {
   const params = useParams();
@@ -15,6 +16,10 @@ export default function ModulePage() {
   // Special handling for inventory-barcode to render its specific component
   if (slug === 'inventory-barcode') {
     return <InventoryBarcodePage />;
+  }
+
+  if (slug === 'purchases-cal') {
+    return <PurchasesCalPage />;
   }
 
   const data = getMockData(slug);
@@ -45,3 +50,5 @@ export default function ModulePage() {
     </>
   );
 }
+
+    

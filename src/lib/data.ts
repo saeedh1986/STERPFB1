@@ -97,6 +97,10 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
   if (slug === 'invoices') {
     return []; // Invoice data will be handled by the form, not mock data.
   }
+  if (slug === 'purchases-cal') {
+    // This page has a custom data structure, handled separately
+    return [];
+  }
 
 
   return Array.from({ length: count }, (_, i) => {
@@ -245,6 +249,22 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
   });
 };
 
+// Data for Purchases Calculator
+export const purchasesCalSummaryData = [
+    { id: 'pcs-1', date: '18-Aug-2024', invoiceNo: 'PI15963C001', priceUsd: 1441, priceAed: 5292.793, qty: 42, shipping: 1302, bankCharges: 115.5, total: 6710.293 },
+    { id: 'pcs-2', date: '21-Sep-2024', invoiceNo: 'PI2415963C002', priceUsd: 4320, priceAed: 15867.36, qty: 140, shipping: 2534.08, bankCharges: 231, total: 18632.44 },
+];
+
+export const purchasesCalDetailsData = [
+    { id: 'pcd-1', invoiceNo: 'PI15963C001', date: '18-Aug-2024', sku: 'FIFGAMSSC3B', priceUsd: 28, priceAed: 102.844, qty: 15, priceQty: 1542.66, shippingFees: 325.5, totalCost: 1868.16, unitCost: 124.544 },
+    { id: 'pcd-2', invoiceNo: 'PI15963C001', date: '18-Aug-2024', sku: 'FIFGAMSSC3W', priceUsd: 28, priceAed: 102.844, qty: 15, priceQty: 1542.66, shippingFees: 325.5, totalCost: 1868.16, unitCost: 124.544 },
+    { id: 'pcd-3', invoiceNo: 'PI15963C001', date: '18-Aug-2024', sku: 'FIFUXDTAM8B', priceUsd: 48, priceAed: 176.304, qty: 6, priceQty: 1057.824, shippingFees: 325.5, totalCost: 1383.324, unitCost: 230.554 },
+    { id: 'pcd-4', invoiceNo: 'PI15963C001', date: '18-Aug-2024', sku: 'FIFUXDTAM8W', priceUsd: 48, priceAed: 176.304, qty: 6, priceQty: 1057.824, shippingFees: 325.5, totalCost: 1383.324, unitCost: 230.554 },
+    { id: 'pcd-5', invoiceNo: 'PI2415963C002', date: '21-Sep-2024', sku: 'FIFGAMSSC3B', priceUsd: 28, priceAed: 102.844, qty: 30, priceQty: 3085.32, shippingFees: 422.25, totalCost: 3507.57, unitCost: 116.919 },
+    { id: 'pcd-6', invoiceNo: 'PI2415963C002', date: '21-Sep-2024', sku: 'FIFGAMSSC3W', priceUsd: 28, priceAed: 102.844, qty: 30, priceQty: 3085.32, shippingFees: 422.25, totalCost: 3507.57, unitCost: 116.919 },
+    { id: 'pcd-7', invoiceNo: 'PI2415963C002', date: '21-Sep-2024', sku: 'FIFUXDMAM8NB', priceUsd: 32.5, priceAed: 119.3725, qty: 80, priceQty: 9549.8, shippingFees: 1805.08, totalCost: 11354.88, unitCost: 141.936 },
+];
+
 
 const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   inventory: { fields: ['itemName', 'sku', 'quantity', 'unitPrice', 'category'], count: INVENTORY_ITEMS_POOL_SIZE },
@@ -258,7 +278,7 @@ const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   logistics: { fields: ['shipmentId', 'routeName', 'driverName', 'status', 'estimatedDeliveryDate'], count: 8 },
   ipcc: { fields: ['date', 'sku', 'quantity', 'usd', 'exchangeRate', 'aed', 'customsFees', 'shippingFees', 'bankCharges', 'totalCost', 'totalCostPerUnit'], count: 20 },
   ipbt: { fields: ['ipbtId', 'taskName', 'assignedTo', 'dueDate', 'priority'], count: 7 },
-  'purchases-cal': { fields: ['eventTitle', 'eventType', 'eventDate', 'relatedPO', 'notes'], count: 9 },
+  'purchases-cal': { fields: [], count: 0 },
   'bank-statement': { fields: ['transactionDate', 'description', 'debit', 'credit', 'balance'], count: 40 },
   'product-catalog': { fields: ['imageUrl', 'itemName', 'sku', 'unitPrice', 'category', 'description', 'productWeight', 'productDimensions', 'packageWeight', 'packageDimensions'], count: 40 },
 };
@@ -359,6 +379,9 @@ export const getPageTitle = (slug: string): string => {
   if (slug === 'ipcc') {
     return 'Item Purchased Cost Calculator';
   }
+   if (slug === 'purchases-cal') {
+    return 'Purchases Calculator';
+  }
   return slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') + ' Management';
 };
 
@@ -373,3 +396,6 @@ export const getDashboardSummary = () => ({
 });
 
 
+
+
+    
