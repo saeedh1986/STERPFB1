@@ -103,7 +103,8 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
   }
 
 
-  return Array.from({ length: count }, (_, i) => {
+  let runningBalance = 5000;
+  const data = Array.from({ length: count }, (_, i) => {
     const item: GenericItem = { id: `${slug}-item-${i + 1}` };
     const randomInventoryItem = inventoryItemsPool[Math.floor(Math.random() * inventoryItemsPool.length)];
     const randomVendor = vendorsPool[Math.floor(Math.random() * VENDORS_POOL_SIZE)];
@@ -159,6 +160,13 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
         case 'amount':
            item[field] = parseFloat((Math.random() * 1500 + 30).toFixed(2));
            break;
+        case 'credit':
+        case 'debit':
+          item[field] = parseFloat((Math.random() * 500 + 20).toFixed(2));
+          break;
+        case 'balance':
+           // calculated post-loop
+           break;
         case 'totalAmount': // Kept for backward compatibility if other parts use it
            const quantityTA = item['quantity'] || 1;
            const unitCostTA = item['unitCost'] || item['unitPrice'] || randomInventoryItem.unitPrice * 0.8; // Assume purchase cost is lower
@@ -202,7 +210,7 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
              item[field] = slug === 'expenses' ? expenseCategories[i % expenseCategories.length] : `Category ${String.fromCharCode(65 + (i % 5))}`;
              break;
         case 'description':
-             item[field] = slug === 'expenses' ? mockExpenseDescriptions[i % mockExpenseDescriptions.length] : `Sample Description ${i + 1}`;
+             item[field] = slug === 'expenses' ? mockExpenseDescriptions[i % mockExpenseDescriptions.length] : `Sample Transaction Description ${i + 1}`;
              break;
         case 'productWeight':
           item[field] = `${(Math.random() * 2).toFixed(2)} kg`;
@@ -219,6 +227,12 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
         case 'imageUrl':
           item[field] = `https://placehold.co/100x100.png`;
           break;
+        case 'refNumber':
+            item[field] = `${Math.floor(Math.random() * 90000000) + 10000000}`;
+            break;
+        case 'transactionType':
+            item[field] = Math.random() > 0.5 ? 'Transfers' : 'Card Payment';
+            break;
         default:
           if (field.toLowerCase().includes('name') || field.toLowerCase().includes('item')) {
             item[field] = `Sample ${field.charAt(0).toUpperCase() + field.slice(1)} ${i + 1}`;
@@ -243,10 +257,30 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
         const qty = item['quantity'] || 1;
         item['totalCostPerUnit'] = parseFloat((totalCost / qty).toFixed(4));
     }
+     if (slug === 'bank-statement') {
+        const isCredit = Math.random() > 0.6; // More debits than credits
+        const amount = parseFloat((Math.random() * (isCredit ? 800 : 250) + 20).toFixed(2));
+        if (isCredit) {
+            item['credit'] = amount;
+            item['debit'] = 0;
+            runningBalance += amount;
+        } else {
+            item['debit'] = amount;
+            item['credit'] = 0;
+            runningBalance -= amount;
+        }
+        item['balance'] = runningBalance;
+    }
 
 
     return item;
   });
+
+  // Reverse the array so the latest transaction is first, and balance makes sense
+  if (slug === 'bank-statement') {
+    return data.reverse();
+  }
+  return data;
 };
 
 // Data for Purchases Calculator
@@ -279,7 +313,7 @@ const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   ipcc: { fields: ['date', 'sku', 'quantity', 'usd', 'exchangeRate', 'aed', 'customsFees', 'shippingFees', 'bankCharges', 'totalCost', 'totalCostPerUnit'], count: 20 },
   ipbt: { fields: ['ipbtId', 'taskName', 'assignedTo', 'dueDate', 'priority'], count: 7 },
   'purchases-cal': { fields: [], count: 0 },
-  'bank-statement': { fields: ['transactionDate', 'description', 'debit', 'credit', 'balance'], count: 40 },
+  'bank-statement': { fields: ['transactionDate', 'transactionType', 'refNumber', 'description', 'debit', 'credit', 'balance'], count: 40 },
   'product-catalog': { fields: ['imageUrl', 'itemName', 'sku', 'unitPrice', 'category', 'description', 'productWeight', 'productDimensions', 'packageWeight', 'packageDimensions'], count: 40 },
 };
 
@@ -329,6 +363,9 @@ export const getColumns = (slug: string): ColumnDefinition[] => {
     if (currencyColumns.includes(col.accessorKey)) {
       col.cell = ({ row }) => {
         const amount = parseFloat(row.getValue(col.accessorKey));
+        if (col.accessorKey === 'debit' && amount === 0) return React.createElement('div', { className: 'text-right' }, '-');
+        if (col.accessorKey === 'credit' && amount === 0) return React.createElement('div', { className: 'text-right' }, '-');
+        
         const formatOptions: Intl.NumberFormatOptions = {
           minimumFractionDigits: 2,
           maximumFractionDigits: col.accessorKey.match(/aed|Fees|Charges|Cost|PerUnit|usd|exchangeRate/i) ? 4 : 2
@@ -339,7 +376,7 @@ export const getColumns = (slug: string): ColumnDefinition[] => {
 
         return React.createElement(
           'div', 
-          { className: 'text-right font-medium flex items-center justify-end gap-1' }, 
+          { className: `text-right font-medium flex items-center justify-end gap-1 ${col.accessorKey === 'debit' ? 'text-red-500' : col.accessorKey === 'credit' ? 'text-green-500' : ''}` }, 
           currencySymbol,
           formatted
         );

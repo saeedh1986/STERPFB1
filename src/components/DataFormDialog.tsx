@@ -40,27 +40,40 @@ const fileToDataURI = (file: File): Promise<string> => {
 
 export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, columns, title }: DataFormDialogProps) {
 
+  const isBankStatement = title.includes('Bank Statement');
+
   // Create a dynamic Zod schema from columns
-  const formSchema = z.object(
-    columns.reduce((acc, col) => {
-      // Make item name optional since it will be auto-filled
+  const formSchemaObject = columns.reduce((acc, col) => {
       if (col.accessorKey === 'itemName') {
         acc[col.accessorKey] = z.string().optional();
       } else if (col.accessorKey === 'imageUrl') {
-        // Image URL is optional, can be set via upload
         acc[col.accessorKey] = z.string().optional();
       }
-      else {
-        // For IPCC, some fields are numeric, so we coerce them.
-        if (title.includes('Cost Calculator') && ['usd', 'quantity', 'customsFees', 'shippingFees', 'bankCharges', 'aed', 'totalCost', 'totalCostPerUnit', 'exchangeRate'].includes(col.accessorKey)) {
-          acc[col.accessorKey] = z.coerce.number().optional();
-        } else {
-           acc[col.accessorKey] = z.string().min(1, `${col.header} is required.`);
-        }
+      else if (isBankStatement && ['debit', 'credit', 'balance'].includes(col.accessorKey)) {
+        acc[col.accessorKey] = z.coerce.number().optional();
+      }
+      else if (title.includes('Cost Calculator') && ['usd', 'quantity', 'customsFees', 'shippingFees', 'bankCharges', 'aed', 'totalCost', 'totalCostPerUnit', 'exchangeRate'].includes(col.accessorKey)) {
+        acc[col.accessorKey] = z.coerce.number().optional();
+      } else {
+         acc[col.accessorKey] = z.string().min(1, `${col.header} is required.`);
       }
       return acc;
-    }, {} as Record<string, z.ZodTypeAny>)
-  );
+    }, {} as Record<string, z.ZodTypeAny>);
+
+  if (isBankStatement) {
+      formSchemaObject['debit'] = z.coerce.number().optional();
+      formSchemaObject['credit'] = z.coerce.number().optional();
+  }
+  
+  const formSchema = z.object(formSchemaObject).refine(data => {
+     if (isBankStatement) {
+        return !(data.debit && data.credit);
+     }
+     return true;
+  }, {
+    message: "Cannot have both Debit and Credit values.",
+    path: ['credit'],
+  });
 
   type FormValues = z.infer<typeof formSchema>;
 
@@ -120,6 +133,14 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
             (formattedData as any)[col.accessorKey] = format(new Date(data[col.accessorKey]), 'dd-MMM-yyyy');
         }
     });
+
+    if (isBankStatement) {
+        const debit = data.debit || 0;
+        const credit = data.credit || 0;
+        (formattedData as any).amount = credit > 0 ? credit : -debit;
+        // Balance will be recalculated server-side or on data display
+    }
+
     onSubmit(formattedData);
   };
   
@@ -338,6 +359,11 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                 );
               }
 
+              // Do not render balance field in bank statement form
+              if (isBankStatement && col.accessorKey === 'balance') {
+                return null;
+              }
+
 
               return (
                 <FormField
@@ -370,6 +396,54 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                 />
               );
             })}
+             {isBankStatement && (
+                <>
+                     <FormField
+                        control={form.control}
+                        name={"debit" as keyof FormValues}
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Debit</FormLabel>
+                                <FormControl>
+                                    <Input 
+                                        type="number" 
+                                        step="any" 
+                                        {...field} 
+                                        placeholder="Enter debit amount" 
+                                        onChange={(e) => {
+                                            field.onChange(e.target.valueAsNumber || 0);
+                                            form.setValue('credit' as keyof FormValues, 0);
+                                        }}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name={"credit" as keyof FormValues}
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Credit</FormLabel>
+                                <FormControl>
+                                    <Input 
+                                        type="number" 
+                                        step="any" 
+                                        {...field} 
+                                        placeholder="Enter credit amount"
+                                        onChange={(e) => {
+                                            field.onChange(e.target.valueAsNumber || 0);
+                                            form.setValue('debit' as keyof FormValues, 0);
+                                        }}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </>
+            )}
             <DialogFooter>
               <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
               <Button type="submit">{defaultValues ? 'Save Changes' : 'Create Record'}</Button>
@@ -380,4 +454,3 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
     </Dialog>
   );
 }
-
