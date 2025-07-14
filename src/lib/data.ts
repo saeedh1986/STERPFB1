@@ -175,7 +175,7 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
   if (slug === 'product-catalog') {
     return productCatalogPool;
   }
-  if (slug === 'invoices' || slug === 'purchases-cal' || slug === 'bank-statement' || slug === 'general-ledger' || slug === 'chart-of-accounts' || slug === 'trial-balance' || slug === 'balance-sheet') {
+  if (slug === 'invoices' || slug === 'purchases-cal' || slug === 'bank-statement' || slug === 'general-journal' || slug === 'chart-of-accounts' || slug === 'trial-balance' || slug === 'balance-sheet' || slug === 'income-statement') {
     // These pages have custom data handling
     return [];
   }
@@ -368,10 +368,11 @@ const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   'purchases-cal': { fields: [], count: 0 },
   'bank-statement': { fields: [], count: 0 }, 
   'product-catalog': { fields: ['imageUrl', 'itemName', 'sku', 'unitPrice', 'category', 'description', 'productWeight', 'productDimensions', 'packageWeight', 'packageDimensions'], count: 40 },
-  'general-ledger': { fields: [], count: 0 },
+  'general-journal': { fields: [], count: 0 },
   'chart-of-accounts': { fields: ['code', 'name', 'type'], count: 0 },
   'trial-balance': { fields: [], count: 0 },
   'balance-sheet': { fields: [], count: 0 },
+  'income-statement': { fields: [], count: 0 },
 };
 
 export const getMockData = (slug: string): GenericItem[] => {
@@ -490,8 +491,8 @@ export const getPageTitle = (slug: string): string => {
   if (slug === 'vendors') {
     return 'Vendors Management';
   }
-   if (slug === 'general-ledger') {
-    return 'General Ledger';
+   if (slug === 'general-journal') {
+    return 'General Journal';
   }
   if (slug === 'chart-of-accounts') {
     return 'Chart of Accounts';
@@ -501,6 +502,9 @@ export const getPageTitle = (slug: string): string => {
   }
    if (slug === 'balance-sheet') {
     return 'Balance Sheet';
+  }
+   if (slug === 'income-statement') {
+    return 'Income Statement';
   }
   return slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') + ' Management';
 };

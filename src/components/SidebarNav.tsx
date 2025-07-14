@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard, Package, Barcode, ShoppingCart, CreditCard, TrendingUp,
-  Users, Building, Truck, Layers, Combine, CalendarDays, Landmark, BotMessageSquare, Package2, Library, FileText, Calculator, BookOpen, Settings, Scale, FileSpreadsheet, AreaChart
+  Users, Building, Truck, Layers, Combine, CalendarDays, Landmark, BotMessageSquare, Package2, Library, FileText, Calculator, BookOpen, Settings, Scale, FileSpreadsheet, AreaChart, PieChart
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -39,9 +39,10 @@ const navItems: NavItem[] = [
 ];
 
 const accountingNavItems: NavItem[] = [
-    { href: '/general-ledger', label: 'General Ledger', icon: BookOpen },
+    { href: '/general-journal', label: 'General Journal', icon: BookOpen },
     { href: '/bank-statement', label: 'Bank Statement', icon: Landmark },
     { href: '/trial-balance', label: 'Trial Balance', icon: Scale },
+    { href: '/income-statement', label: 'Income Statement', icon: PieChart },
     { href: '/balance-sheet', label: 'Balance Sheet', icon: FileSpreadsheet },
 ];
 

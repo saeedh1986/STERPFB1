@@ -9,9 +9,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import InventoryBarcodePage from '../inventory-barcode/page';
 import PurchasesCalPage from '../purchases-cal/page';
 import BankStatementPage from '../bank-statement/page';
-import GeneralLedgerPage from '../general-ledger/page';
+import GeneralJournalPage from '../general-journal/page';
 import TrialBalancePage from '../trial-balance/page';
 import BalanceSheetPage from '../balance-sheet/page';
+import IncomeStatementPage from '../income-statement/page';
 
 export default function ModulePage() {
   const params = useParams();
@@ -27,14 +28,17 @@ export default function ModulePage() {
   if (slug === 'bank-statement') {
     return <BankStatementPage />;
   }
-   if (slug === 'general-ledger') {
-    return <GeneralLedgerPage />;
+   if (slug === 'general-journal') {
+    return <GeneralJournalPage />;
   }
   if (slug === 'trial-balance') {
     return <TrialBalancePage />;
   }
   if (slug === 'balance-sheet') {
     return <BalanceSheetPage />;
+  }
+  if (slug === 'income-statement') {
+    return <IncomeStatementPage />;
   }
 
 
