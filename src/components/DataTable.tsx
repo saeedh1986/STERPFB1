@@ -210,7 +210,7 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
                 <TableRow key={item.id}>
                   {columns.map((column) => (
                     <TableCell key={column.accessorKey}>
-                      {column.cell ? column.cell({ row: { getValue: (key: string) => item[key] } }) : item[column.accessorKey]}
+                      {column.cell ? column.cell({ row: { getValue: (key: string) => item[key], original: item } }) : item[column.accessorKey]}
                     </TableCell>
                   ))}
                   <TableCell className="text-right">

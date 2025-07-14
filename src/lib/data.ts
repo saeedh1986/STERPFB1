@@ -12,7 +12,7 @@ export interface GenericItem {
 export interface ColumnDefinition {
   accessorKey: string;
   header: string;
-  cell?: ({ row }: { row: { getValue: (key: string) => any } }) => JSX.Element | string | number;
+  cell?: ({ row }: { row: { getValue: (key: string) => any, original: GenericItem } }) => JSX.Element | string | number;
 }
 
 // Master product catalog
