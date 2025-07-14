@@ -67,13 +67,13 @@ export function LogisticsOptimizationForm() {
       const output = await logisticsOptimization(input);
       setResult(output);
       toast({
-        title: "Optimization Complete",
-        description: "Logistics suggestions have been generated.",
+        title: "Analysis Complete",
+        description: "Logistics insights and forecasts have been generated.",
       });
     } catch (error) {
       console.error("Logistics Optimization Error:", error);
       toast({
-        title: "Optimization Failed",
+        title: "Analysis Failed",
         description: error instanceof Error ? error.message : "An unexpected error occurred.",
         variant: "destructive",
       });
@@ -88,8 +88,8 @@ export function LogisticsOptimizationForm() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle className="font-headline">Logistics Optimization Inputs</CardTitle>
-              <CardDescription>Provide the necessary information to generate optimal logistics routes.</CardDescription>
+              <CardTitle className="font-headline">Logistics Analysis & Forecasting</CardTitle>
+              <CardDescription>Provide the necessary information to generate optimal logistics routes and forecasts.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <FormField
@@ -144,9 +144,9 @@ export function LogisticsOptimizationForm() {
                 name="optimizationGoals"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Optimization Goals</FormLabel>
+                    <FormLabel>Optimization Goals & Business Context</FormLabel>
                     <FormControl>
-                      <Textarea placeholder="e.g., Minimize cost, Minimize delivery time, Maximize reliability" {...field} />
+                      <Textarea placeholder="e.g., Minimize cost, reduce delivery time, prepare for upcoming promotions..." {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -166,44 +166,69 @@ export function LogisticsOptimizationForm() {
       {result && (
         <Card className="shadow-lg mt-8">
           <CardHeader>
-            <CardTitle className="font-headline">Optimization Results</CardTitle>
-            <CardDescription>Based on the provided data, here are the suggested logistics optimizations.</CardDescription>
+            <CardTitle className="font-headline">Logistics Analysis Results</CardTitle>
+            <CardDescription>Based on the provided data, here are the generated insights and recommendations.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <h3 className="font-semibold text-lg">Suggested Routes:</h3>
-              {result.suggestedRoutes.length > 0 ? (
-                <ul className="list-disc list-inside pl-4">
-                  {result.suggestedRoutes.map((route, index) => <li key={index}>{route}</li>)}
-                </ul>
-              ) : <p className="text-muted-foreground">No routes suggested.</p>}
-            </div>
-            <div>
-              <h3 className="font-semibold text-lg">Estimated Costs:</h3>
-              {result.estimatedCosts.length > 0 ? (
-                <ul className="list-disc list-inside pl-4">
-                  {result.estimatedCosts.map((cost, index) => <li key={index}>Route {index + 1}: د.إ {cost.toFixed(2)}</li>)}
-                </ul>
-              ) : <p className="text-muted-foreground">No cost estimations available.</p>}
-            </div>
-            <div>
-              <h3 className="font-semibold text-lg">Estimated Times:</h3>
-              {result.estimatedTimes.length > 0 ? (
-                <ul className="list-disc list-inside pl-4">
-                  {result.estimatedTimes.map((time, index) => <li key={index}>Route {index + 1}: {time}</li>)}
-                </ul>
-              ) : <p className="text-muted-foreground">No time estimations available.</p>}
-            </div>
-            <div>
-              <h3 className="font-semibold text-lg">Reliability Scores:</h3>
-              {result.reliabilityScores.length > 0 ? (
-              <ul className="list-disc list-inside pl-4">
-                {result.reliabilityScores.map((score, index) => <li key={index}>Route {index + 1}: {score.toFixed(2)}/1.00</li>)}
-              </ul>
-              ) : <p className="text-muted-foreground">No reliability scores available.</p>}
-            </div>
-            {result.notes && (
+          <CardContent className="space-y-6">
+            {result.demandForecast && (
+                <div>
+                    <h3 className="font-semibold text-lg mb-2">Demand Forecast</h3>
+                    <p className="text-muted-foreground whitespace-pre-wrap">{result.demandForecast}</p>
+                </div>
+            )}
+             {result.trendAnalysis && (
+                <div>
+                    <h3 className="font-semibold text-lg mb-2">Trend Analysis</h3>
+                    <p className="text-muted-foreground whitespace-pre-wrap">{result.trendAnalysis}</p>
+                </div>
+            )}
+             {result.recommendations && (
+                <div>
+                    <h3 className="font-semibold text-lg mb-2">Actionable Recommendations</h3>
+                    <p className="text-muted-foreground whitespace-pre-wrap">{result.recommendations}</p>
+                </div>
+            )}
+
+            <div className="border-t pt-6 space-y-4">
+              <h3 className="font-semibold text-lg">Route Optimization Details:</h3>
               <div>
+                <h4 className="font-medium">Suggested Routes:</h4>
+                {result.suggestedRoutes.length > 0 ? (
+                  <ul className="list-disc list-inside pl-4 text-muted-foreground">
+                    {result.suggestedRoutes.map((route, index) => <li key={index}>{route}</li>)}
+                  </ul>
+                ) : <p className="text-muted-foreground">No routes suggested.</p>}
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <h4 className="font-medium">Estimated Costs:</h4>
+                  {result.estimatedCosts.length > 0 ? (
+                    <ul className="list-disc list-inside pl-4 text-muted-foreground">
+                      {result.estimatedCosts.map((cost, index) => <li key={index}>Route {index + 1}: د.إ {cost.toFixed(2)}</li>)}
+                    </ul>
+                  ) : <p className="text-muted-foreground">No cost estimations.</p>}
+                </div>
+                <div>
+                  <h4 className="font-medium">Estimated Times:</h4>
+                  {result.estimatedTimes.length > 0 ? (
+                    <ul className="list-disc list-inside pl-4 text-muted-foreground">
+                      {result.estimatedTimes.map((time, index) => <li key={index}>Route {index + 1}: {time}</li>)}
+                    </ul>
+                  ) : <p className="text-muted-foreground">No time estimations.</p>}
+                </div>
+                <div>
+                  <h4 className="font-medium">Reliability Scores:</h4>
+                  {result.reliabilityScores.length > 0 ? (
+                  <ul className="list-disc list-inside pl-4 text-muted-foreground">
+                    {result.reliabilityScores.map((score, index) => <li key={index}>Route {index + 1}: {score.toFixed(2)}/1.00</li>)}
+                  </ul>
+                  ) : <p className="text-muted-foreground">No reliability scores.</p>}
+                </div>
+              </div>
+            </div>
+
+            {result.notes && (
+              <div className="border-t pt-6">
                 <h3 className="font-semibold text-lg">Additional Notes:</h3>
                 <p className="text-muted-foreground whitespace-pre-wrap">{result.notes}</p>
               </div>

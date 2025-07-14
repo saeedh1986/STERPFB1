@@ -3,9 +3,9 @@
 'use server';
 
 /**
- * @fileOverview A logistics route optimization AI agent.
+ * @fileOverview A logistics route optimization and forecasting AI agent.
  *
- * - logisticsOptimization - A function that handles the logistics route optimization process.
+ * - logisticsOptimization - A function that handles the logistics analysis process.
  * - LogisticsOptimizationInput - The input type for the logisticsOptimization function.
  * - LogisticsOptimizationOutput - The return type for the logisticsOptimization function.
  */
@@ -42,6 +42,15 @@ const LogisticsOptimizationOutputSchema = z.object({
   reliabilityScores: z
     .array(z.number())
     .describe('A list of reliability scores for each suggested route.'),
+  demandForecast: z
+    .string()
+    .describe('A forecast of future demand based on historical data and time of year.'),
+  trendAnalysis: z
+    .string()
+    .describe('An analysis of key trends identified in the historical data.'),
+  recommendations: z
+    .string()
+    .describe('Actionable recommendations for inventory, routing, and cost management.'),
   notes: z.string().describe('Any additional notes or considerations for the suggested routes.'),
 });
 export type LogisticsOptimizationOutput = z.infer<typeof LogisticsOptimizationOutputSchema>;
@@ -56,14 +65,21 @@ const prompt = ai.definePrompt({
   name: 'logisticsOptimizationPrompt',
   input: {schema: LogisticsOptimizationInputSchema},
   output: {schema: LogisticsOptimizationOutputSchema},
-  prompt: `You are an expert logistics optimizer. Analyze the historical data, time of year, and current traffic conditions to suggest optimal delivery routes.
+  prompt: `You are an expert logistics and supply chain analyst. Your task is to analyze historical data, current conditions, and business goals to provide a comprehensive logistics strategy.
 
+Analyze the provided information:
 Historical Data: {{media url=historicalData}}
 Time of Year: {{{timeOfYear}}}
 Current Traffic Conditions: {{{currentTrafficConditions}}}
 Optimization Goals: {{{optimizationGoals}}}
 
-Suggest optimal delivery routes, estimate costs and times, and provide reliability scores. Provide any additional notes or considerations.
+Based on your analysis, provide the following:
+1.  **Suggested Routes**: A list of optimal delivery routes.
+2.  **Estimates**: Estimated costs, times, and reliability scores for each route.
+3.  **Demand Forecast**: A forecast of future product demand based on historical patterns and the time of year.
+4.  **Trend Analysis**: Identify key trends from the data (e.g., most profitable routes, common delays, seasonal demand spikes).
+5.  **Actionable Recommendations**: Suggest concrete actions for inventory management, route planning, and cost reduction.
+6.  **Notes**: Any other important considerations.
 
 Output your response as a JSON object matching the schema.`, 
 });
