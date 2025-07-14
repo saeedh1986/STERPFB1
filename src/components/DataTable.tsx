@@ -15,14 +15,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuTrigger,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import { FilePlus, FilePenLine, Trash2, ChevronDown, Upload, Download, Filter } from 'lucide-react';
+import { FilePlus, FilePenLine, Trash2, ChevronDown, Upload, Download } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import {
   AlertDialog,
@@ -33,8 +32,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
+import { DataFormDialog } from './DataFormDialog';
 
 interface DataTableProps {
   data: GenericItem[];
@@ -48,6 +47,7 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
   const [tableData, setTableData] = useState<GenericItem[]>(initialData);
   const [globalFilter, setGlobalFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<GenericItem | null>(null);
   const { toast } = useToast();
 
@@ -71,16 +71,13 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
   const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
 
   const handleCreate = () => {
-    // Mock create: add a new empty item or open a form dialog
-    toast({ title: "Create Item", description: "Mock create action for " + pageTitle });
-    // Example: const newItem = { id: `new-${Date.now()}`, ...columns.reduce((acc, col) => ({...acc, [col.accessorKey]: ''}), {})};
-    // setTableData(prev => [newItem, ...prev]);
+    setSelectedItem(null);
+    setIsDialogOpen(true);
   };
 
   const handleUpdate = (item: GenericItem) => {
     setSelectedItem(item);
-    toast({ title: "Update Item", description: `Mock update action for item: ${item.id}` });
-    // In a real app, this would open a form dialog pre-filled with item's data
+    setIsDialogOpen(true);
   };
 
   const handleDelete = (itemId: string) => {
@@ -88,6 +85,20 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
     toast({ title: "Item Deleted", description: `Item ${itemId} has been deleted.` });
   };
   
+  const handleFormSubmit = (values: GenericItem) => {
+    if (selectedItem) {
+      // Update existing item
+      setTableData(prev => prev.map(item => item.id === selectedItem.id ? { ...item, ...values } : item));
+      toast({ title: "Item Updated", description: "The record has been successfully updated." });
+    } else {
+      // Create new item
+      const newItem = { ...values, id: `new-${Date.now()}` };
+      setTableData(prev => [newItem, ...prev]);
+      toast({ title: "Item Created", description: "A new record has been successfully added." });
+    }
+    setIsDialogOpen(false);
+  };
+
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -95,7 +106,6 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
         title: "File Uploaded",
         description: `${file.name} selected. In a real app, this would be processed.`,
       });
-      // Mock: console.log("Uploaded file:", file.name);
     }
   };
 
@@ -117,7 +127,7 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
           className="max-w-sm"
         />
         <div className="flex gap-2">
-          <Button onClick={handleCreate} variant="outline">
+          <Button onClick={handleCreate}>
             <FilePlus className="mr-2 h-4 w-4" /> Create New
           </Button>
            <label htmlFor="file-upload" className="cursor-pointer">
@@ -164,26 +174,26 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
                           <FilePenLine className="mr-2 h-4 w-4" /> Update
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive focus:bg-destructive/10">
-                              <Trash2 className="mr-2 h-4 w-4" /> Delete
-                            </DropdownMenuItem>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This action cannot be undone. This will permanently delete the item.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDelete(item.id)} className="bg-destructive hover:bg-destructive/90">
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
+                         <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive focus:bg-destructive/10">
+                                    <Trash2 className="mr-2 h-4 w-4" /> Delete
+                                </DropdownMenuItem>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This action cannot be undone. This will permanently delete the item.
+                                </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDelete(item.id)} className="bg-destructive hover:bg-destructive/90">
+                                    Delete
+                                </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
                         </AlertDialog>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -224,6 +234,15 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
           </Button>
         </div>
       )}
+
+      <DataFormDialog
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        onSubmit={handleFormSubmit}
+        defaultValues={selectedItem}
+        columns={columns.filter(c => c.accessorKey !== 'id')} // Don't show ID in form
+        title={selectedItem ? `Edit ${pageTitle}` : `Create New ${pageTitle}`}
+      />
     </div>
   );
 }
