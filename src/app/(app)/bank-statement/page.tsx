@@ -5,11 +5,13 @@ import React, { useState, useRef } from 'react';
 import { PageHeader } from '@/components/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { bankTransactionsData as initialTransactions, bankAccountDetails as initialAccountDetails } from '@/lib/data';
+import { bankTransactionsData as initialTransactions, bankAccountDetails as initialAccountDetails, chartOfAccountsData } from '@/lib/data';
 import { Button } from '@/components/ui/button';
-import { Download, FileUp, FilePlus } from 'lucide-react';
+import { Download, FileUp, FilePlus, Sparkles } from 'lucide-react';
 import Image from 'next/image';
 import { useToast } from "@/hooks/use-toast";
+import { categorizeTransaction } from '@/ai/flows/categorize-transaction';
+import { Badge } from '@/components/ui/badge';
 
 
 const aedSymbol = <Image src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/UAE_Dirham_Symbol.svg/1377px-UAE_Dirham_Symbol.svg.png" alt="AED" width={14} height={14} className="inline-block" />;
@@ -26,6 +28,7 @@ const currencyFormatter = (value: number) => {
 export default function BankStatementPage() {
     const [accountDetails, setAccountDetails] = useState(initialAccountDetails);
     const [transactions, setTransactions] = useState(initialTransactions);
+    const [isCategorizing, setIsCategorizing] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { toast } = useToast();
 
@@ -38,7 +41,8 @@ export default function BankStatementPage() {
         if (!file) return;
 
         const reader = new FileReader();
-        reader.onload = (e) => {
+        reader.onload = async (e) => {
+            setIsCategorizing(true);
             try {
                 const text = e.target?.result as string;
                 const lines = text.split('\n').filter(line => line.trim() !== '').slice(1); // Skip header
@@ -56,12 +60,15 @@ export default function BankStatementPage() {
                     accountCurrency: firstRowCols[5] || accountDetails.accountCurrency,
                 };
                 setAccountDetails(newAccountDetails);
+                
+                const accountNames = chartOfAccountsData.map(acc => acc.name);
 
-                const newTransactions = lines.map((line, index) => {
+                const transactionPromises = lines.map(async (line, index) => {
                     const columns = line.split(',').map(c => c.trim());
                     const amount = parseFloat(columns[10]);
                     const debit = amount < 0 ? Math.abs(amount) : 0;
                     const credit = amount >= 0 ? amount : 0;
+                    const description = columns[9];
                     
                     const dateStr = columns[7];
                     let formattedDate = dateStr;
@@ -73,25 +80,36 @@ export default function BankStatementPage() {
                     } catch(e) {
                         // Keep original date if parsing fails
                     }
+                    
+                    let suggestedCategory = columns[6]; // Default to original type
+                    try {
+                        const result = await categorizeTransaction({ description, accounts: accountNames });
+                        suggestedCategory = result.category;
+                    } catch (aiError) {
+                        console.error("AI categorization failed for:", description, aiError);
+                    }
 
 
                     return {
                         id: `imported-txn-${Date.now()}-${index}`,
                         date: formattedDate,
-                        transactionType: columns[6],
+                        transactionType: suggestedCategory,
                         refNumber: columns[8],
-                        description: columns[9],
+                        description: description,
                         debit: debit,
                         credit: credit,
                         balance: parseFloat(columns[11]),
+                        isAiCategorized: suggestedCategory !== columns[6],
                     };
-                }).filter(t => !isNaN(t.balance)); // Filter out any potentially malformed rows
+                });
+                
+                const newTransactions = (await Promise.all(transactionPromises)).filter(t => !isNaN(t.balance));
 
                 setTransactions(newTransactions.reverse()); // Reverse to show latest first
 
                 toast({
                     title: "Import Successful",
-                    description: `${newTransactions.length} transaction(s) have been imported.`,
+                    description: `${newTransactions.length} transaction(s) have been imported and categorized.`,
                 });
 
             } catch (error) {
@@ -101,6 +119,7 @@ export default function BankStatementPage() {
                     variant: "destructive",
                 });
             } finally {
+                setIsCategorizing(false);
                 if(fileInputRef.current) {
                     fileInputRef.current.value = "";
                 }
@@ -157,7 +176,10 @@ export default function BankStatementPage() {
                         </div>
                          <div className="flex gap-2">
                             <Button variant="outline"><Download className="mr-2" /> Download CSV</Button>
-                            <Button variant="outline" onClick={handleFileImportClick}><FileUp className="mr-2" /> Import from CSV</Button>
+                            <Button variant="outline" onClick={handleFileImportClick} disabled={isCategorizing}>
+                               {isCategorizing ? <Sparkles className="mr-2 h-4 w-4 animate-spin" /> : <FileUp className="mr-2" />}
+                               {isCategorizing ? 'Categorizing...' : 'Import from CSV'}
+                            </Button>
                             <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileUpload} accept=".csv" />
                             <Button><FilePlus className="mr-2" /> Add Transaction</Button>
                         </div>
@@ -167,7 +189,7 @@ export default function BankStatementPage() {
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>Date</TableHead>
-                                    <TableHead>Transaction Type</TableHead>
+                                    <TableHead>Suggested Category</TableHead>
                                     <TableHead>Ref. Number</TableHead>
                                     <TableHead>Description</TableHead>
                                     <TableHead className="text-right">Debit</TableHead>
@@ -179,7 +201,16 @@ export default function BankStatementPage() {
                                 {transactions.map((item) => (
                                     <TableRow key={item.id}>
                                         <TableCell>{item.date}</TableCell>
-                                        <TableCell>{item.transactionType}</TableCell>
+                                        <TableCell>
+                                            {item.isAiCategorized ? (
+                                                 <Badge variant="outline" className="bg-accent/50 border-accent text-accent-foreground">
+                                                    <Sparkles className="mr-2 h-3 w-3" />
+                                                    {item.transactionType}
+                                                 </Badge>
+                                            ) : (
+                                                item.transactionType
+                                            )}
+                                        </TableCell>
                                         <TableCell>{item.refNumber}</TableCell>
                                         <TableCell>{item.description}</TableCell>
                                         <TableCell className="text-right font-medium text-red-500">
