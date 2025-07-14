@@ -47,7 +47,9 @@ export function PrintSettingsDialog({ isOpen, onClose, printers, settings, onSet
             '^XZ'
         ];
         
-        await qz.print(config, {data: testData});
+        const dataToSend = testData.join('\n');
+        await qz.print(config, {data: dataToSend});
+
         toast({ title: "Test Print Sent", description: `Test label sent to ${settings.printer}`});
     } catch (err: any) {
         console.error("Test print failed:", err);
