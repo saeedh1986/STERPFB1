@@ -27,6 +27,17 @@ interface DataFormDialogProps {
   title: string;
 }
 
+// Helper to convert file to data URI
+const fileToDataURI = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+};
+
+
 export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, columns, title }: DataFormDialogProps) {
 
   // Create a dynamic Zod schema from columns
@@ -35,7 +46,11 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
       // Make item name optional since it will be auto-filled
       if (col.accessorKey === 'itemName') {
         acc[col.accessorKey] = z.string().optional();
-      } else {
+      } else if (col.accessorKey === 'imageUrl') {
+        // Image URL is optional, can be set via upload
+        acc[col.accessorKey] = z.string().optional();
+      }
+      else {
         acc[col.accessorKey] = z.string().min(1, `${col.header} is required.`);
       }
       return acc;
@@ -83,11 +98,24 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
   
   const isSkuSelectMode = title.includes('Sales') || title.includes('Purchases');
   const isExpenseMode = title.includes('Expenses');
+  const isProductCatalog = title.includes('Product Catalog');
   
   const handleSkuChange = (sku: string) => {
     const selectedItem = inventoryItemsPool.find(item => item.sku === sku);
     if (selectedItem) {
       form.setValue('itemName' as keyof FormValues, selectedItem.itemName);
+    }
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+        try {
+            const dataUri = await fileToDataURI(file);
+            form.setValue('imageUrl' as keyof FormValues, dataUri);
+        } catch (error) {
+            console.error("Error converting file to Data URI", error);
+        }
     }
   };
 
@@ -253,6 +281,34 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                 );
               }
 
+              if (isProductCatalog && col.accessorKey === 'imageUrl') {
+                return (
+                  <div key={col.accessorKey} className="space-y-2">
+                    <FormField
+                      control={form.control}
+                      name={col.accessorKey as keyof FormValues}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Image URL</FormLabel>
+                          <FormControl>
+                            <Input placeholder="https://... or upload a file below" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                     <FormItem>
+                        <FormLabel>Or Upload Image</FormLabel>
+                        <FormControl>
+                            <Input type="file" accept="image/*" onChange={handleImageUpload} />
+                        </FormControl>
+                        <FormDescription>The uploaded image will replace the URL above.</FormDescription>
+                    </FormItem>
+                  </div>
+                );
+              }
+
+
               return (
                 <FormField
                   key={col.accessorKey}
@@ -262,7 +318,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                     <FormItem>
                       <FormLabel>{col.header}</FormLabel>
                       <FormControl>
-                        <Input placeholder={col.accessorKey === 'imageUrl' ? 'https://...' : `Enter ${col.header.toLowerCase()}...`} {...field} />
+                        <Input placeholder={`Enter ${col.header.toLowerCase()}...`} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
