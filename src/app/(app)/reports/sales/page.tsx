@@ -79,7 +79,7 @@ export default function SalesReportPage() {
         <>
             <PageHeader title="Sales Report" />
             <main className="flex-1 p-4 md:p-6 space-y-6">
-                <div className="grid gap-6 md:grid-cols-3">
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
@@ -109,7 +109,7 @@ export default function SalesReportPage() {
                     </Card>
                 </div>
                 
-                <div className="grid gap-6 md:grid-cols-2">
+                <div className="grid gap-6 lg:grid-cols-2">
                      <Card>
                         <CardHeader>
                             <CardTitle>Sales Over Time</CardTitle>

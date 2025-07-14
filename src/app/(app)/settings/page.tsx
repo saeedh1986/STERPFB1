@@ -224,7 +224,7 @@ export default function SettingsPage() {
         </div>
 
         <Card className="shadow-lg">
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                  <div>
                     <CardTitle>Chart of Accounts</CardTitle>
                     <CardDescription>Manage your general ledger accounts.</CardDescription>
@@ -254,7 +254,7 @@ export default function SettingsPage() {
                                 <TableCell className="text-right">
                                      <Button variant="ghost" size="icon" onClick={() => handleUpdate(account)}>
                                         <FilePenLine className="h-4 w-4" />
-                                        <span className="sr-only">Edit Account</span>
+                                        <span className="sr-only">Edit Account for {account.name}</span>
                                     </Button>
                                 </TableCell>
                             </TableRow>

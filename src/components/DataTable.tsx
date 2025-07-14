@@ -179,7 +179,7 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
           onChange={(event) => setGlobalFilter(event.target.value)}
           className="max-w-sm"
         />
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button onClick={handleCreate}>
             <FilePlus className="mr-2 h-4 w-4" /> Create New
           </Button>
@@ -195,7 +195,7 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
         </div>
       </div>
 
-      <div className="rounded-md border shadow-sm">
+      <div className="rounded-md border shadow-sm overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -217,7 +217,7 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
+                        <Button variant="ghost" className="h-8 w-8 p-0" aria-label={`Actions for ${item.name || item.id}`}>
                           <span className="sr-only">Open menu</span>
                           <ChevronDown className="h-4 w-4" />
                         </Button>

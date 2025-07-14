@@ -94,7 +94,7 @@ export default function PurchasesReportPage() {
                     </Card>
                 </div>
                 
-                <div className="grid gap-6 md:grid-cols-2">
+                <div className="grid gap-6 lg:grid-cols-2">
                      <Card>
                         <CardHeader>
                             <CardTitle>Purchases Over Time</CardTitle>

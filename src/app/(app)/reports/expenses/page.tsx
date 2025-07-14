@@ -99,14 +99,14 @@ export default function ExpensesReportPage() {
                     </Card>
                 </div>
                 
-                <div className="grid gap-6 md:grid-cols-5">
-                    <Card className="md:col-span-2">
+                <div className="grid gap-6 lg:grid-cols-5">
+                    <Card className="lg:col-span-2">
                         <CardHeader>
                             <CardTitle>Expense Breakdown</CardTitle>
                             <CardDescription>Spending by category.</CardDescription>
                         </CardHeader>
-                        <CardContent>
-                            <ChartContainer config={{}} className="h-80 w-full">
+                        <CardContent className="h-80 flex items-center justify-center">
+                            <ChartContainer config={{}} className="h-full w-full max-h-[300px] aspect-square">
                                 <PieChart>
                                     <ChartTooltip
                                         cursor={false}
@@ -121,7 +121,7 @@ export default function ExpensesReportPage() {
                                         nameKey="name"
                                         cx="50%"
                                         cy="50%"
-                                        outerRadius={120}
+                                        outerRadius={100}
                                         labelLine={false}
                                         label={({ percent, name }) => `${(percent * 100).toFixed(0)}%`}
                                     >
@@ -133,7 +133,7 @@ export default function ExpensesReportPage() {
                             </ChartContainer>
                         </CardContent>
                     </Card>
-                     <Card className="md:col-span-3">
+                     <Card className="lg:col-span-3">
                         <CardHeader>
                             <CardTitle>Expenses by Category</CardTitle>
                             <CardDescription>Detailed list of spending per category.</CardDescription>

@@ -150,8 +150,8 @@ export function CreateInvoiceForm() {
       <CardContent className="p-0">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="bg-white text-black p-10 font-sans space-y-10">
-              <header className="flex justify-between items-start">
+            <div className="bg-white text-black p-4 sm:p-6 md:p-10 font-sans space-y-10">
+              <header className="flex flex-col sm:flex-row justify-between items-start mb-10 gap-8">
                   <div className="flex items-start gap-4">
                       <Image src={logoSrc} alt="Saeed Store Logo" width={80} height={80} className="object-contain" />
                       <div>
@@ -162,7 +162,7 @@ export function CreateInvoiceForm() {
                           <p className="text-sm text-gray-600">WhatsApp: +971553813831</p>
                       </div>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right w-full sm:w-auto">
                       <h1 className="text-4xl font-extrabold uppercase text-gray-800 tracking-wider">Invoice</h1>
                        <FormField
                           control={form.control}
@@ -181,14 +181,14 @@ export function CreateInvoiceForm() {
                   </div>
               </header>
 
-              <section className="grid grid-cols-3 gap-6 border-t border-b border-gray-200 py-4">
+              <section className="grid grid-cols-1 sm:grid-cols-3 gap-6 border-t border-b border-gray-200 py-4">
                   <FormField control={form.control} name="billTo" render={({ field }) => (<FormItem><h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Bill To</h3><FormControl><Input className="font-medium text-gray-800 p-1 h-auto" {...field} /></FormControl><FormMessage /></FormItem>)} />
                   <FormField control={form.control} name="shipTo" render={({ field }) => (<FormItem><h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Ship To</h3><FormControl><Input className="font-medium text-gray-800 p-1 h-auto" {...field} /></FormControl><FormMessage /></FormItem>)} />
                   <FormField
                       control={form.control}
                       name="invoiceDate"
                       render={({ field }) => (
-                        <FormItem className="text-right">
+                        <FormItem className="sm:text-right">
                           <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Invoice Date</h3>
                           <Popover>
                             <PopoverTrigger asChild>
@@ -196,7 +196,7 @@ export function CreateInvoiceForm() {
                                 <Button
                                   variant={"ghost"}
                                   className={cn(
-                                    "w-full justify-end font-medium text-gray-800 p-1 h-auto hover:bg-gray-100",
+                                    "w-full sm:w-auto justify-start sm:justify-end font-medium text-gray-800 p-1 h-auto hover:bg-gray-100",
                                     !field.value && "text-muted-foreground"
                                   )}
                                 >
@@ -223,7 +223,7 @@ export function CreateInvoiceForm() {
                 <FormField control={form.control} name="instructions" render={({ field }) => (<FormItem><h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Instructions</h3><FormControl><Input className="text-sm text-gray-700 p-1 h-auto" {...field} /></FormControl><FormMessage /></FormItem>)} />
               </section>
 
-              <div>
+              <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-gray-50 border-gray-200 hover:bg-gray-50">
@@ -273,7 +273,7 @@ export function CreateInvoiceForm() {
                   </TableBody>
                 </Table>
                 
-                <div className="mt-4 flex gap-4">
+                <div className="mt-4 flex flex-wrap gap-4">
                   <Popover>
                       <PopoverTrigger asChild>
                       <Button

@@ -47,7 +47,7 @@ export default function DashboardPage() {
         <>
             <PageHeader title="Dashboard" />
             <main className="flex-1 p-4 md:p-6 space-y-6">
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
@@ -90,14 +90,14 @@ export default function DashboardPage() {
                     </Card>
                 </div>
                 
-                 <div className="grid gap-6 lg:grid-cols-3">
-                    <Card className="shadow-lg lg:col-span-2">
+                 <div className="grid gap-6 lg:grid-cols-5">
+                    <Card className="shadow-lg lg:col-span-3">
                         <CardHeader>
                             <CardTitle>Revenue and Expenses Overview</CardTitle>
                             <CardDescription>Comparison of sales vs. expenses over the last few months.</CardDescription>
                         </CardHeader>
                         <CardContent className="h-[350px]">
-                            <ChartContainer config={barChartConfig}>
+                             <ChartContainer config={barChartConfig} className="w-full h-full">
                                 <BarChart data={summaryData.chartData.barChart}>
                                     <CartesianGrid vertical={false} />
                                     <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
@@ -115,13 +115,13 @@ export default function DashboardPage() {
                         </CardContent>
                     </Card>
 
-                    <Card className="shadow-lg">
+                    <Card className="shadow-lg lg:col-span-2">
                         <CardHeader>
                             <CardTitle>Inventory Distribution</CardTitle>
                             <CardDescription>Current state of your top inventory items by quantity.</CardDescription>
                         </CardHeader>
-                        <CardContent className="h-[350px]">
-                           <ChartContainer config={pieChartConfig} className="mx-auto aspect-square max-h-[250px]">
+                        <CardContent className="h-[350px] flex items-center justify-center">
+                           <ChartContainer config={pieChartConfig} className="mx-auto aspect-square max-h-[300px]">
                                 <PieChart>
                                     <ChartTooltip
                                         cursor={false}
@@ -168,7 +168,7 @@ export default function DashboardPage() {
                                 <TableHeader>
                                     <TableRow>
                                         <TableHead>Customer</TableHead>
-                                        <TableHead>Item</TableHead>
+                                        <TableHead className="hidden sm:table-cell">Item</TableHead>
                                         <TableHead className="text-right">Amount</TableHead>
                                     </TableRow>
                                 </TableHeader>
@@ -177,9 +177,10 @@ export default function DashboardPage() {
                                         <TableRow key={sale.orderId}>
                                             <TableCell>
                                                 <div className="font-medium">{sale.customerName}</div>
+                                                <div className="text-sm text-muted-foreground md:hidden">{sale.itemName}</div>
                                                 <div className="hidden text-sm text-muted-foreground md:inline">{sale.orderId}</div>
                                             </TableCell>
-                                            <TableCell>{sale.itemName}</TableCell>
+                                            <TableCell className="hidden sm:table-cell">{sale.itemName}</TableCell>
                                             <TableCell className="text-right flex items-center justify-end gap-1">
                                                 {aedSymbol} {currencyFormatter(sale.totalSales)}
                                             </TableCell>
