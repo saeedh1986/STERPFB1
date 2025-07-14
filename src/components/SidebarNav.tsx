@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard, Package, Barcode, ShoppingCart, CreditCard, TrendingUp,
-  Users, Building, Truck, Layers, Combine, CalendarDays, Landmark, BotMessageSquare, Package2, Library, FileText
+  Users, Building, Truck, Layers, Combine, CalendarDays, Landmark, BotMessageSquare, Package2, Library, FileText, Calculator
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -30,7 +30,7 @@ const navItems: NavItem[] = [
   { href: '/customers', label: 'Customers', icon: Users },
   { href: '/vendors', label: 'Vendors', icon: Building },
   { href: '/logistics', label: 'Logistics', icon: Truck },
-  { href: '/ipcc', label: 'IPCC', icon: Layers },
+  { href: '/ipcc', label: 'Cost Calculator', icon: Calculator },
   { href: '/ipbt', label: 'IPBT', icon: Combine },
   { href: '/purchases-cal', label: 'Purchases Cal.', icon: CalendarDays },
   { href: '/bank-statement', label: 'Bank Statement', icon: Landmark },
