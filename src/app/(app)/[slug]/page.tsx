@@ -1,24 +1,21 @@
 
 "use client";
 
+import { useParams } from 'next/navigation';
 import { PageHeader } from '@/components/PageHeader';
 import { DataTable } from '@/components/DataTable';
 import { getMockData, getColumns, getPageTitle, moduleSlugs } from '@/lib/data';
 import { Card, CardContent } from '@/components/ui/card';
 
-interface ModulePageProps {
-  params: {
-    slug: string;
-  };
-}
+export default function ModulePage() {
+  const params = useParams();
+  const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
 
-export default function ModulePage({ params }: ModulePageProps) {
-  const { slug } = params;
   const data = getMockData(slug);
   const columns = getColumns(slug);
   const title = getPageTitle(slug);
 
-  if (!moduleSlugs.includes(slug) || columns.length === 0) {
+  if (!slug || !moduleSlugs.includes(slug) || columns.length === 0) {
     return (
       <>
         <PageHeader title="Error" />
@@ -42,4 +39,3 @@ export default function ModulePage({ params }: ModulePageProps) {
     </>
   );
 }
-
