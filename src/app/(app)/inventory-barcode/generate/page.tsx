@@ -162,7 +162,7 @@ export default function GenerateBarcodePage() {
         const { offsetX, offsetY } = printSettings;
 
 
-        let zplData = [
+        let zplDataArray = [
             '^XA', // Start
             `^LL${heightDots}`, // Label Length (height)
             `^PW${widthDots}`, // Label Width
@@ -174,27 +174,29 @@ export default function GenerateBarcodePage() {
         ];
 
         if (printType === 'barcode') {
-            zplData.push(`^FO0,50,^FB${widthDots},1,0,C,0^BY2,2,45^BCN,45,N,N,N,A^FD${codeValue}^FS`);
-            zplData.push(`^FO0,105,^FB${widthDots},1,0,C,0^A0N,18,18^FD${codeValue}^FS`);
+            zplDataArray.push(`^FO0,50,^FB${widthDots},1,0,C,0^BY2,2,45^BCN,45,N,N,N,A^FD${codeValue}^FS`);
+            zplDataArray.push(`^FO0,105,^FB${widthDots},1,0,C,0^A0N,18,18^FD${codeValue}^FS`);
         } else if (printType === 'qrcode') {
-             zplData.push(`^FO0,50,^FB${widthDots},1,0,C,0^BQN,2,5^FDQA,${codeValue}^FS`);
+             zplDataArray.push(`^FO0,50,^FB${widthDots},1,0,C,0^BQN,2,5^FDQA,${codeValue}^FS`);
         } else { // 'both'
              // Barcode (left)
-            zplData.push(`^FO20,50^BY2,2,45^BCN,45,N,N,N,A^FD${codeValue}^FS`);
+            zplDataArray.push(`^FO20,50^BY2,2,45^BCN,45,N,N,N,A^FD${codeValue}^FS`);
             // SKU text (below barcode)
-            zplData.push(`^FO20,105,^FB180,1,0,C,0^A0N,18,18^FD${codeValue}^FS`);
+            zplDataArray.push(`^FO20,105,^FB180,1,0,C,0^A0N,18,18^FD${codeValue}^FS`);
             // QR Code (right)
-            zplData.push(`^FO${widthDots - 120},50^BQN,2,4^FDQA,${codeValue}^FS`);
+            zplDataArray.push(`^FO${widthDots - 120},50^BQN,2,4^FDQA,${codeValue}^FS`);
         }
         
-        zplData.push('^XZ'); // End
+        zplDataArray.push('^XZ'); // End
         
-        const dataToSend = zplData.join('\n');
+        const zplDataString = zplDataArray.join('\n');
+        const data = [{
+            type: 'raw',
+            format: 'zpl',
+            data: zplDataString
+        }];
         
-        // Correctly format the data as an array of print job objects
-        await qz.print(config, [
-          { type: 'raw', format: 'zpl', data: dataToSend }
-        ]);
+        await qz.print(config, data);
 
         toast({ title: "Print Successful", description: `Label sent to printer: ${printSettings.printer}`});
     } catch (err: any) {

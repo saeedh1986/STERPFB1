@@ -36,7 +36,7 @@ export function PrintSettingsDialog({ isOpen, onClose, printers, settings, onSet
         const { offsetX, offsetY } = settings;
 
         // A simple ZPL command to print a border for testing alignment
-        const testData = [
+        const testDataArray = [
             '^XA',
             `^LL${heightDots}`,
             `^PW${widthDots}`,
@@ -47,12 +47,14 @@ export function PrintSettingsDialog({ isOpen, onClose, printers, settings, onSet
             '^XZ'
         ];
         
-        const dataToSend = testData.join('\n');
+        const zplDataString = testDataArray.join('\n');
+        const data = [{
+            type: 'raw',
+            format: 'zpl',
+            data: zplDataString
+        }];
         
-        // Correctly format the data as an array of print job objects
-        await qz.print(config, [
-          { type: 'raw', format: 'zpl', data: dataToSend }
-        ]);
+        await qz.print(config, data);
 
         toast({ title: "Test Print Sent", description: `Test label sent to ${settings.printer}`});
     } catch (err: any) {
