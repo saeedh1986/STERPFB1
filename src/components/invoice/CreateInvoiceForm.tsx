@@ -45,7 +45,7 @@ type InvoiceFormValues = z.infer<typeof invoiceSchema>;
 export function CreateInvoiceForm() {
   const [subtotal, setSubtotal] = useState(0);
   const [total, setTotal] = useState(0);
-  const [logoSrc, setLogoSrc] = useState<string | null>(null);
+  const [logoSrc, setLogoSrc] = useState<string | null>("https://s3eed.ae/wp-content/uploads/2025/04/logo13.png");
 
   const form = useForm<InvoiceFormValues>({
     resolver: zodResolver(invoiceSchema),

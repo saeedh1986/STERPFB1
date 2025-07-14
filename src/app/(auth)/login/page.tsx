@@ -1,7 +1,7 @@
 
 import { LoginForm } from '@/components/auth/LoginForm';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Package2 } from 'lucide-react';
+import Image from 'next/image';
 
 export default function LoginPage() {
   return (
@@ -9,7 +9,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="text-center">
           <div className="mb-4 flex justify-center">
-            <Package2 className="h-10 w-10 text-primary" />
+            <Image src="https://s3eed.ae/wp-content/uploads/2025/04/logo13.png" alt="Saeed Store Logo" width={120} height={120} />
           </div>
           <CardTitle className="font-headline text-3xl">Saeed Store ERP Lite</CardTitle>
           <CardDescription>Please login to access your dashboard</CardDescription>
@@ -21,4 +21,3 @@ export default function LoginPage() {
     </div>
   );
 }
-

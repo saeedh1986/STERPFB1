@@ -3,6 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard, Package, Barcode, ShoppingCart, CreditCard, TrendingUp,
@@ -43,7 +44,7 @@ export function SidebarNav() {
     <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
       <div className="flex h-16 items-center justify-center border-b border-sidebar-border px-4">
         <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
-          <Package2 className="h-7 w-7 text-sidebar-primary" />
+           <Image src="https://s3eed.ae/wp-content/uploads/2025/04/logo13.png" alt="Saeed Store Logo" width={36} height={36} />
           <span className="text-xl font-headline">Saeed ERP</span>
         </Link>
       </div>
