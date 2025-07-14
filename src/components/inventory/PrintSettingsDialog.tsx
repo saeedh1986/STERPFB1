@@ -42,8 +42,8 @@ export function PrintSettingsDialog({ isOpen, onClose, printers, settings, onSet
             `^PW${widthDots}`,
             `^LH${offsetX},${offsetY}`,
             `^FO0,0^GB${widthDots},${heightDots},2^FS`, // Box around the label
-            `^FO10,10^A0N,20,20^FDTest Print^FS`,
-            `^FO10,40^A0N,15,15^FDX:${offsetX}, Y:${offsetY}^FS`,
+            `^FO20,20^A0N,20,20^FDTest Print^FS`,
+            `^FO20,50^A0N,15,15^FDX:${offsetX}, Y:${offsetY}^FS`,
             '^XZ'
         ];
         
