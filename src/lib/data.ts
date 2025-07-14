@@ -60,9 +60,10 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
         case 'unitCost':
           item[field] = parseFloat((randomInventoryItem.unitPrice * (0.9 + Math.random() * 0.2)).toFixed(2));
           break;
-        case 'totalAmount': // For purchases
+        case 'totalAmount': // Kept for backward compatibility if other parts use it
+        case 'totalCost': // For purchases
            const quantity = item['quantity'] || 1;
-           const unitCost = item['unitCost'] || item['unitPrice'] || randomInventoryItem.unitPrice;
+           const unitCost = item['unitCost'] || item['unitPrice'] || randomInventoryItem.unitPrice * 0.8; // Assume purchase cost is lower
            item[field] = parseFloat((quantity * unitCost).toFixed(2));
            break;
         case 'shipping':
@@ -88,13 +89,16 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
         case 'lastUpdated':
         case 'eventDate':
         case 'transactionDate':
-          item[field] = new Date(Date.now() - Math.floor(Math.random() * 1e10)).toLocaleDateString();
+          item[field] = new Date(Date.now() - Math.floor(Math.random() * 1e10)).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' }).replace(/ /g, '-');
           break;
         case 'barcode':
           item[field] = `BC-${String(Math.floor(Math.random() * 1e8)).padStart(8, '0')}`;
           break;
         case 'orderId':
             item[field] = `${Math.floor(Math.random()*100)}-${Math.floor(Math.random()*1000000)}-${Math.floor(Math.random()*1000000)}`;
+            break;
+        case 'supplier':
+            item[field] = `Supplier ${String.fromCharCode(65 + (i % 5))}`;
             break;
         default:
           if (field.toLowerCase().includes('name') || field.toLowerCase().includes('item')) {
@@ -112,7 +116,7 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
 const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   inventory: { fields: ['itemName', 'sku', 'quantity', 'unitPrice', 'category'], count: INVENTORY_ITEMS_POOL_SIZE },
   'inventory-barcode': { fields: ['itemName', 'barcode', 'quantity'], count: 15 },
-  purchases: { fields: ['purchaseOrder', 'vendorName', 'itemName', 'sku', 'quantity', 'unitCost', 'totalAmount', 'purchaseDate', 'status'], count: 10 },
+  purchases: { fields: ['date', 'supplier', 'sku', 'itemName', 'quantity', 'totalCost'], count: 10 },
   sales: { fields: ['date', 'customerName', 'orderId', 'sku', 'itemName', 'qtySold', 'qtyRtv', 'note', 'price', 'shipping', 'referralFees', 'shippingCost', 'paymentFees', 'totalSales'], count: 30 },
   expenses: { fields: ['expenseCategory', 'expenseDate', 'amount', 'description', 'paidTo'], count: 25 },
   customers: { fields: ['customerName', 'email', 'phone', 'address', 'joinDate'], count: 18 },
@@ -141,7 +145,7 @@ export const getColumns = (slug: string): ColumnDefinition[] => {
 
   // Example of custom cell rendering for price/amount fields
   columns.forEach(col => {
-    if (['price', 'shipping', 'referralFees', 'shippingCost', 'paymentFees', 'totalSales', 'amount', 'unitCost', 'debit', 'credit', 'balance', 'totalAmount', 'unitPrice'].includes(col.accessorKey)) {
+    if (['price', 'shipping', 'referralFees', 'shippingCost', 'paymentFees', 'totalSales', 'amount', 'unitCost', 'debit', 'credit', 'balance', 'totalAmount', 'unitPrice', 'totalCost'].includes(col.accessorKey)) {
       col.cell = ({ row }) => {
         const amount = parseFloat(row.getValue(col.accessorKey));
         const formatted = new Intl.NumberFormat("en-AE", {
