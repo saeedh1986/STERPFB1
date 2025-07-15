@@ -8,7 +8,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Moon, Sun, Monitor, FilePenLine, PlusCircle, AlertTriangle, Trash2, TextQuote, Building, Save } from "lucide-react";
+import { Moon, Sun, Monitor, FilePenLine, PlusCircle, AlertTriangle, Trash2, TextQuote, Building, Save, Languages, Landmark } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { chartOfAccountsData as initialChartOfAccountsData, getColumns, type GenericItem } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +31,9 @@ import { useAccessibility } from '@/context/AccessibilityContext';
 import { useCompanyProfile, type CompanyProfile } from '@/context/CompanyProfileContext';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { fileToDataURI } from '@/lib/utils';
+import { useLanguage } from '@/context/LanguageContext';
+import { useCurrency } from '@/context/CurrencyContext';
 
 
 const getBadgeVariantForAccountType = (type: string) => {
@@ -45,31 +48,24 @@ const getBadgeVariantForAccountType = (type: string) => {
 };
 
 const themeColors = [
-  { name: 'Amber', value: 'theme-amber', class: 'bg-amber-500' },
-  { name: 'Blue', value: 'theme-blue', class: 'bg-blue-500' },
-  { name: 'Green', value: 'theme-green', class: 'bg-green-500' },
+  { nameKey: 'settings.appearance.amber', value: 'theme-amber', class: 'bg-amber-500' },
+  { nameKey: 'settings.appearance.blue', value: 'theme-blue', class: 'bg-blue-500' },
+  { nameKey: 'settings.appearance.green', value: 'theme-green', class: 'bg-green-500' },
 ];
 
 const fontSizes = [
-    { name: 'Default', value: 'text-base' },
-    { name: 'Medium', value: 'text-lg' },
-    { name: 'Large', value: 'text-xl' },
+    { nameKey: 'settings.accessibility.default', value: 'text-base' },
+    { nameKey: 'settings.accessibility.medium', value: 'text-lg' },
+    { nameKey: 'settings.accessibility.large', value: 'text-xl' },
 ];
 
-// Helper to convert file to data URI
-const fileToDataURI = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-};
 
 export default function SettingsPage() {
   const { theme, setTheme, resolvedTheme, themes } = useTheme();
   const { fontSize, setFontSize } = useAccessibility();
   const { profile, setProfile } = useCompanyProfile();
+  const { t, language, setLanguage } = useLanguage();
+  const { currency, setCurrency } = useCurrency();
   const { toast } = useToast();
 
   const [accounts, setAccounts] = useState<GenericItem[]>(initialChartOfAccountsData);
@@ -106,7 +102,7 @@ export default function SettingsPage() {
 
 
   const columns = getColumns('chart-of-accounts');
-  const pageTitle = 'Chart of Accounts';
+  const pageTitle = t('settings.chart_of_accounts.title');
 
   const handleCreate = () => {
     setSelectedAccount(null);
@@ -121,11 +117,11 @@ export default function SettingsPage() {
   const handleFormSubmit = (values: GenericItem) => {
     if (selectedAccount) {
       setAccounts(prev => prev.map(acc => acc.id === selectedAccount.id ? { ...acc, ...values } : acc));
-      toast({ title: "Account Updated", description: "The account has been successfully updated." });
+      toast({ title: t('settings.toast.account_updated'), description: t('settings.toast.account_updated_desc') });
     } else {
       const newAccount = { ...values, id: `coa-${Date.now()}` };
       setAccounts(prev => [newAccount, ...prev]);
-      toast({ title: "Account Created", description: "A new account has been successfully added." });
+      toast({ title: t('settings.toast.account_created'), description: t('settings.toast.account_created_desc') });
     }
     setIsDialogOpen(false);
   };
@@ -133,8 +129,8 @@ export default function SettingsPage() {
   const handleResetData = () => {
     localStorage.clear();
     toast({
-      title: "Application Reset",
-      description: "All data has been cleared. The application will now reload.",
+      title: t('settings.toast.app_reset'),
+      description: t('settings.toast.app_reset_desc'),
     });
     setTimeout(() => {
       window.location.reload();
@@ -143,7 +139,7 @@ export default function SettingsPage() {
 
   const handleProfileSubmit: SubmitHandler<CompanyProfile> = (data) => {
     setProfile(data);
-    toast({ title: "Profile Updated", description: "Your company profile has been saved." });
+    toast({ title: t('settings.toast.profile_updated'), description: t('settings.toast.profile_saved_desc') });
   };
   
   const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -153,7 +149,7 @@ export default function SettingsPage() {
             const dataUri = await fileToDataURI(file);
             profileForm.setValue('logo', dataUri);
         } catch (error) {
-            toast({ variant: "destructive", title: "Logo Upload Failed", description: "Could not read the selected file." });
+            toast({ variant: "destructive", title: t('settings.toast.logo_upload_failed'), description: t('settings.toast.logo_upload_failed_desc') });
         }
     }
   };
@@ -161,13 +157,13 @@ export default function SettingsPage() {
 
   return (
     <>
-      <PageHeader title="Settings" />
+      <PageHeader title={t('settings.title')} />
       <main className="flex-1 p-4 md:p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         <div className="space-y-6">
             <Card className="shadow-lg">
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Building /> Company Profile</CardTitle>
-                    <CardDescription>Update your company's information and logo.</CardDescription>
+                    <CardTitle className="flex items-center gap-2"><Building /> {t('settings.company_profile.title')}</CardTitle>
+                    <CardDescription>{t('settings.company_profile.description')}</CardDescription>
                 </CardHeader>
                 <Form {...profileForm}>
                     <form onSubmit={profileForm.handleSubmit(handleProfileSubmit)}>
@@ -176,7 +172,7 @@ export default function SettingsPage() {
                                 control={profileForm.control} name="logo"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Company Logo</FormLabel>
+                                        <FormLabel>{t('settings.company_profile.logo')}</FormLabel>
                                         <div className="flex items-center gap-4">
                                             {field.value && <img src={field.value} alt="Logo Preview" className="h-16 w-16 rounded-md object-contain border p-1" />}
                                             <Input type="file" accept="image/*" onChange={handleLogoUpload} className="max-w-xs"/>
@@ -185,15 +181,15 @@ export default function SettingsPage() {
                                     </FormItem>
                                 )}
                             />
-                            <FormField control={profileForm.control} name="name" render={({ field }) => (<FormItem><FormLabel>Company Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                            <FormField control={profileForm.control} name="erpName" render={({ field }) => (<FormItem><FormLabel>ERP System Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                            <FormField control={profileForm.control} name="description" render={({ field }) => (<FormItem><FormLabel>Company Description / Address</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                            <FormField control={profileForm.control} name="website" render={({ field }) => (<FormItem><FormLabel>Website</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                            <FormField control={profileForm.control} name="email" render={({ field }) => (<FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                            <FormField control={profileForm.control} name="whatsapp" render={({ field }) => (<FormItem><FormLabel>WhatsApp</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={profileForm.control} name="name" render={({ field }) => (<FormItem><FormLabel>{t('settings.company_profile.company_name')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={profileForm.control} name="erpName" render={({ field }) => (<FormItem><FormLabel>{t('settings.company_profile.erp_name')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={profileForm.control} name="description" render={({ field }) => (<FormItem><FormLabel>{t('settings.company_profile.description_address')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={profileForm.control} name="website" render={({ field }) => (<FormItem><FormLabel>{t('settings.company_profile.website')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={profileForm.control} name="email" render={({ field }) => (<FormItem><FormLabel>{t('settings.company_profile.email')}</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={profileForm.control} name="whatsapp" render={({ field }) => (<FormItem><FormLabel>{t('settings.company_profile.whatsapp')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                         </CardContent>
                         <CardFooter>
-                            <Button type="submit"><Save className="mr-2" /> Save Profile</Button>
+                            <Button type="submit"><Save className="mr-2" /> {t('settings.company_profile.save_profile')}</Button>
                         </CardFooter>
                     </form>
                 </Form>
@@ -201,14 +197,14 @@ export default function SettingsPage() {
 
             <Card className="shadow-lg">
                 <CardHeader>
-                    <CardTitle>Appearance</CardTitle>
+                    <CardTitle>{t('settings.appearance.title')}</CardTitle>
                     <CardDescription>
-                    Customize the look and feel of the application. Changes are saved automatically.
+                    {t('settings.appearance.description')}
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div>
-                        <Label htmlFor="theme">Mode</Label>
+                        <Label htmlFor="theme">{t('settings.appearance.mode')}</Label>
                         <RadioGroup
                             id="theme"
                             value={theme}
@@ -218,17 +214,17 @@ export default function SettingsPage() {
                             <Label htmlFor="light" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground" aria-label="Set light theme">
                             <RadioGroupItem value="light" id="light" className="sr-only" />
                             <Sun className="h-5 w-5" />
-                            <span>Light</span>
+                            <span>{t('settings.appearance.light')}</span>
                             </Label>
                             <Label htmlFor="dark" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground" aria-label="Set dark theme">
                             <RadioGroupItem value="dark" id="dark" className="sr-only" />
                             <Moon className="h-5 w-5" />
-                            <span>Dark</span>
+                            <span>{t('settings.appearance.dark')}</span>
                             </Label>
                             <Label htmlFor="system" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground" aria-label="Set system theme">
                             <RadioGroupItem value="system" id="system" className="sr-only" />
                             <Monitor className="h-5 w-5" />
-                            <span>System</span>
+                            <span>{t('settings.appearance.system')}</span>
                             </Label>
                         </RadioGroup>
                     </div>
@@ -236,7 +232,7 @@ export default function SettingsPage() {
                     <Separator />
 
                     <div>
-                        <Label htmlFor="theme-color">Theme Color</Label>
+                        <Label htmlFor="theme-color">{t('settings.appearance.theme_color')}</Label>
                         <RadioGroup
                             id="theme-color"
                             value={currentColorTheme}
@@ -248,16 +244,15 @@ export default function SettingsPage() {
                                  key={color.value}
                                  htmlFor={color.value} 
                                  className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:ring-2 has-[input:checked]:ring-primary"
-                                 aria-label={`Set ${color.name} theme color`}
+                                 aria-label={`Set ${color.nameKey} theme color`}
                                >
                                     <RadioGroupItem value={color.value} id={color.value} className="sr-only" />
                                     <div className={`h-6 w-6 rounded-full ${color.class}`}></div>
-                                    <span>{color.name}</span>
+                                    <span>{t(color.nameKey)}</span>
                                 </Label>
                             ))}
                         </RadioGroup>
                     </div>
-
                 </CardContent>
             </Card>
 
@@ -265,14 +260,14 @@ export default function SettingsPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                     <TextQuote />
-                    Accessibility
+                    {t('settings.accessibility.title')}
                 </CardTitle>
                 <CardDescription>
-                  Adjust font sizes for better readability.
+                  {t('settings.accessibility.description')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Label htmlFor="font-size">Font Size</Label>
+                <Label htmlFor="font-size">{t('settings.accessibility.font_size')}</Label>
                 <RadioGroup
                     id="font-size"
                     value={fontSize}
@@ -284,52 +279,91 @@ export default function SettingsPage() {
                          key={size.value}
                          htmlFor={size.value} 
                          className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center justify-center has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground"
-                         aria-label={`Set font size to ${size.name}`}
+                         aria-label={`Set font size to ${size.nameKey}`}
                        >
                             <RadioGroupItem value={size.value} id={size.value} className="sr-only" />
-                            <span>{size.name}</span>
+                            <span>{t(size.nameKey)}</span>
                         </Label>
                     ))}
                 </RadioGroup>
               </CardContent>
             </Card>
 
+            <Card className="shadow-lg">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><Languages />{t('settings.language.title')}</CardTitle>
+                    <CardDescription>{t('settings.language.description')}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <RadioGroup value={language} onValueChange={(v) => setLanguage(v as 'en' | 'ar')} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <Label htmlFor="lang-en" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
+                            <RadioGroupItem value="en" id="lang-en" />
+                            <span>{t('settings.language.english')}</span>
+                        </Label>
+                        <Label htmlFor="lang-ar" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
+                             <RadioGroupItem value="ar" id="lang-ar" />
+                            <span>{t('settings.language.arabic')}</span>
+                        </Label>
+                    </RadioGroup>
+                </CardContent>
+            </Card>
+
+            <Card className="shadow-lg">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><Landmark />{t('settings.accounting.title')}</CardTitle>
+                    <CardDescription>{t('settings.accounting.description')}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Label>{t('settings.accounting.currency')}</Label>
+                     <RadioGroup value={currency} onValueChange={(v) => setCurrency(v as 'AED' | 'USD')} className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                        <Label htmlFor="curr-aed" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
+                            <RadioGroupItem value="AED" id="curr-aed" />
+                            <span>AED (United Arab Emirates Dirham)</span>
+                        </Label>
+                        <Label htmlFor="curr-usd" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
+                             <RadioGroupItem value="USD" id="curr-usd" />
+                            <span>USD (United States Dollar)</span>
+                        </Label>
+                    </RadioGroup>
+                </CardContent>
+            </Card>
+
              <Card className="shadow-lg border-destructive/50">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-destructive">
                   <AlertTriangle />
-                  Danger Zone
+                  {t('settings.danger_zone.title')}
                 </CardTitle>
                 <CardDescription>
-                  These actions are destructive and cannot be undone.
+                  {t('settings.danger_zone.description')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-sm mb-2">
-                  Resetting the application will clear all stored data, including inventory, sales, expenses, and settings.
+                  {t('settings.danger_zone.reset_text_1')}
                 </p>
                 <p className="text-sm font-medium">
-                  The application will be restored to its original demonstration state.
+                  {t('settings.danger_zone.reset_text_2')}
                 </p>
               </CardContent>
               <CardFooter>
                  <AlertDialog>
                     <AlertDialogTrigger asChild>
                         <Button variant="destructive">
-                            <Trash2 className="mr-2 h-4 w-4" /> Reset Application Data
+                            <Trash2 className="mr-2 h-4 w-4" /> {t('settings.danger_zone.reset_button')}
                         </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                         <AlertDialogHeader>
-                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogTitle>{t('settings.danger_zone.reset_dialog_title')}</AlertDialogTitle>
                         <AlertDialogDescription>
-                            This action cannot be undone. This will permanently delete all application data from your browser's local storage and reload the page.
+                            {t('settings.danger_zone.reset_dialog_description')}
                         </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel>{t('settings.cancel')}</AlertDialogCancel>
                         <AlertDialogAction onClick={handleResetData} className="bg-destructive hover:bg-destructive/90">
-                            Yes, Reset Data
+                            {t('settings.danger_zone.reset_dialog_confirm')}
                         </AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>
@@ -342,10 +376,10 @@ export default function SettingsPage() {
         <Card className="shadow-lg">
             <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                  <div>
-                    <CardTitle>Chart of Accounts</CardTitle>
-                    <CardDescription>Manage your general ledger accounts.</CardDescription>
+                    <CardTitle>{t('settings.chart_of_accounts.title')}</CardTitle>
+                    <CardDescription>{t('settings.chart_of_accounts.description')}</CardDescription>
                 </div>
-                <Button variant="outline" onClick={handleCreate}><PlusCircle className="mr-2 h-4 w-4" /> Add Account</Button>
+                <Button variant="outline" onClick={handleCreate}><PlusCircle className="mr-2 h-4 w-4" /> {t('settings.chart_of_accounts.add_account')}</Button>
             </CardHeader>
             <CardContent>
                  <Table>

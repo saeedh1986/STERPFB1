@@ -1,0 +1,107 @@
+
+{
+  "sidebar": {
+    "dashboard": "لوحة التحكم",
+    "product_catalog": "كتالوج المنتجات",
+    "inventory": "المخزون",
+    "inventory_barcode": "باركود المخزون",
+    "purchases": "المشتريات",
+    "sales": "المبيعات",
+    "invoices": "الفواتير",
+    "expenses": "المصروفات",
+    "logistics": "الخدمات اللوجستية",
+    "cost_calculator": "حاسبة التكلفة",
+    "ipbt": "IPBT",
+    "purchases_cal": "حاسبة المشتريات",
+    "logistics_insights": "رؤى لوجستية",
+    "crm": "إدارة علاقات العملاء",
+    "customers": "العملاء",
+    "vendors": "الموردون",
+    "reports": "التقارير",
+    "sales_report": "تقرير المبيعات",
+    "purchases_report": "تقرير المشتريات",
+    "expenses_report": "تقرير المصروفات",
+    "inventory_report": "تقرير المخزون",
+    "accounting": "المحاسبة",
+    "general_journal": "دفتر اليومية العام",
+    "bank_statement": "كشف حساب بنكي",
+    "trial_balance": "ميزان المراجعة",
+    "income_statement": "قائمة الدخل",
+    "balance_sheet": "الميزانية العمومية",
+    "settings": "الإعدادات"
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "company_profile": {
+      "title": "ملف الشركة",
+      "description": "قم بتحديث معلومات شركتك وشعارها.",
+      "logo": "شعار الشركة",
+      "company_name": "اسم الشركة",
+      "erp_name": "اسم نظام ERP",
+      "description_address": "وصف / عنوان الشركة",
+      "website": "الموقع الإلكتروني",
+      "email": "البريد الإلكتروني",
+      "whatsapp": "واتساب",
+      "save_profile": "حفظ الملف الشخصي"
+    },
+    "appearance": {
+      "title": "المظهر",
+      "description": "قم بتخصيص شكل وأسلوب التطبيق. يتم حفظ التغييرات تلقائيًا.",
+      "mode": "الوضع",
+      "light": "فاتح",
+      "dark": "داكن",
+      "system": "النظام",
+      "theme_color": "لون السمة",
+      "amber": "عنبري",
+      "blue": "أزرق",
+      "green": "أخضر"
+    },
+    "accessibility": {
+      "title": "إمكانية الوصول",
+      "description": "اضبط أحجام الخطوط لتحسين القراءة.",
+      "font_size": "حجم الخط",
+      "default": "افتراضي",
+      "medium": "متوسط",
+      "large": "كبير"
+    },
+    "language": {
+        "title": "اللغة",
+        "description": "اختر لغة عرض التطبيق.",
+        "english": "الإنجليزية",
+        "arabic": "العربية"
+    },
+    "accounting": {
+        "title": "المحاسبة",
+        "description": "قم بتعيين عملة المحاسبة الافتراضية.",
+        "currency": "العملة"
+    },
+    "danger_zone": {
+      "title": "منطقة الخطر",
+      "description": "هذه الإجراءات مدمرة ولا يمكن التراجع عنها.",
+      "reset_text_1": "سيؤدي إعادة تعيين التطبيق إلى مسح جميع البيانات المخزنة، بما في ذلك المخزون والمبيعات والمصروفات والإعدادات.",
+      "reset_text_2": "ستتم إعادة التطبيق إلى حالته التجريبية الأصلية.",
+      "reset_button": "إعادة تعيين بيانات التطبيق",
+      "reset_dialog_title": "هل أنت متأكد تمامًا؟",
+      "reset_dialog_description": "لا يمكن التراجع عن هذا الإجراء. سيؤدي هذا إلى حذف جميع بيانات التطبيق بشكل دائم من التخزين المحلي للمتصفح وإعادة تحميل الصفحة.",
+      "reset_dialog_confirm": "نعم، إعادة تعيين البيانات"
+    },
+    "chart_of_accounts": {
+      "title": "دليل الحسابات",
+      "description": "إدارة حسابات دفتر الأستاذ العام.",
+      "add_account": "إضافة حساب"
+    },
+    "cancel": "إلغاء",
+    "toast": {
+        "profile_updated": "تم تحديث الملف الشخصي",
+        "profile_saved_desc": "تم حفظ ملف شركتك بنجاح.",
+        "logo_upload_failed": "فشل تحميل الشعار",
+        "logo_upload_failed_desc": "تعذر قراءة الملف المحدد.",
+        "account_updated": "تم تحديث الحساب",
+        "account_updated_desc": "تم تحديث الحساب بنجاح.",
+        "account_created": "تم إنشاء الحساب",
+        "account_created_desc": "تمت إضافة حساب جديد بنجاح.",
+        "app_reset": "تمت إعادة تعيين التطبيق",
+        "app_reset_desc": "تم مسح جميع البيانات. سيتم الآن إعادة تحميل التطبيق."
+    }
+  }
+}

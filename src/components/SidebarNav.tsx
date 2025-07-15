@@ -13,54 +13,56 @@ import type { LucideIcon } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useCompanyProfile } from '@/context/CompanyProfileContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 
 interface NavItem {
   href: string;
-  label: string;
+  labelKey: string;
   icon: LucideIcon;
 }
 
 const navItems: NavItem[] = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/product-catalog', label: 'Product Catalog', icon: Library },
-  { href: '/inventory', label: 'Inventory', icon: Package },
-  { href: '/inventory-barcode', label: 'Inventory Barcode', icon: Barcode },
-  { href: '/purchases', label: 'Purchases', icon: ShoppingCart },
-  { href: '/sales', label: 'Sales', icon: TrendingUp },
-  { href: '/invoices', label: 'Invoices', icon: FileText },
-  { href: '/expenses', label: 'Expenses', icon: CreditCard },
-  { href: '/logistics', label: 'Logistics', icon: Truck },
-  { href: '/ipcc', label: 'Cost Calculator', icon: Calculator },
-  { href: '/ipbt', label: 'IPBT', icon: Combine },
-  { href: '/purchases-cal', label: 'Purchases Cal.', icon: CalendarDays },
-  { href: '/logistics-insights', label: 'Logistics Insights', icon: BotMessageSquare },
+  { href: '/dashboard', labelKey: 'sidebar.dashboard', icon: LayoutDashboard },
+  { href: '/product-catalog', labelKey: 'sidebar.product_catalog', icon: Library },
+  { href: '/inventory', labelKey: 'sidebar.inventory', icon: Package },
+  { href: '/inventory-barcode', labelKey: 'sidebar.inventory_barcode', icon: Barcode },
+  { href: '/purchases', labelKey: 'sidebar.purchases', icon: ShoppingCart },
+  { href: '/sales', labelKey: 'sidebar.sales', icon: TrendingUp },
+  { href: '/invoices', labelKey: 'sidebar.invoices', icon: FileText },
+  { href: '/expenses', labelKey: 'sidebar.expenses', icon: CreditCard },
+  { href: '/logistics', labelKey: 'sidebar.logistics', icon: Truck },
+  { href: '/ipcc', labelKey: 'sidebar.cost_calculator', icon: Calculator },
+  { href: '/ipbt', labelKey: 'sidebar.ipbt', icon: Combine },
+  { href: '/purchases-cal', labelKey: 'sidebar.purchases_cal', icon: CalendarDays },
+  { href: '/logistics-insights', labelKey: 'sidebar.logistics_insights', icon: BotMessageSquare },
 ];
 
 const crmNavItems: NavItem[] = [
-    { href: '/customers', label: 'Customers', icon: Users },
-    { href: '/vendors', label: 'Vendors', icon: Building },
+    { href: '/customers', labelKey: 'sidebar.customers', icon: Users },
+    { href: '/vendors', labelKey: 'sidebar.vendors', icon: Building },
 ];
 
 const accountingNavItems: NavItem[] = [
-    { href: '/general-journal', label: 'General Journal', icon: BookOpen },
-    { href: '/bank-statement', label: 'Bank Statement', icon: Landmark },
-    { href: '/trial-balance', label: 'Trial Balance', icon: Scale },
-    { href: '/income-statement', label: 'Income Statement', icon: PieChart },
-    { href: '/balance-sheet', label: 'Balance Sheet', icon: FileSpreadsheet },
+    { href: '/general-journal', labelKey: 'sidebar.general_journal', icon: BookOpen },
+    { href: '/bank-statement', labelKey: 'sidebar.bank_statement', icon: Landmark },
+    { href: '/trial-balance', labelKey: 'sidebar.trial_balance', icon: Scale },
+    { href: '/income-statement', labelKey: 'sidebar.income_statement', icon: PieChart },
+    { href: '/balance-sheet', labelKey: 'sidebar.balance_sheet', icon: FileSpreadsheet },
 ];
 
 const reportsNavItems: NavItem[] = [
-    { href: '/reports/sales', label: 'Sales Report', icon: TrendingUp },
-    { href: '/reports/purchases', label: 'Purchases Report', icon: ShoppingCart },
-    { href: '/reports/expenses', label: 'Expenses Report', icon: CreditCard },
-    { href: '/reports/inventory', label: 'Inventory Report', icon: Package },
+    { href: '/reports/sales', labelKey: 'sidebar.sales_report', icon: TrendingUp },
+    { href: '/reports/purchases', labelKey: 'sidebar.purchases_report', icon: ShoppingCart },
+    { href: '/reports/expenses', labelKey: 'sidebar.expenses_report', icon: CreditCard },
+    { href: '/reports/inventory', labelKey: 'sidebar.inventory_report', icon: Package },
 ];
 
 
 export function SidebarNav() {
   const pathname = usePathname();
   const { profile } = useCompanyProfile();
+  const { t } = useLanguage();
 
   return (
     <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
@@ -74,7 +76,7 @@ export function SidebarNav() {
         <nav className="flex flex-col gap-1 p-4">
           {navItems.map((item) => (
             <Link
-              key={item.label}
+              key={item.labelKey}
               href={item.href}
               className={cn(
                 'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
@@ -84,7 +86,7 @@ export function SidebarNav() {
               )}
             >
               <item.icon className="h-5 w-5" />
-              {item.label}
+              {t(item.labelKey)}
             </Link>
           ))}
           
@@ -93,14 +95,14 @@ export function SidebarNav() {
               <AccordionTrigger className="px-3 py-2.5 text-sm hover:no-underline hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-lg [&[data-state=open]]:bg-sidebar-accent">
                 <span className="flex items-center gap-3">
                   <Users2 className="h-5 w-5" />
-                  CRM
+                  {t('sidebar.crm')}
                 </span>
               </AccordionTrigger>
               <AccordionContent className="pl-7 pt-1">
                  <div className="flex flex-col gap-1">
                   {crmNavItems.map((item) => (
                      <Link
-                      key={item.label}
+                      key={item.labelKey}
                       href={item.href}
                       className={cn(
                         'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
@@ -110,7 +112,7 @@ export function SidebarNav() {
                       )}
                     >
                       <item.icon className="h-5 w-5" />
-                      {item.label}
+                      {t(item.labelKey)}
                     </Link>
                   ))}
                  </div>
@@ -120,14 +122,14 @@ export function SidebarNav() {
               <AccordionTrigger className="px-3 py-2.5 text-sm hover:no-underline hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-lg [&[data-state=open]]:bg-sidebar-accent">
                 <span className="flex items-center gap-3">
                   <AreaChart className="h-5 w-5" />
-                  Reports
+                  {t('sidebar.reports')}
                 </span>
               </AccordionTrigger>
               <AccordionContent className="pl-7 pt-1">
                  <div className="flex flex-col gap-1">
                   {reportsNavItems.map((item) => (
                      <Link
-                      key={item.label}
+                      key={item.labelKey}
                       href={item.href}
                       className={cn(
                         'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
@@ -137,7 +139,7 @@ export function SidebarNav() {
                       )}
                     >
                       <item.icon className="h-5 w-5" />
-                      {item.label}
+                      {t(item.labelKey)}
                     </Link>
                   ))}
                  </div>
@@ -147,14 +149,14 @@ export function SidebarNav() {
               <AccordionTrigger className="px-3 py-2.5 text-sm hover:no-underline hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-lg [&[data-state=open]]:bg-sidebar-accent">
                 <span className="flex items-center gap-3">
                   <Layers className="h-5 w-5" />
-                  Accounting
+                  {t('sidebar.accounting')}
                 </span>
               </AccordionTrigger>
               <AccordionContent className="pl-7 pt-1">
                  <div className="flex flex-col gap-1">
                   {accountingNavItems.map((item) => (
                      <Link
-                      key={item.label}
+                      key={item.labelKey}
                       href={item.href}
                       className={cn(
                         'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
@@ -164,7 +166,7 @@ export function SidebarNav() {
                       )}
                     >
                       <item.icon className="h-5 w-5" />
-                      {item.label}
+                      {t(item.labelKey)}
                     </Link>
                   ))}
                  </div>
@@ -185,7 +187,7 @@ export function SidebarNav() {
             )}
           >
             <Settings className="h-5 w-5" />
-            Settings
+            {t('sidebar.settings')}
           </Link>
       </div>
     </div>

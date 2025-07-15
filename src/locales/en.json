@@ -1,0 +1,107 @@
+
+{
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "product_catalog": "Product Catalog",
+    "inventory": "Inventory",
+    "inventory_barcode": "Inventory Barcode",
+    "purchases": "Purchases",
+    "sales": "Sales",
+    "invoices": "Invoices",
+    "expenses": "Expenses",
+    "logistics": "Logistics",
+    "cost_calculator": "Cost Calculator",
+    "ipbt": "IPBT",
+    "purchases_cal": "Purchases Cal.",
+    "logistics_insights": "Logistics Insights",
+    "crm": "CRM",
+    "customers": "Customers",
+    "vendors": "Vendors",
+    "reports": "Reports",
+    "sales_report": "Sales Report",
+    "purchases_report": "Purchases Report",
+    "expenses_report": "Expenses Report",
+    "inventory_report": "Inventory Report",
+    "accounting": "Accounting",
+    "general_journal": "General Journal",
+    "bank_statement": "Bank Statement",
+    "trial_balance": "Trial Balance",
+    "income_statement": "Income Statement",
+    "balance_sheet": "Balance Sheet",
+    "settings": "Settings"
+  },
+  "settings": {
+    "title": "Settings",
+    "company_profile": {
+      "title": "Company Profile",
+      "description": "Update your company's information and logo.",
+      "logo": "Company Logo",
+      "company_name": "Company Name",
+      "erp_name": "ERP System Name",
+      "description_address": "Company Description / Address",
+      "website": "Website",
+      "email": "Email",
+      "whatsapp": "WhatsApp",
+      "save_profile": "Save Profile"
+    },
+    "appearance": {
+      "title": "Appearance",
+      "description": "Customize the look and feel of the application. Changes are saved automatically.",
+      "mode": "Mode",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System",
+      "theme_color": "Theme Color",
+      "amber": "Amber",
+      "blue": "Blue",
+      "green": "Green"
+    },
+    "accessibility": {
+      "title": "Accessibility",
+      "description": "Adjust font sizes for better readability.",
+      "font_size": "Font Size",
+      "default": "Default",
+      "medium": "Medium",
+      "large": "Large"
+    },
+    "language": {
+        "title": "Language",
+        "description": "Choose the application's display language.",
+        "english": "English",
+        "arabic": "Arabic"
+    },
+    "accounting": {
+        "title": "Accounting",
+        "description": "Set your default accounting currency.",
+        "currency": "Currency"
+    },
+    "danger_zone": {
+      "title": "Danger Zone",
+      "description": "These actions are destructive and cannot be undone.",
+      "reset_text_1": "Resetting the application will clear all stored data, including inventory, sales, expenses, and settings.",
+      "reset_text_2": "The application will be restored to its original demonstration state.",
+      "reset_button": "Reset Application Data",
+      "reset_dialog_title": "Are you absolutely sure?",
+      "reset_dialog_description": "This action cannot be undone. This will permanently delete all application data from your browser's local storage and reload the page.",
+      "reset_dialog_confirm": "Yes, Reset Data"
+    },
+    "chart_of_accounts": {
+      "title": "Chart of Accounts",
+      "description": "Manage your general ledger accounts.",
+      "add_account": "Add Account"
+    },
+    "cancel": "Cancel",
+    "toast": {
+        "profile_updated": "Profile Updated",
+        "profile_saved_desc": "Your company profile has been saved.",
+        "logo_upload_failed": "Logo Upload Failed",
+        "logo_upload_failed_desc": "Could not read the selected file.",
+        "account_updated": "Account Updated",
+        "account_updated_desc": "The account has been successfully updated.",
+        "account_created": "Account Created",
+        "account_created_desc": "A new account has been successfully added.",
+        "app_reset": "Application Reset",
+        "app_reset_desc": "All data has been cleared. The application will now reload."
+    }
+  }
+}

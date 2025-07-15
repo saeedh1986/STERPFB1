@@ -5,6 +5,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from '@/context/AuthContext';
 import { AccessibilityProvider } from '@/context/AccessibilityContext';
 import { CompanyProfileProvider } from '@/context/CompanyProfileContext';
+import { LanguageProvider } from '@/context/LanguageContext';
+import { CurrencyProvider } from '@/context/CurrencyContext';
 
 export const metadata: Metadata = {
   title: 'Saeed Store ERP Lite',
@@ -27,8 +29,12 @@ export default function RootLayout({
         <AuthProvider>
           <AccessibilityProvider>
             <CompanyProfileProvider>
-              {children}
-              <Toaster />
+                <LanguageProvider>
+                    <CurrencyProvider>
+                        {children}
+                        <Toaster />
+                    </CurrencyProvider>
+                </LanguageProvider>
             </CompanyProfileProvider>
           </AccessibilityProvider>
         </AuthProvider>
