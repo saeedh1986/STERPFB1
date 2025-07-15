@@ -7,6 +7,7 @@ import { DataTable } from '@/components/DataTable';
 import { getMockData, getColumns, getPageTitle, moduleSlugs } from '@/lib/data';
 import { Card, CardContent } from '@/components/ui/card';
 import InventoryBarcodePage from '../inventory-barcode/page';
+import InventoryTransferPage from '../inventory-transfer/page';
 import PurchasesCalPage from '../purchases-cal/page';
 import BankStatementPage from '../bank-statement/page';
 import GeneralJournalPage from '../general-journal/page';
@@ -21,6 +22,9 @@ export default function ModulePage() {
   // Special handling for pages with custom layouts
   if (slug === 'inventory-barcode') {
     return <InventoryBarcodePage />;
+  }
+  if (slug === 'inventory-transfer') {
+    return <InventoryTransferPage />;
   }
   if (slug === 'purchases-cal') {
     return <PurchasesCalPage />;

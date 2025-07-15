@@ -9,6 +9,7 @@
     "inventory": "Inventory",
     "warehouses": "Warehouses",
     "inventory_barcode": "Inventory Barcode",
+    "inventory_transfer": "Inventory Transfer",
     "purchases": "Purchases",
     "sales": "Sales",
     "invoices": "Invoices",

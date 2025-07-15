@@ -44,8 +44,9 @@ export const brandsPool: GenericItem[] = [
 
 export const warehousesPool: GenericItem[] = [
     { id: 'wh-1', name: 'Main Warehouse', location: 'Dubai, UAE' },
-    { id: 'wh-2', name: 'Secondary Storage', location: 'Sharjah, UAE' },
-    { id: 'wh-3', name: 'Fulfillment Center', location: 'Abu Dhabi, UAE' },
+    { id: 'wh-2', name: 'Amazon Warehouse', location: 'Amazon FBA Center, Dubai' },
+    { id: 'wh-3', name: 'Noon Warehouse', location: 'Noon Fulfillment Center, Dubai' },
+    { id: 'wh-4', name: 'Secondary Storage', location: 'Sharjah, UAE' },
 ];
 
 
@@ -239,7 +240,7 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
   if (slug === 'roles') {
     return userRoles;
   }
-  if (slug === 'invoices' || slug === 'purchases-cal' || slug === 'bank-statement' || slug === 'general-journal' || slug === 'chart-of-accounts' || slug === 'trial-balance' || slug === 'balance-sheet' || slug === 'income-statement') {
+  if (slug === 'invoices' || slug === 'purchases-cal' || slug === 'bank-statement' || slug === 'general-journal' || slug === 'chart-of-accounts' || slug === 'trial-balance' || slug === 'balance-sheet' || slug === 'income-statement' || slug === 'inventory-transfer') {
     // These pages have custom data handling
     return [];
   }
@@ -349,6 +350,15 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
         case 'supplier':
             item[field] = slug === 'expenses' ? randomVendor.name : randomVendor.name;
             break;
+        case 'salesChannel':
+            item[field] = ['Direct Sales', 'Amazon AE', 'Noon AE'][i % 3];
+            break;
+        case 'fulfillmentWarehouse':
+            const channel = item['salesChannel'];
+            if(channel === 'Amazon AE') item[field] = ['Main Warehouse', 'Amazon Warehouse'][i % 2];
+            else if(channel === 'Noon AE') item[field] = ['Main Warehouse', 'Noon Warehouse'][i % 2];
+            else item[field] = 'Main Warehouse';
+            break;
         case 'category':
              item[field] = slug === 'expenses' ? expenseCategories[i % expenseCategories.length] : `Category ${String.fromCharCode(65 + (i % 5))}`;
              break;
@@ -424,7 +434,7 @@ const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   inventory: { fields: ['itemName', 'sku', 'warehouse', 'quantity', 'unitPrice', 'category'], count: 0 }, // count is 0 because data is generated customly
   'inventory-barcode': { fields: ['itemName', 'barcode', 'quantity'], count: 20 },
   purchases: { fields: ['purchaseDate', 'supplier', 'sku', 'itemName', 'quantity', 'unitCost', 'totalCost'], count: 25 },
-  sales: { fields: ['saleDate', 'customerName', 'orderId', 'sku', 'itemName', 'qtySold', 'qtyRtv', 'note', 'price', 'shipping', 'referralFees', 'shippingCost', 'paymentFees', 'totalSales'], count: 40 },
+  sales: { fields: ['saleDate', 'customerName', 'orderId', 'sku', 'itemName', 'qtySold', 'qtyRtv', 'note', 'price', 'shipping', 'referralFees', 'shippingCost', 'paymentFees', 'totalSales', 'salesChannel', 'fulfillmentWarehouse'], count: 40 },
   invoices: { fields: [], count: 0 },
   expenses: { fields: ['expenseDate', 'description', 'supplier', 'category', 'amount'], count: 20 },
   customers: { fields: ['name', 'contact', 'email', 'address', 'city', 'country'], count: customersPool.length },
@@ -439,6 +449,7 @@ const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   ipbt: { fields: ['ipbtId', 'taskName', 'assignedTo', 'dueDate', 'priority'], count: 7 },
   'purchases-cal': { fields: [], count: 0 },
   'bank-statement': { fields: [], count: 0 }, 
+  'inventory-transfer': { fields: [], count: 0 },
   'product-catalog': { fields: ['imageUrl', 'itemName', 'sku', 'category', 'brand', 'unitPrice', 'description', 'productWeight', 'productDimensions', 'packageWeight', 'packageDimensions'], count: 40 },
   'general-journal': { fields: [], count: 0 },
   'chart-of-accounts': { fields: ['code', 'name', 'type'], count: 0 },
@@ -556,6 +567,9 @@ export const getPageTitle = (slug: string): string => {
   }
   if (slug === 'inventory-barcode') {
     return 'Inventory Barcode';
+  }
+  if (slug === 'inventory-transfer') {
+    return 'Inventory Transfer';
   }
   if (slug === 'ipcc') {
     return 'Item Purchased Cost Calculator';

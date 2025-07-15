@@ -33,6 +33,8 @@ interface DataFormDialogProps {
     categories?: GenericItem[];
     brands?: GenericItem[];
     warehouses?: GenericItem[];
+    salesChannels?: string[];
+    fulfillmentWarehouses?: string[];
   }
 }
 
@@ -166,6 +168,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
   const isExpenseMode = title.includes('Expenses');
   const isProductCatalog = title.includes('Product Catalog');
   const isInventory = title.includes('Inventory');
+  const isSales = title.includes('Sales');
   
   const handleSkuChange = (sku: string) => {
     const selectedItem = productCatalogPool.find(item => item.sku === sku);
@@ -236,6 +239,62 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                                   <SelectContent>
                                     {options?.roles?.map(role => (
                                       <SelectItem key={role} value={role}>{role}</SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        );
+                    }
+
+                    if (isSales && col.accessorKey === 'salesChannel') {
+                        return (
+                          <FormField
+                            key={col.accessorKey}
+                            control={form.control}
+                            name={col.accessorKey as keyof FormValues}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>{col.header}</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select a sales channel" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {options?.salesChannels?.map(ch => (
+                                      <SelectItem key={ch} value={ch}>{ch}</SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        );
+                    }
+
+                    if (isSales && col.accessorKey === 'fulfillmentWarehouse') {
+                        return (
+                          <FormField
+                            key={col.accessorKey}
+                            control={form.control}
+                            name={col.accessorKey as keyof FormValues}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>{col.header}</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select a fulfillment warehouse" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {options?.fulfillmentWarehouses?.map(wh => (
+                                      <SelectItem key={wh} value={wh}>{wh}</SelectItem>
                                     ))}
                                   </SelectContent>
                                 </Select>

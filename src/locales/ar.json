@@ -9,6 +9,7 @@
     "inventory": "المخزون",
     "warehouses": "المستودعات",
     "inventory_barcode": "باركود المخزون",
+    "inventory_transfer": "تحويل المخزون",
     "purchases": "المشتريات",
     "sales": "المبيعات",
     "invoices": "الفواتير",

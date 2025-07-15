@@ -178,7 +178,11 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
     ...(pageTitle === 'Inventory' && {
         warehouses: warehousesPool,
         categories: categoriesPool,
-    })
+    }),
+    ...(pageTitle === 'Sales' && {
+        salesChannels: ['Direct Sales', 'Amazon AE', 'Noon AE'],
+        fulfillmentWarehouses: ['Main Warehouse', 'Amazon Warehouse', 'Noon Warehouse'],
+    }),
   };
 
 
