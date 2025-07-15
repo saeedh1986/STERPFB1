@@ -2,7 +2,10 @@
 {
   "sidebar": {
     "dashboard": "لوحة التحكم",
+    "products": "المنتجات",
     "product_catalog": "كتالوج المنتجات",
+    "categories": "الفئات",
+    "brands": "العلامات التجارية",
     "inventory": "المخزون",
     "inventory_barcode": "باركود المخزون",
     "purchases": "المشتريات",
@@ -10,6 +13,7 @@
     "invoices": "الفواتير",
     "expenses": "المصروفات",
     "logistics": "الخدمات اللوجستية",
+    "tools": "الأدوات",
     "cost_calculator": "حاسبة التكلفة",
     "ipbt": "IPBT",
     "purchases_cal": "حاسبة المشتريات",

@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { GenericItem, ColumnDefinition } from '@/lib/data';
-import { inventoryItemsPool, expenseCategories as defaultExpenseCategories, vendorsPool, USD_TO_AED_RATE } from '@/lib/data';
+import { inventoryItemsPool, expenseCategories as defaultExpenseCategories, vendorsPool, USD_TO_AED_RATE, categoriesPool, brandsPool } from '@/lib/data';
 import { useState, useEffect } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
@@ -30,6 +30,8 @@ interface DataFormDialogProps {
   title: string;
   options?: {
     roles?: string[];
+    categories?: GenericItem[];
+    brands?: GenericItem[];
   }
 }
 
@@ -228,6 +230,62 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                                   <SelectContent>
                                     {options?.roles?.map(role => (
                                       <SelectItem key={role} value={role}>{role}</SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        );
+                    }
+
+                    if (isProductCatalog && col.accessorKey === 'category') {
+                        return (
+                          <FormField
+                            key={col.accessorKey}
+                            control={form.control}
+                            name={col.accessorKey as keyof FormValues}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>{col.header}</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select a category" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {options?.categories?.map(cat => (
+                                      <SelectItem key={cat.id} value={cat.name}>{cat.name}</SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        );
+                    }
+
+                     if (isProductCatalog && col.accessorKey === 'brand') {
+                        return (
+                          <FormField
+                            key={col.accessorKey}
+                            control={form.control}
+                            name={col.accessorKey as keyof FormValues}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>{col.header}</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select a brand" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {options?.brands?.map(brand => (
+                                      <SelectItem key={brand.id} value={brand.name}>{brand.name}</SelectItem>
                                     ))}
                                   </SelectContent>
                                 </Select>

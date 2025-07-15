@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -6,7 +7,7 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard, Package, Barcode, ShoppingCart, CreditCard, TrendingUp,
-  Users, Building, Truck, Layers, Combine, CalendarDays, Landmark, BotMessageSquare, Package2, Library, FileText, Calculator, BookOpen, Settings, Scale, FileSpreadsheet, AreaChart, PieChart, Users2
+  Users, Building, Truck, Layers, Combine, CalendarDays, Landmark, BotMessageSquare, Package2, Library, FileText, Calculator, BookOpen, Settings, Scale, FileSpreadsheet, AreaChart, PieChart, Users2, Tag, Copyright
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -23,7 +24,15 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { href: '/dashboard', labelKey: 'sidebar.dashboard', icon: LayoutDashboard },
-  { href: '/product-catalog', labelKey: 'sidebar.product_catalog', icon: Library },
+];
+
+const productNavItems: NavItem[] = [
+    { href: '/product-catalog', labelKey: 'sidebar.product_catalog', icon: Library },
+    { href: '/categories', labelKey: 'sidebar.categories', icon: Tag },
+    { href: '/brands', labelKey: 'sidebar.brands', icon: Copyright },
+];
+
+const mainNavItems: NavItem[] = [
   { href: '/inventory', labelKey: 'sidebar.inventory', icon: Package },
   { href: '/inventory-barcode', labelKey: 'sidebar.inventory_barcode', icon: Barcode },
   { href: '/purchases', labelKey: 'sidebar.purchases', icon: ShoppingCart },
@@ -31,10 +40,13 @@ const navItems: NavItem[] = [
   { href: '/invoices', labelKey: 'sidebar.invoices', icon: FileText },
   { href: '/expenses', labelKey: 'sidebar.expenses', icon: CreditCard },
   { href: '/logistics', labelKey: 'sidebar.logistics', icon: Truck },
-  { href: '/ipcc', labelKey: 'sidebar.cost_calculator', icon: Calculator },
-  { href: '/ipbt', labelKey: 'sidebar.ipbt', icon: Combine },
-  { href: '/purchases-cal', labelKey: 'sidebar.purchases_cal', icon: CalendarDays },
-  { href: '/logistics-insights', labelKey: 'sidebar.logistics_insights', icon: BotMessageSquare },
+];
+
+const toolsNavItems: NavItem[] = [
+    { href: '/ipcc', labelKey: 'sidebar.cost_calculator', icon: Calculator },
+    { href: '/ipbt', labelKey: 'sidebar.ipbt', icon: Combine },
+    { href: '/purchases-cal', labelKey: 'sidebar.purchases_cal', icon: CalendarDays },
+    { href: '/logistics-insights', labelKey: 'sidebar.logistics_insights', icon: BotMessageSquare },
 ];
 
 const crmNavItems: NavItem[] = [
@@ -69,34 +81,65 @@ export function SidebarNav() {
     }
     return pathname.startsWith(item.href);
   };
+  
+  const NavLink = ({ item }: { item: NavItem }) => (
+    <Link
+      href={item.href}
+      className={cn(
+        'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+        isModuleActive(item)
+          ? 'bg-sidebar-primary text-sidebar-primary-foreground font-medium'
+          : 'text-sidebar-foreground'
+      )}
+    >
+      <item.icon className="h-5 w-5" />
+      {t(item.labelKey)}
+    </Link>
+  );
 
   return (
     <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground glass-sidebar">
       <div className="flex h-20 items-center justify-center border-b border-sidebar-border px-4">
         <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
            {profile.logo && <Image src={profile.logo} alt="Company Logo" width={80} height={80} className="object-contain" />}
-          <span className="text-xl font-headline">{profile.erpName}</span>
+          <span className="text-lg font-headline">{profile.erpName}</span>
         </Link>
       </div>
       <ScrollArea className="flex-1">
         <nav className="flex flex-col gap-1 p-4">
-          {navItems.map((item) => (
-            <Link
-              key={item.labelKey}
-              href={item.href}
-              className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-                isModuleActive(item)
-                  ? 'bg-sidebar-primary text-sidebar-primary-foreground font-medium'
-                  : 'text-sidebar-foreground'
-              )}
-            >
-              <item.icon className="h-5 w-5" />
-              {t(item.labelKey)}
-            </Link>
-          ))}
+          {navItems.map((item) => <NavLink key={item.labelKey} item={item} />)}
           
-          <Accordion type="multiple" defaultValue={['reports', 'accounting', 'crm']} className="w-full">
+          <Accordion type="multiple" defaultValue={['products','main', 'reports', 'accounting', 'crm']} className="w-full">
+            <AccordionItem value="products" className="border-b-0">
+              <AccordionTrigger className="px-3 py-2.5 text-sm hover:no-underline hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-lg [&[data-state=open]]:bg-sidebar-accent">
+                <span className="flex items-center gap-3">
+                  <Package2 className="h-5 w-5" />
+                  {t('sidebar.products')}
+                </span>
+              </AccordionTrigger>
+              <AccordionContent className="pl-7 pt-1">
+                 <div className="flex flex-col gap-1">
+                  {productNavItems.map((item) => <NavLink key={item.labelKey} item={item} />)}
+                 </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            {mainNavItems.map((item) => <NavLink key={item.labelKey} item={item} />)}
+
+            <AccordionItem value="tools" className="border-b-0">
+              <AccordionTrigger className="px-3 py-2.5 text-sm hover:no-underline hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-lg [&[data-state=open]]:bg-sidebar-accent">
+                <span className="flex items-center gap-3">
+                  <Combine className="h-5 w-5" />
+                  {t('sidebar.tools')}
+                </span>
+              </AccordionTrigger>
+              <AccordionContent className="pl-7 pt-1">
+                 <div className="flex flex-col gap-1">
+                  {toolsNavItems.map((item) => <NavLink key={item.labelKey} item={item} />)}
+                 </div>
+              </AccordionContent>
+            </AccordionItem>
+
             <AccordionItem value="crm" className="border-b-0">
               <AccordionTrigger className="px-3 py-2.5 text-sm hover:no-underline hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-lg [&[data-state=open]]:bg-sidebar-accent">
                 <span className="flex items-center gap-3">
@@ -106,21 +149,7 @@ export function SidebarNav() {
               </AccordionTrigger>
               <AccordionContent className="pl-7 pt-1">
                  <div className="flex flex-col gap-1">
-                  {crmNavItems.map((item) => (
-                     <Link
-                      key={item.labelKey}
-                      href={item.href}
-                      className={cn(
-                        'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-                        isModuleActive(item)
-                          ? 'bg-sidebar-primary text-sidebar-primary-foreground font-medium'
-                          : 'text-sidebar-foreground'
-                      )}
-                    >
-                      <item.icon className="h-5 w-5" />
-                      {t(item.labelKey)}
-                    </Link>
-                  ))}
+                  {crmNavItems.map((item) => <NavLink key={item.labelKey} item={item} />)}
                  </div>
               </AccordionContent>
             </AccordionItem>
@@ -133,21 +162,7 @@ export function SidebarNav() {
               </AccordionTrigger>
               <AccordionContent className="pl-7 pt-1">
                  <div className="flex flex-col gap-1">
-                  {reportsNavItems.map((item) => (
-                     <Link
-                      key={item.labelKey}
-                      href={item.href}
-                      className={cn(
-                        'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-                        isModuleActive(item)
-                          ? 'bg-sidebar-primary text-sidebar-primary-foreground font-medium'
-                          : 'text-sidebar-foreground'
-                      )}
-                    >
-                      <item.icon className="h-5 w-5" />
-                      {t(item.labelKey)}
-                    </Link>
-                  ))}
+                  {reportsNavItems.map((item) => <NavLink key={item.labelKey} item={item} />)}
                  </div>
               </AccordionContent>
             </AccordionItem>
@@ -160,21 +175,7 @@ export function SidebarNav() {
               </AccordionTrigger>
               <AccordionContent className="pl-7 pt-1">
                  <div className="flex flex-col gap-1">
-                  {accountingNavItems.map((item) => (
-                     <Link
-                      key={item.labelKey}
-                      href={item.href}
-                      className={cn(
-                        'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-                        isModuleActive(item)
-                          ? 'bg-sidebar-primary text-sidebar-primary-foreground font-medium'
-                          : 'text-sidebar-foreground'
-                      )}
-                    >
-                      <item.icon className="h-5 w-5" />
-                      {t(item.labelKey)}
-                    </Link>
-                  ))}
+                  {accountingNavItems.map((item) => <NavLink key={item.labelKey} item={item} />)}
                  </div>
               </AccordionContent>
             </AccordionItem>

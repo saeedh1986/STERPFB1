@@ -2,7 +2,10 @@
 {
   "sidebar": {
     "dashboard": "Dashboard",
+    "products": "Products",
     "product_catalog": "Product Catalog",
+    "categories": "Categories",
+    "brands": "Brands",
     "inventory": "Inventory",
     "inventory_barcode": "Inventory Barcode",
     "purchases": "Purchases",
@@ -10,6 +13,7 @@
     "invoices": "Invoices",
     "expenses": "Expenses",
     "logistics": "Logistics",
+    "tools": "Tools",
     "cost_calculator": "Cost Calculator",
     "ipbt": "IPBT",
     "purchases_cal": "Purchases Cal.",

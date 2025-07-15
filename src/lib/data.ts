@@ -1,6 +1,9 @@
 
 import React from 'react';
 import Image from 'next/image';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
+
 
 // Mock data for various ERP modules
 
@@ -23,21 +26,43 @@ export const labelSizes = [
 export type LabelSize = typeof labelSizes[0];
 
 
+export const categoriesPool: GenericItem[] = [
+    { id: 'cat-1', name: 'Electronics', description: 'Consumer electronics and gadgets.' },
+    { id: 'cat-2', name: 'Audio Equipment', description: 'Headphones, speakers, and audio accessories.' },
+    { id: 'cat-3', name: 'Computer Accessories', description: 'Keyboards, mice, and other peripherals.' },
+    { id: 'cat-4', name: 'Gaming', description: 'Gaming-specific hardware and accessories.' },
+    { id: 'cat-5', name: 'Mobile Accessories', description: 'Cases, chargers, and accessories for mobile phones.' },
+];
+
+export const brandsPool: GenericItem[] = [
+    { id: 'brand-1', name: 'FIFINE', website: 'https://fifinemicrophone.com/' },
+    { id: 'brand-2', name: 'Anker', website: 'https://www.anker.com/' },
+    { id: 'brand-3', name: 'Logitech', website: 'https://www.logitech.com/' },
+    { id: 'brand-4', name: 'Razer', website: 'https://www.razer.com/' },
+    { id: 'brand-5', name: 'Sony', website: 'https://www.sony.com/' },
+];
+
+
 // Master product catalog
-export const productCatalogPool: GenericItem[] = Array.from({ length: 40 }, (_, i) => ({
-  id: `cat-item-${i + 1}`,
-  itemName: `Master Product ${i + 1}`,
-  sku: `SKU-${String(10001 + i)}`,
-  unitPrice: parseFloat((Math.random() * 500 + 10).toFixed(2)),
-  category: `Category ${String.fromCharCode(65 + (i % 5))}`,
-  description: `This is the master description for Product ${i + 1}.`,
-  productWeight: `${(Math.random() * 2).toFixed(2)} kg`,
-  productDimensions: `${(Math.random() * 20).toFixed(1)}x${(Math.random() * 15).toFixed(1)}x${(Math.random() * 10).toFixed(1)} cm`,
-  packageWeight: `${(Math.random() * 2 + 0.1).toFixed(2)} kg`,
-  packageDimensions: `${(Math.random() * 20 + 2).toFixed(1)}x${(Math.random() * 15 + 2).toFixed(1)}x${(Math.random() * 10 + 2).toFixed(1)} cm`,
-  imageUrl: `https://placehold.co/100x100.png`,
-  dataAiHint: `product photo`,
-}));
+export const productCatalogPool: GenericItem[] = Array.from({ length: 40 }, (_, i) => {
+  const category = categoriesPool[i % categoriesPool.length];
+  const brand = brandsPool[i % brandsPool.length];
+  return {
+    id: `cat-item-${i + 1}`,
+    itemName: `Master Product ${i + 1}`,
+    sku: `SKU-${String(10001 + i)}`,
+    unitPrice: parseFloat((Math.random() * 500 + 10).toFixed(2)),
+    category: category.name,
+    brand: brand.name,
+    description: `This is the master description for Product ${i + 1}.`,
+    productWeight: `${(Math.random() * 2).toFixed(2)} kg`,
+    productDimensions: `${(Math.random() * 20).toFixed(1)}x${(Math.random() * 15).toFixed(1)}x${(Math.random() * 10).toFixed(1)} cm`,
+    packageWeight: `${(Math.random() * 2 + 0.1).toFixed(2)} kg`,
+    packageDimensions: `${(Math.random() * 20 + 2).toFixed(1)}x${(Math.random() * 15 + 2).toFixed(1)}x${(Math.random() * 10 + 2).toFixed(1)} cm`,
+    imageUrl: `https://placehold.co/100x100.png`,
+    dataAiHint: `product photo`,
+  }
+});
 
 
 // Generate a pool of inventory items that can be referenced by other modules
@@ -137,6 +162,7 @@ export const bankTransactionsData = Array.from({ length: 40 }, (_, i) => {
         debit: isCredit ? 0 : amount,
         credit: isCredit ? amount : 0,
         balance: runningBalance,
+        isAiCategorized: false,
     };
 }).reverse();
 
@@ -187,6 +213,12 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
   }
   if (slug === 'product-catalog') {
     return productCatalogPool;
+  }
+   if (slug === 'categories') {
+    return categoriesPool;
+  }
+  if (slug === 'brands') {
+    return brandsPool;
   }
   if (slug === 'roles') {
     return userRoles;
@@ -304,6 +336,9 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
         case 'category':
              item[field] = slug === 'expenses' ? expenseCategories[i % expenseCategories.length] : `Category ${String.fromCharCode(65 + (i % 5))}`;
              break;
+        case 'brand':
+             item[field] = `Brand ${String.fromCharCode(88 + (i % 3))}`;
+             break;
         case 'description':
              item[field] = slug === 'expenses' ? mockExpenseDescriptions[i % mockExpenseDescriptions.length] : `Sample Transaction Description ${i + 1}`;
              break;
@@ -378,14 +413,16 @@ const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   expenses: { fields: ['expenseDate', 'description', 'supplier', 'category', 'amount'], count: 20 },
   customers: { fields: ['name', 'contact', 'email', 'address', 'city', 'country'], count: customersPool.length },
   vendors: { fields: ['name', 'contact', 'email', 'address', 'website', 'city', 'country'], count: vendorsPool.length },
-  users: { fields: ['username', 'password', 'role'], count: usersPool.length },
+  users: { fields: ['username', 'password', 'role', 'joinDate'], count: usersPool.length },
   roles: { fields: ['name', 'description'], count: userRoles.length },
+  categories: { fields: ['name', 'description'], count: categoriesPool.length },
+  brands: { fields: ['name', 'website'], count: brandsPool.length },
   logistics: { fields: ['companyName', 'type', 'serviceDescription', 'contactDetails', 'location', 'notes'], count: 6 },
   ipcc: { fields: ['date', 'sku', 'quantity', 'usd', 'exchangeRate', 'aed', 'customsFees', 'shippingFees', 'bankCharges', 'totalCost', 'totalCostPerUnit'], count: 20 },
   ipbt: { fields: ['ipbtId', 'taskName', 'assignedTo', 'dueDate', 'priority'], count: 7 },
   'purchases-cal': { fields: [], count: 0 },
   'bank-statement': { fields: [], count: 0 }, 
-  'product-catalog': { fields: ['imageUrl', 'itemName', 'sku', 'unitPrice', 'category', 'description', 'productWeight', 'productDimensions', 'packageWeight', 'packageDimensions'], count: 40 },
+  'product-catalog': { fields: ['imageUrl', 'itemName', 'sku', 'category', 'brand', 'unitPrice', 'description', 'productWeight', 'productDimensions', 'packageWeight', 'packageDimensions'], count: 40 },
   'general-journal': { fields: [], count: 0 },
   'chart-of-accounts': { fields: ['code', 'name', 'type'], count: 0 },
   'trial-balance': { fields: [], count: 0 },
@@ -507,10 +544,10 @@ export const getPageTitle = (slug: string): string => {
     return 'Bank Statement';
   }
   if (slug === 'vendors') {
-    return 'Vendors Management';
+    return 'Vendors';
   }
-  if (slug === 'users') {
-    return 'Users Management';
+   if (slug === 'users') {
+    return 'Users';
   }
    if (slug === 'general-journal') {
     return 'General Journal';
@@ -527,7 +564,10 @@ export const getPageTitle = (slug: string): string => {
    if (slug === 'income-statement') {
     return 'Income Statement';
   }
-  return slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') + ' Management';
+  if (slug === 'categories' || slug === 'brands') {
+      return slug.charAt(0).toUpperCase() + slug.slice(1);
+  }
+  return slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 };
 
 export const moduleSlugs = Object.keys(moduleDataConfig);

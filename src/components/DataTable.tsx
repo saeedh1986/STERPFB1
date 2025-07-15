@@ -36,6 +36,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { DataFormDialog } from './DataFormDialog';
+import { categoriesPool, brandsPool } from '@/lib/data';
 
 interface DataTableProps {
   data: GenericItem[];
@@ -167,6 +168,13 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
       title: "Template Downloaded",
       description: "A CSV template has been downloaded.",
     });
+  };
+
+  const formOptions = {
+    ...(pageTitle === 'Product Catalog' && {
+        categories: categoriesPool,
+        brands: brandsPool
+    })
   };
 
 
@@ -304,6 +312,7 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
         defaultValues={selectedItem}
         columns={columns.filter(c => c.accessorKey !== 'id')} // Don't show ID in form
         title={selectedItem ? `Edit ${pageTitle}` : `Create New ${pageTitle}`}
+        options={formOptions}
       />
     </div>
   );
