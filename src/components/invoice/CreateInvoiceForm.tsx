@@ -153,7 +153,7 @@ export function CreateInvoiceForm() {
             <div className="bg-white text-black p-4 sm:p-6 md:p-10 font-sans space-y-10">
               <header className="flex flex-col sm:flex-row justify-between items-start mb-10 gap-8">
                   <div className="flex items-start gap-4">
-                      {profile.logo && <Image src={profile.logo} alt="Company Logo" width={120} height={120} className="object-contain" />}
+                      {profile.logo && <Image src={profile.logo} alt="Company Logo" width={240} height={240} className="object-contain" />}
                       <div>
                           <h2 className="text-2xl font-bold text-gray-800">{profile.name}</h2>
                           <p className="text-sm text-gray-600">{profile.description}</p>
