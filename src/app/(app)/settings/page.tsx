@@ -64,7 +64,7 @@ export default function SettingsPage() {
   const { theme, setTheme, resolvedTheme, themes } = useTheme();
   const { fontSize, setFontSize } = useAccessibility();
   const { profile, setProfile } = useCompanyProfile();
-  const { t } = useLanguage();
+  const { t, language, setLanguage } = useLanguage();
   const { currency, setCurrency } = useCurrency();
   const { toast } = useToast();
 
