@@ -7,6 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { ThemeProvider } from "next-themes";
+import { cn } from '@/lib/utils';
 
 const THEMES = ["light", "dark", "system", "theme-amber", "theme-blue", "theme-green"];
 
@@ -31,7 +32,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem themes={THEMES}>
       <div className="grid min-h-screen w-full md:grid-cols-[280px_1fr]">
-        <div className="hidden border-r bg-sidebar md:block">
+        <div className="hidden border-r bg-sidebar md:block glass-sidebar">
           <SidebarNav />
         </div>
         <div className="flex flex-col">

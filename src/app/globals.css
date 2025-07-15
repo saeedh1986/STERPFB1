@@ -5,6 +5,8 @@
 
 body {
   font-family: 'PT Sans', sans-serif;
+  @apply bg-gradient-to-br from-indigo-50 via-white to-cyan-50 dark:from-slate-900 dark:via-slate-950 dark:to-indigo-950;
+  min-height: 100vh;
 }
 
 html {
@@ -15,7 +17,7 @@ html {
   :root, .theme-amber {
     --background: 220 13% 97%;
     --foreground: 220 15% 25%;
-    --card: 220 13% 100%;
+    --card: 220 13% 100% / 0.7; /* Semi-transparent */
     --card-foreground: 220 15% 25%;
     --popover: 220 13% 100%;
     --popover-foreground: 220 15% 25%;
@@ -31,29 +33,29 @@ html {
     --destructive-foreground: 0 0% 98%;
     --border: 220 13% 88%;
     --input: 220 13% 88%;
-    --ring: 38 92% 50%;
+    --ring: 217 91% 60%;
     --chart-1: 38 92% 50%;
     --chart-2: 210 30% 60%;
     --chart-3: 210 25% 60%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
     /* Sidebar specific colors */
-    --sidebar-background: 220 15% 25%;
+    --sidebar-background: 220 15% 25% / 0.8; /* Semi-transparent */
     --sidebar-foreground: 220 13% 90%;
     --sidebar-primary: 38 92% 50%;
     --sidebar-primary-foreground: 38 92% 10%;
     --sidebar-accent: 220 15% 35%;
     --sidebar-accent-foreground: 220 13% 97%;
-    --sidebar-border: 220 15% 20%;
+    --sidebar-border: 220 15% 30%;
     --sidebar-ring: 38 92% 50%;
   }
 
   .dark:root, .dark.theme-amber {
     --background: 220 15% 15%;
     --foreground: 220 13% 90%;
-    --card: 220 15% 20%;
+    --card: 220 15% 20% / 0.6; /* Semi-transparent dark */
     --card-foreground: 220 13% 90%;
     --popover: 220 15% 20%;
     --popover-foreground: 220 13% 90%;
@@ -69,7 +71,7 @@ html {
     --destructive-foreground: 0 0% 98%;
     --border: 220 15% 30%;
     --input: 220 15% 30%;
-    --ring: 38 92% 50%;
+    --ring: 217 91% 60%;
     --chart-1: 38 92% 50%;
     --chart-2: 210 30% 60%;
     --chart-3: 210 25% 70%;
@@ -77,13 +79,13 @@ html {
     --chart-5: 27 87% 67%;
     
     /* Dark Sidebar specific colors */
-    --sidebar-background: 220 15% 10%; 
+    --sidebar-background: 220 15% 10% / 0.7; /* Semi-transparent dark */
     --sidebar-foreground: 220 13% 90%; 
     --sidebar-primary: 38 92% 50%; 
     --sidebar-primary-foreground: 38 92% 10%; 
     --sidebar-accent: 220 15% 20%; 
     --sidebar-accent-foreground: 220 13% 90%;
-    --sidebar-border: 220 15% 15%;
+    --sidebar-border: 220 15% 25%;
     --sidebar-ring: 38 92% 50%;
   }
 
@@ -133,6 +135,16 @@ html {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+  }
+}
+
+/* Glassmorphism styles */
+@layer components {
+  .glass-card {
+    @apply backdrop-blur-lg border border-white/10;
+  }
+  .glass-sidebar {
+    @apply backdrop-blur-xl border-r border-white/5;
   }
 }

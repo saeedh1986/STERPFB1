@@ -72,7 +72,7 @@ export function SidebarNav() {
   };
 
   return (
-    <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
+    <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground glass-sidebar">
       <div className="flex h-16 items-center justify-center border-b border-sidebar-border px-4">
         <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
            {profile.logo && <Image src={profile.logo} alt="Company Logo" width={36} height={36} className="object-contain" />}
