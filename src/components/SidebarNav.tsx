@@ -73,9 +73,9 @@ export function SidebarNav() {
   return (
     <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground glass-sidebar">
       <div className="flex h-20 items-center justify-center border-b border-sidebar-border px-4">
-        <Link href="/dashboard" className="flex items-center gap-4 font-semibold">
-           {profile.logo && <Image src={profile.logo} alt="Company Logo" width={240} height={240} className="object-contain" />}
-          <span className="text-xl font-headline">{profile.erpName}</span>
+        <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
+           {profile.logo && <Image src={profile.logo} alt="Company Logo" width={40} height={40} className="object-contain" />}
+          <span className="text-lg font-headline">{profile.erpName}</span>
         </Link>
       </div>
       <ScrollArea className="flex-1">
