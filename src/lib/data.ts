@@ -42,6 +42,12 @@ export const brandsPool: GenericItem[] = [
     { id: 'brand-5', name: 'Sony', website: 'https://www.sony.com/' },
 ];
 
+export const warehousesPool: GenericItem[] = [
+    { id: 'wh-1', name: 'Main Warehouse', location: 'Dubai, UAE' },
+    { id: 'wh-2', name: 'Secondary Storage', location: 'Sharjah, UAE' },
+    { id: 'wh-3', name: 'Fulfillment Center', location: 'Abu Dhabi, UAE' },
+];
+
 
 // Master product catalog
 export const productCatalogPool: GenericItem[] = Array.from({ length: 40 }, (_, i) => {
@@ -66,13 +72,20 @@ export const productCatalogPool: GenericItem[] = Array.from({ length: 40 }, (_, 
 
 
 // Generate a pool of inventory items that can be referenced by other modules
-const INVENTORY_ITEMS_POOL_SIZE = 20;
-// Inventory is now a subset of the product catalog
-export const inventoryItemsPool = productCatalogPool.slice(0, INVENTORY_ITEMS_POOL_SIZE).map((item, i) => ({
-  ...item,
-  id: `item-${i + 1}`,
-  quantity: Math.floor(Math.random() * 20) + 1, // Lowered max quantity to generate more low-stock items
-}));
+// This is now a flattened list of product stock per warehouse
+export const inventoryItemsPool: GenericItem[] = productCatalogPool.slice(0, 20).flatMap((product, i) => {
+    // Each product will be in 1 or 2 warehouses
+    const numWarehouses = Math.random() > 0.5 ? 2 : 1;
+    const assignedWarehouses = warehousesPool.slice(0, numWarehouses);
+
+    return assignedWarehouses.map((warehouse, j) => ({
+        ...product, // copy product details
+        id: `inv-item-${i}-${j}`, // unique id for this inventory entry
+        warehouse: warehouse.name,
+        quantity: Math.floor(Math.random() * 20) + 1, // stock for this specific warehouse
+    }));
+});
+
 
 
 // Generate a pool of vendors that can be referenced by other modules
@@ -219,6 +232,9 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
   }
   if (slug === 'brands') {
     return brandsPool;
+  }
+   if (slug === 'warehouses') {
+    return warehousesPool;
   }
   if (slug === 'roles') {
     return userRoles;
@@ -405,8 +421,8 @@ export const purchasesCalDetailsData = [
 
 
 const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
-  inventory: { fields: ['itemName', 'sku', 'quantity', 'unitPrice', 'category'], count: INVENTORY_ITEMS_POOL_SIZE },
-  'inventory-barcode': { fields: ['itemName', 'barcode', 'quantity'], count: INVENTORY_ITEMS_POOL_SIZE },
+  inventory: { fields: ['itemName', 'sku', 'warehouse', 'quantity', 'unitPrice', 'category'], count: 0 }, // count is 0 because data is generated customly
+  'inventory-barcode': { fields: ['itemName', 'barcode', 'quantity'], count: 20 },
   purchases: { fields: ['purchaseDate', 'supplier', 'sku', 'itemName', 'quantity', 'unitCost', 'totalCost'], count: 25 },
   sales: { fields: ['saleDate', 'customerName', 'orderId', 'sku', 'itemName', 'qtySold', 'qtyRtv', 'note', 'price', 'shipping', 'referralFees', 'shippingCost', 'paymentFees', 'totalSales'], count: 40 },
   invoices: { fields: [], count: 0 },
@@ -417,6 +433,7 @@ const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   roles: { fields: ['name', 'description'], count: userRoles.length },
   categories: { fields: ['name', 'description'], count: categoriesPool.length },
   brands: { fields: ['name', 'website'], count: brandsPool.length },
+  warehouses: { fields: ['name', 'location'], count: warehousesPool.length },
   logistics: { fields: ['companyName', 'type', 'serviceDescription', 'contactDetails', 'location', 'notes'], count: 6 },
   ipcc: { fields: ['date', 'sku', 'quantity', 'usd', 'exchangeRate', 'aed', 'customsFees', 'shippingFees', 'bankCharges', 'totalCost', 'totalCostPerUnit'], count: 20 },
   ipbt: { fields: ['ipbtId', 'taskName', 'assignedTo', 'dueDate', 'priority'], count: 7 },
@@ -434,7 +451,13 @@ export const getMockData = (slug: string): GenericItem[] => {
   const config = moduleDataConfig[slug];
   if (!config) return [];
   if (slug === 'inventory-barcode') {
-    return inventoryItemsPool;
+    // Barcode page needs a summary of products, not warehouse-specific stock
+    return productCatalogPool.slice(0, 20).map(p => ({
+        ...p,
+        quantity: inventoryItemsPool
+            .filter(i => i.sku === p.sku)
+            .reduce((sum, i) => sum + i.quantity, 0),
+    }));
   }
   return createMockData(config.count, config.fields, slug);
 };
@@ -564,7 +587,7 @@ export const getPageTitle = (slug: string): string => {
    if (slug === 'income-statement') {
     return 'Income Statement';
   }
-  if (slug === 'categories' || slug === 'brands') {
+  if (slug === 'categories' || slug === 'brands' || slug === 'warehouses') {
       return slug.charAt(0).toUpperCase() + slug.slice(1);
   }
   return slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
@@ -591,7 +614,16 @@ export const getDashboardSummaryData = () => {
     // --- ORDERS & INVENTORY ---
     const totalOrders = salesData.length;
     const itemsSold = salesData.reduce((acc, sale) => acc + (sale.qtySold || 0), 0);
-    const topInventoryByQuantity = [...inventoryData].sort((a,b) => b.quantity - a.quantity).slice(0, 5);
+    
+    // Aggregate inventory quantities across warehouses
+    const aggregatedInventory = productCatalogPool.slice(0, 20).map(product => {
+        const totalQuantity = inventoryData
+            .filter(item => item.sku === product.sku)
+            .reduce((sum, item) => sum + item.quantity, 0);
+        return { ...product, quantity: totalQuantity };
+    });
+
+    const topInventoryByQuantity = [...aggregatedInventory].sort((a,b) => b.quantity - a.quantity).slice(0, 5);
 
     // --- CHART DATA ---
     const salesByMonth: Record<string, number> = {};
@@ -633,7 +665,7 @@ export const getDashboardSummaryData = () => {
 
     // --- RECENT & LOW STOCK ---
     const recentSales = salesData.sort((a,b) => new Date(b.saleDate).getTime() - new Date(a.saleDate).getTime()).slice(0, 5);
-    const lowStockItems = inventoryData.filter(item => item.quantity <= LOW_STOCK_THRESHOLD).sort((a,b) => a.quantity - b.quantity).slice(0, 5);
+    const lowStockItems = aggregatedInventory.filter(item => item.quantity <= LOW_STOCK_THRESHOLD).sort((a,b) => a.quantity - b.quantity).slice(0, 5);
 
     return {
         financials: {

@@ -36,7 +36,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { DataFormDialog } from './DataFormDialog';
-import { categoriesPool, brandsPool } from '@/lib/data';
+import { categoriesPool, brandsPool, warehousesPool } from '@/lib/data';
 
 interface DataTableProps {
   data: GenericItem[];
@@ -174,6 +174,10 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
     ...(pageTitle === 'Product Catalog' && {
         categories: categoriesPool,
         brands: brandsPool
+    }),
+    ...(pageTitle === 'Inventory' && {
+        warehouses: warehousesPool,
+        categories: categoriesPool,
     })
   };
 

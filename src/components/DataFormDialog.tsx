@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { GenericItem, ColumnDefinition } from '@/lib/data';
-import { inventoryItemsPool, expenseCategories as defaultExpenseCategories, vendorsPool, USD_TO_AED_RATE, categoriesPool, brandsPool } from '@/lib/data';
+import { productCatalogPool, expenseCategories as defaultExpenseCategories, vendorsPool, USD_TO_AED_RATE, categoriesPool, brandsPool, warehousesPool } from '@/lib/data';
 import { useState, useEffect } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
@@ -32,6 +32,7 @@ interface DataFormDialogProps {
     roles?: string[];
     categories?: GenericItem[];
     brands?: GenericItem[];
+    warehouses?: GenericItem[];
   }
 }
 
@@ -161,14 +162,19 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
     onSubmit(formattedData);
   };
   
-  const isSkuSelectMode = title.includes('Sales') || title.includes('Purchases') || title.includes('Cost Calculator');
+  const isSkuSelectMode = title.includes('Sales') || title.includes('Purchases') || title.includes('Cost Calculator') || title.includes('Inventory');
   const isExpenseMode = title.includes('Expenses');
   const isProductCatalog = title.includes('Product Catalog');
+  const isInventory = title.includes('Inventory');
   
   const handleSkuChange = (sku: string) => {
-    const selectedItem = inventoryItemsPool.find(item => item.sku === sku);
+    const selectedItem = productCatalogPool.find(item => item.sku === sku);
     if (selectedItem) {
       form.setValue('itemName' as keyof FormValues, selectedItem.itemName);
+      if (isInventory) {
+          form.setValue('unitPrice' as keyof FormValues, selectedItem.unitPrice);
+          form.setValue('category' as keyof FormValues, selectedItem.category);
+      }
     }
   };
 
@@ -240,7 +246,36 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                         );
                     }
 
-                    if (isProductCatalog && col.accessorKey === 'category') {
+                    if (isInventory && col.accessorKey === 'warehouse') {
+                        return (
+                          <FormField
+                            key={col.accessorKey}
+                            control={form.control}
+                            name={col.accessorKey as keyof FormValues}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>{col.header}</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select a warehouse" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {options?.warehouses?.map(wh => (
+                                      <SelectItem key={wh.id} value={wh.name}>{wh.name}</SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        );
+                    }
+
+
+                    if ((isProductCatalog || isInventory) && col.accessorKey === 'category') {
                         return (
                           <FormField
                             key={col.accessorKey}
@@ -362,7 +397,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                                     </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                    {inventoryItemsPool.map(item => (
+                                    {productCatalogPool.map(item => (
                                     <SelectItem key={item.sku} value={item.sku}>
                                         {item.sku}
                                     </SelectItem>
@@ -536,8 +571,8 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                                     {...field}
                                     type={isUsers && col.accessorKey === 'password' ? 'password' : typeof field.value === 'number' ? 'number' : 'text'}
                                     step="any"
-                                    readOnly={isCalculated}
-                                    className={isCalculated ? 'bg-muted' : ''}
+                                    readOnly={isCalculated || (isInventory && ['unitPrice','category'].includes(col.accessorKey))}
+                                    className={(isCalculated || (isInventory && ['unitPrice','category'].includes(col.accessorKey))) ? 'bg-muted' : ''}
                                     onChange={(e) => {
                                         if (typeof field.value === 'number') {
                                             field.onChange(e.target.valueAsNumber || 0);

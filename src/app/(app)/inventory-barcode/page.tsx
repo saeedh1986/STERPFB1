@@ -4,11 +4,13 @@
 import { PageHeader } from '@/components/PageHeader';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { inventoryItemsPool } from '@/lib/data';
-import { QrCode, ArrowRight } from 'lucide-react';
+import { getMockData } from '@/lib/data';
+import { QrCode } from 'lucide-react';
 import Link from 'next/link';
 
 export default function InventoryBarcodePage() {
+  const inventoryData = getMockData('inventory-barcode');
+  
   return (
     <>
       <PageHeader title="Inventory Barcode Generator" />
@@ -24,7 +26,7 @@ export default function InventoryBarcodePage() {
             <div className="space-y-4">
               <h3 className="text-lg font-medium text-foreground">Available Products</h3>
               <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {inventoryItemsPool.map((item) => (
+                {inventoryData.map((item) => (
                   <li key={item.id} className="p-4 border rounded-lg bg-card hover:bg-muted/50 transition-colors">
                     <div className="flex justify-between items-center">
                       <div>

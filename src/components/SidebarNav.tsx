@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard, Package, Barcode, ShoppingCart, CreditCard, TrendingUp,
-  Users, Building, Truck, Layers, Combine, CalendarDays, Landmark, BotMessageSquare, Package2, Library, FileText, Calculator, BookOpen, Settings, Scale, FileSpreadsheet, AreaChart, PieChart, Users2, Tag, Copyright
+  Users, Building, Truck, Layers, Combine, CalendarDays, Landmark, BotMessageSquare, Package2, Library, FileText, Calculator, BookOpen, Settings, Scale, FileSpreadsheet, AreaChart, PieChart, Users2, Tag, Copyright, Warehouse
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -32,9 +32,13 @@ const productNavItems: NavItem[] = [
     { href: '/brands', labelKey: 'sidebar.brands', icon: Copyright },
 ];
 
+const inventoryNavItems: NavItem[] = [
+    { href: '/inventory', labelKey: 'sidebar.inventory', icon: Package },
+    { href: '/warehouses', labelKey: 'sidebar.warehouses', icon: Warehouse },
+    { href: '/inventory-barcode', labelKey: 'sidebar.inventory_barcode', icon: Barcode },
+];
+
 const mainNavItems: NavItem[] = [
-  { href: '/inventory', labelKey: 'sidebar.inventory', icon: Package },
-  { href: '/inventory-barcode', labelKey: 'sidebar.inventory_barcode', icon: Barcode },
   { href: '/purchases', labelKey: 'sidebar.purchases', icon: ShoppingCart },
   { href: '/sales', labelKey: 'sidebar.sales', icon: TrendingUp },
   { href: '/invoices', labelKey: 'sidebar.invoices', icon: FileText },
@@ -109,7 +113,7 @@ export function SidebarNav() {
         <nav className="flex flex-col gap-1 p-4">
           {navItems.map((item) => <NavLink key={item.labelKey} item={item} />)}
           
-          <Accordion type="multiple" defaultValue={['products','main', 'reports', 'accounting', 'crm']} className="w-full">
+          <Accordion type="multiple" defaultValue={['products', 'inventory', 'main', 'reports', 'accounting', 'crm']} className="w-full">
             <AccordionItem value="products" className="border-b-0">
               <AccordionTrigger className="px-3 py-2.5 text-sm hover:no-underline hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-lg [&[data-state=open]]:bg-sidebar-accent">
                 <span className="flex items-center gap-3">
@@ -120,6 +124,20 @@ export function SidebarNav() {
               <AccordionContent className="pl-7 pt-1">
                  <div className="flex flex-col gap-1">
                   {productNavItems.map((item) => <NavLink key={item.labelKey} item={item} />)}
+                 </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="inventory" className="border-b-0">
+              <AccordionTrigger className="px-3 py-2.5 text-sm hover:no-underline hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-lg [&[data-state=open]]:bg-sidebar-accent">
+                <span className="flex items-center gap-3">
+                  <Package className="h-5 w-5" />
+                  {t('sidebar.inventory')}
+                </span>
+              </AccordionTrigger>
+              <AccordionContent className="pl-7 pt-1">
+                 <div className="flex flex-col gap-1">
+                  {inventoryNavItems.map((item) => <NavLink key={item.labelKey} item={item} />)}
                  </div>
               </AccordionContent>
             </AccordionItem>
