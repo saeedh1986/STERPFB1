@@ -213,6 +213,23 @@ export const chartOfAccountsData: GenericItem[] = [
 
 
 const createMockData = (count: number, fields: string[], slug: string): GenericItem[] => {
+  // Check localStorage first
+  if (typeof window !== 'undefined') {
+    const storedData = localStorage.getItem(`erp-data-${slug}`);
+    if (storedData) {
+      try {
+        const parsedData = JSON.parse(storedData);
+        if (Array.isArray(parsedData)) {
+          return parsedData;
+        }
+      } catch (e) {
+        console.error(`Failed to parse localStorage data for ${slug}`, e);
+        // Fallback to generating mock data if parsing fails
+      }
+    }
+  }
+
+
   if (slug === 'inventory') {
     return inventoryItemsPool;
   }
@@ -458,106 +475,6 @@ const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   'income-statement': { fields: [], count: 0 },
 };
 
-export const getMockData = (slug: string): GenericItem[] => {
-  const config = moduleDataConfig[slug];
-  if (!config) return [];
-  if (slug === 'inventory-barcode') {
-    // Barcode page needs a summary of products, not warehouse-specific stock
-    return productCatalogPool.slice(0, 20).map(p => ({
-        ...p,
-        quantity: inventoryItemsPool
-            .filter(i => i.sku === p.sku)
-            .reduce((sum, i) => sum + i.quantity, 0),
-    }));
-  }
-  return createMockData(config.count, config.fields, slug);
-};
-
-export const getColumns = (slug: string): ColumnDefinition[] => {
-  const config = moduleDataConfig[slug];
-  if (!config) return [];
-  
-  const columns = config.fields.map(field => ({
-    accessorKey: field,
-    header: field.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()),
-  }));
-
-  columns.forEach(col => {
-    if (col.accessorKey === 'imageUrl') {
-        col.header = 'Image';
-        col.cell = ({ row }) => {
-            const imageUrl = row.getValue('imageUrl') as string;
-            const itemName = row.getValue('itemName') as string;
-            const dataAiHint = row.original.dataAiHint || 'product photo';
-            return React.createElement(Image, { 
-                src: imageUrl, 
-                alt: itemName, 
-                className: 'h-16 w-16 object-cover rounded-md',
-                width: 64,
-                height: 64,
-                'data-ai-hint': dataAiHint,
-            });
-        };
-    }
-    if (col.accessorKey === 'website' || (col.accessorKey === 'email' && slug === 'vendors')) {
-      col.cell = ({ row }) => {
-        const value = row.getValue(col.accessorKey) as string;
-        if (!value) return '';
-        const href = col.accessorKey === 'email' ? `mailto:${value}` : value.startsWith('http') ? value : `https://${value}`;
-        return React.createElement('a', { href: href, target: '_blank', rel: 'noopener noreferrer', className: 'text-blue-600 hover:underline' }, value);
-      };
-    }
-    const currencyColumns = [
-        'price', 'shipping', 'referralFees', 'shippingCost', 'paymentFees', 'totalSales', 
-        'amount', 'unitCost', 'debit', 'credit', 'balance', 'totalAmount', 'unitPrice', 
-        'totalCost', 'usd', 'aed', 'customsFees', 'shippingFees', 'bankCharges', 
-        'totalCostPerUnit'
-    ];
-    if (currencyColumns.includes(col.accessorKey)) {
-      col.cell = ({ row }) => {
-        const amount = parseFloat(row.getValue(col.accessorKey));
-        if (col.accessorKey === 'debit' && amount === 0) return React.createElement('div', { className: 'text-right' }, '-');
-        if (col.accessorKey === 'credit' && amount === 0) return React.createElement('div', { className: 'text-right' }, '-');
-        
-        const formatOptions: Intl.NumberFormatOptions = {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: col.accessorKey.match(/aed|Fees|Charges|Cost|PerUnit|usd|exchangeRate/i) ? 4 : 2
-        };
-        const formatted = new Intl.NumberFormat("en-US", formatOptions).format(amount || 0);
-        
-        const currencySymbol = col.accessorKey === 'usd' ? '$ ' : React.createElement(Image, { src: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/UAE_Dirham_Symbol.svg/1377px-UAE_Dirham_Symbol.svg.png", alt: "AED", width: 14, height: 14, className: "inline-block dark:invert" });
-
-        return React.createElement(
-          'div', 
-          { className: `text-right font-medium flex items-center justify-end gap-1 ${col.accessorKey === 'debit' ? 'text-red-500' : col.accessorKey === 'credit' ? 'text-green-500' : ''}` }, 
-          currencySymbol,
-          formatted
-        );
-      };
-    }
-     if (col.accessorKey === 'exchangeRate') {
-        col.cell = ({ row }) => {
-            const rate = parseFloat(row.getValue(col.accessorKey));
-            return React.createElement('div', { className: 'text-right' }, rate?.toFixed(4) || 'N/A');
-        };
-     }
-    if (col.accessorKey.toLowerCase().includes('status')) {
-       col.cell = ({ row }) => {
-        const status = row.getValue(col.accessorKey) as string;
-        let colorClass = '';
-        if (status && (status.toLowerCase().includes('paid') || status.toLowerCase().includes('delivered') || status.toLowerCase().includes('completed'))) colorClass = 'text-green-600 bg-green-100';
-        else if (status && (status.toLowerCase().includes('pending') || status.toLowerCase().includes('processing'))) colorClass = 'text-yellow-600 bg-yellow-100';
-        else if (status && (status.toLowerCase().includes('failed') || status.toLowerCase().includes('cancelled'))) colorClass = 'text-red-600 bg-red-100';
-        else colorClass = 'text-gray-600 bg-gray-100';
-        
-        return React.createElement('span', { className: `px-2 py-1 rounded-full text-xs font-medium ${colorClass}` }, status);
-       };
-    }
-  });
-  
-  return columns;
-};
-
 export const getPageTitle = (slug: string): string => {
   if (slug === 'product-catalog') {
     return 'Product Catalog';
@@ -699,5 +616,3 @@ export const getDashboardSummaryData = () => {
         lowStockItems,
     };
 };
-
-    

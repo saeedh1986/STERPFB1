@@ -2,7 +2,7 @@
 "use client";
 
 import type { GenericItem, ColumnDefinition } from '@/lib/data';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Table,
@@ -35,7 +35,9 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { DataFormDialog } from './DataFormDialog';
-import { categoriesPool, brandsPool, warehousesPool, userRoles, getMockData } from '@/lib/data';
+import { categoriesPool, brandsPool, warehousesPool, userRoles, getMockData, moduleSlugs } from '@/lib/data';
+import { useLocalStorage } from '@/hooks/use-local-storage';
+
 
 interface DataTableProps {
   data: GenericItem[];
@@ -46,7 +48,10 @@ interface DataTableProps {
 const ITEMS_PER_PAGE = 10;
 
 export function DataTable({ data: initialData, columns, pageTitle }: DataTableProps) {
-  const [tableData, setTableData] = useState<GenericItem[]>(initialData);
+  const pageSlug = moduleSlugs.find(slug => getMockData(slug) === initialData) || pageTitle.toLowerCase().replace(/\s+/g, '-');
+  
+  const [tableData, setTableData] = useLocalStorage<GenericItem[]>(`erp-data-${pageSlug}`, initialData);
+
   const [globalFilter, setGlobalFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -95,7 +100,7 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
       toast({ title: "Item Updated", description: "The record has been successfully updated." });
     } else {
       // Create new item
-      const newItem = { ...values, id: `new-${Date.now()}` };
+      const newItem = { ...values, id: `${pageSlug}-${Date.now()}` };
       setTableData(prev => [newItem, ...prev]);
       toast({ title: "Item Created", description: "A new record has been successfully added." });
     }
@@ -123,7 +128,6 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
         const dataLines = lines.slice(1);
         
         const newRecords = dataLines.map((line, lineIndex) => {
-          const values = line.split(',').map(v => v.trim());
           const record: GenericItem = { id: `imported-${Date.now()}-${lineIndex}` };
           
           columnAccessors.forEach((accessor, index) => {
@@ -320,5 +324,3 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
     </div>
   );
 }
-
-    
