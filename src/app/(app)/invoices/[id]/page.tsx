@@ -41,7 +41,7 @@ const PrintableInvoice = React.forwardRef<HTMLDivElement, { invoice: any, profil
         <div ref={ref} className="bg-white text-black p-10 font-sans printable-content">
             <header className="flex justify-between items-start mb-10">
                 <div className="flex items-start gap-4">
-                    {profile.logo && <Image src={profile.logo} alt="Company Logo" width={80} height={80} className="object-contain" />}
+                    {profile.logo && <Image src={profile.logo} alt="Company Logo" width={120} height={120} className="object-contain" />}
                     <div>
                         <h2 className="text-2xl font-bold text-gray-800">{profile.name}</h2>
                         <p className="text-sm text-gray-600">{profile.description}</p>
@@ -246,3 +246,5 @@ export default function ViewInvoicePage() {
     </>
   );
 }
+
+    
