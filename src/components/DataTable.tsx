@@ -4,6 +4,7 @@
 import type { GenericItem, ColumnDefinition } from '@/lib/data';
 import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   Table,
   TableBody,
@@ -35,8 +36,10 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { DataFormDialog } from './DataFormDialog';
-import { categoriesPool, brandsPool, warehousesPool, userRoles, getMockData, moduleSlugs } from '@/lib/data';
+import { categoriesPool, brandsPool, warehousesPool, userRoles, moduleSlugs, getBadgeVariantForAccountType } from '@/lib/data';
 import { useLocalStorage } from '@/hooks/use-local-storage';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 
 interface DataTableProps {
@@ -48,7 +51,7 @@ interface DataTableProps {
 const ITEMS_PER_PAGE = 10;
 
 export function DataTable({ data: initialData, columns, pageTitle }: DataTableProps) {
-  const pageSlug = moduleSlugs.find(slug => getMockData(slug) === initialData) || pageTitle.toLowerCase().replace(/\s+/g, '-');
+  const pageSlug = moduleSlugs.find(slug => slug === pageTitle.toLowerCase().replace(/\s+/g, '-')) || pageTitle.toLowerCase().replace(/\s+/g, '-');
   
   const [tableData, setTableData] = useLocalStorage<GenericItem[]>(`erp-data-${pageSlug}`, initialData);
 
@@ -129,6 +132,7 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
         
         const newRecords = dataLines.map((line, lineIndex) => {
           const record: GenericItem = { id: `imported-${Date.now()}-${lineIndex}` };
+          const values = line.split(',').map(v => v.trim());
           
           columnAccessors.forEach((accessor, index) => {
             record[accessor] = values[index] || '';
@@ -224,11 +228,32 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
             {paginatedData.length > 0 ? (
               paginatedData.map((item) => (
                 <TableRow key={item.id}>
-                  {columns.map((column) => (
-                    <TableCell key={column.accessorKey}>
-                      {column.cell ? column.cell({ row: { getValue: (key: string) => item[key], original: item } }) : item[column.accessorKey]}
-                    </TableCell>
-                  ))}
+                  {columns.map((column) => {
+                    const cellValue = item[column.accessorKey];
+                    const isImageUrl = typeof cellValue === 'string' && cellValue.startsWith('https://placehold.co');
+
+                    // Special rendering for Chart of Accounts type
+                    if (pageTitle === 'Chart of Accounts' && column.accessorKey === 'type') {
+                        return (
+                             <TableCell key={column.accessorKey}>
+                                <Badge variant="outline" className={cn("border-transparent", getBadgeVariantForAccountType(cellValue as string))}>
+                                    {cellValue}
+                                </Badge>
+                             </TableCell>
+                        );
+                    }
+
+                    return (
+                      <TableCell key={column.accessorKey}>
+                        {column.cell 
+                          ? column.cell({ row: { getValue: (key: string) => item[key], original: item } })
+                          : isImageUrl
+                          ? <Image src={cellValue} alt={item.itemName || 'Product Image'} width={40} height={40} className="rounded" data-ai-hint={item.dataAiHint} />
+                          : cellValue
+                        }
+                      </TableCell>
+                    );
+                  })}
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

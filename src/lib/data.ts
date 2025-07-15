@@ -1,7 +1,4 @@
 
-import React from 'react';
-import Image from 'next/image';
-import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
 
@@ -207,29 +204,37 @@ export const chartOfAccountsData: GenericItem[] = [
   { id: 'coa-19', code: '5090', name: 'FBN Charges', type: 'Expense' },
   { id: 'coa-20', code: '5100', name: 'Storage Expenses', type: 'Expense' },
   { id: 'coa-21', code: '5110', name: 'Freelance Services', type: 'Expense' },
-
-
 ];
 
+const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
+  'product-catalog': { fields: ['imageUrl', 'itemName', 'sku', 'category', 'brand', 'unitPrice', 'description', 'productWeight', 'productDimensions', 'packageWeight', 'packageDimensions'], count: 40 },
+  inventory: { fields: ['itemName', 'sku', 'warehouse', 'quantity', 'unitPrice', 'category'], count: 0 },
+  'inventory-barcode': { fields: ['itemName', 'sku', 'quantity'], count: 20 },
+  purchases: { fields: ['purchaseDate', 'supplier', 'sku', 'itemName', 'quantity', 'unitCost', 'totalCost'], count: 25 },
+  sales: { fields: ['saleDate', 'customerName', 'orderId', 'sku', 'itemName', 'qtySold', 'qtyRtv', 'note', 'price', 'shipping', 'referralFees', 'shippingCost', 'paymentFees', 'totalSales', 'salesChannel', 'fulfillmentWarehouse'], count: 40 },
+  invoices: { fields: [], count: 0 },
+  expenses: { fields: ['expenseDate', 'description', 'supplier', 'category', 'amount'], count: 20 },
+  customers: { fields: ['name', 'contact', 'email', 'address', 'city', 'country'], count: customersPool.length },
+  vendors: { fields: ['name', 'contact', 'email', 'address', 'website', 'city', 'country'], count: vendorsPool.length },
+  users: { fields: ['username', 'password', 'role', 'joinDate'], count: usersPool.length },
+  roles: { fields: ['name', 'description'], count: userRoles.length },
+  categories: { fields: ['name', 'description'], count: categoriesPool.length },
+  brands: { fields: ['name', 'website'], count: brandsPool.length },
+  warehouses: { fields: ['name', 'location'], count: warehousesPool.length },
+  logistics: { fields: ['companyName', 'type', 'serviceDescription', 'contactDetails', 'location', 'notes'], count: 6 },
+  ipcc: { fields: ['date', 'sku', 'quantity', 'usd', 'exchangeRate', 'aed', 'customsFees', 'shippingFees', 'bankCharges', 'totalCost', 'totalCostPerUnit'], count: 20 },
+  ipbt: { fields: ['ipbtId', 'taskName', 'assignedTo', 'dueDate', 'priority'], count: 7 },
+  'purchases-cal': { fields: [], count: 0 },
+  'bank-statement': { fields: [], count: 0 }, 
+  'inventory-transfer': { fields: [], count: 0 },
+  'general-journal': { fields: [], count: 0 },
+  'chart-of-accounts': { fields: ['code', 'name', 'type'], count: 0 },
+  'trial-balance': { fields: [], count: 0 },
+  'balance-sheet': { fields: [], count: 0 },
+  'income-statement': { fields: [], count: 0 },
+};
 
 const createMockData = (count: number, fields: string[], slug: string): GenericItem[] => {
-  // Check localStorage first
-  if (typeof window !== 'undefined') {
-    const storedData = localStorage.getItem(`erp-data-${slug}`);
-    if (storedData) {
-      try {
-        const parsedData = JSON.parse(storedData);
-        if (Array.isArray(parsedData)) {
-          return parsedData;
-        }
-      } catch (e) {
-        console.error(`Failed to parse localStorage data for ${slug}`, e);
-        // Fallback to generating mock data if parsing fails
-      }
-    }
-  }
-
-
   if (slug === 'inventory') {
     return inventoryItemsPool;
   }
@@ -430,6 +435,32 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
   return data;
 };
 
+// This function now correctly checks localStorage before creating mock data.
+export const getMockData = (slug: string): GenericItem[] => {
+  if (typeof window !== 'undefined') {
+    const storedData = localStorage.getItem(`erp-data-${slug}`);
+    if (storedData) {
+      try {
+        const parsedData = JSON.parse(storedData);
+        if (Array.isArray(parsedData) && parsedData.length > 0) {
+          return parsedData;
+        }
+      } catch (e) {
+        console.error(`Failed to parse localStorage data for ${slug}, falling back to mock data.`, e);
+      }
+    }
+  }
+
+  const config = moduleDataConfig[slug];
+  if (!config) {
+    console.warn(`No mock data configuration for slug: ${slug}`);
+    return [];
+  }
+  
+  return createMockData(config.count, config.fields, slug);
+};
+
+
 // Data for Purchases Calculator
 export const purchasesCalSummaryData = [
     { id: 'pcs-1', date: '18-Aug-2024', invoiceNo: 'PI15963C001', priceUsd: 1441, priceAed: 5292.793, qty: 42, shipping: 1302, bankCharges: 115.5, total: 6710.293 },
@@ -447,33 +478,6 @@ export const purchasesCalDetailsData = [
 ];
 
 
-const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
-  'product-catalog': { fields: ['imageUrl', 'itemName', 'sku', 'category', 'brand', 'unitPrice', 'description', 'productWeight', 'productDimensions', 'packageWeight', 'packageDimensions'], count: 40 },
-  inventory: { fields: ['itemName', 'sku', 'warehouse', 'quantity', 'unitPrice', 'category'], count: 0 },
-  'inventory-barcode': { fields: ['itemName', 'sku', 'quantity'], count: 20 },
-  purchases: { fields: ['purchaseDate', 'supplier', 'sku', 'itemName', 'quantity', 'unitCost', 'totalCost'], count: 25 },
-  sales: { fields: ['saleDate', 'customerName', 'orderId', 'sku', 'itemName', 'qtySold', 'qtyRtv', 'note', 'price', 'shipping', 'referralFees', 'shippingCost', 'paymentFees', 'totalSales', 'salesChannel', 'fulfillmentWarehouse'], count: 40 },
-  invoices: { fields: [], count: 0 },
-  expenses: { fields: ['expenseDate', 'description', 'supplier', 'category', 'amount'], count: 20 },
-  customers: { fields: ['name', 'contact', 'email', 'address', 'city', 'country'], count: customersPool.length },
-  vendors: { fields: ['name', 'contact', 'email', 'address', 'website', 'city', 'country'], count: vendorsPool.length },
-  users: { fields: ['username', 'password', 'role', 'joinDate'], count: usersPool.length },
-  roles: { fields: ['name', 'description'], count: userRoles.length },
-  categories: { fields: ['name', 'description'], count: categoriesPool.length },
-  brands: { fields: ['name', 'website'], count: brandsPool.length },
-  warehouses: { fields: ['name', 'location'], count: warehousesPool.length },
-  logistics: { fields: ['companyName', 'type', 'serviceDescription', 'contactDetails', 'location', 'notes'], count: 6 },
-  ipcc: { fields: ['date', 'sku', 'quantity', 'usd', 'exchangeRate', 'aed', 'customsFees', 'shippingFees', 'bankCharges', 'totalCost', 'totalCostPerUnit'], count: 20 },
-  ipbt: { fields: ['ipbtId', 'taskName', 'assignedTo', 'dueDate', 'priority'], count: 7 },
-  'purchases-cal': { fields: [], count: 0 },
-  'bank-statement': { fields: [], count: 0 }, 
-  'inventory-transfer': { fields: [], count: 0 },
-  'general-journal': { fields: [], count: 0 },
-  'chart-of-accounts': { fields: ['code', 'name', 'type'], count: 0 },
-  'trial-balance': { fields: [], count: 0 },
-  'balance-sheet': { fields: [], count: 0 },
-  'income-statement': { fields: [], count: 0 },
-};
 
 export const getPageTitle = (slug: string): string => {
   if (slug === 'product-catalog') {
@@ -615,4 +619,129 @@ export const getDashboardSummaryData = () => {
         recentSales,
         lowStockItems,
     };
+};
+
+
+export const getBadgeVariantForAccountType = (type: string) => {
+    switch (type) {
+        case 'Asset': return 'bg-blue-100 text-blue-800 hover:bg-blue-200';
+        case 'Liability': return 'bg-red-100 text-red-800 hover:bg-red-200';
+        case 'Equity': return 'bg-purple-100 text-purple-800 hover:bg-purple-200';
+        case 'Revenue': return 'bg-green-100 text-green-800 hover:bg-green-200';
+        case 'Expense': return 'bg-orange-100 text-orange-800 hover:bg-orange-200';
+        default: return 'bg-gray-100 text-gray-800 hover:bg-gray-200';
+    }
+};
+
+const columnDefinitions: Record<string, ColumnDefinition[]> = {
+  'product-catalog': [
+    { accessorKey: 'imageUrl', header: 'Image' },
+    { accessorKey: 'itemName', header: 'Item Name' },
+    { accessorKey: 'sku', header: 'SKU' },
+    { accessorKey: 'category', header: 'Category' },
+    { accessorKey: 'brand', header: 'Brand' },
+    { accessorKey: 'unitPrice', header: 'Unit Price' },
+  ],
+  inventory: [
+    { accessorKey: 'itemName', header: 'Item Name' },
+    { accessorKey: 'sku', header: 'SKU' },
+    { accessorKey: 'warehouse', header: 'Warehouse' },
+    { accessorKey: 'quantity', header: 'Quantity' },
+    { accessorKey: 'unitPrice', header: 'Unit Price' },
+  ],
+  purchases: [
+    { accessorKey: 'purchaseDate', header: 'Date' },
+    { accessorKey: 'supplier', header: 'Supplier' },
+    { accessorKey: 'sku', header: 'SKU' },
+    { accessorKey: 'quantity', header: 'Quantity' },
+    { accessorKey: 'unitCost', header: 'Unit Cost' },
+    { accessorKey: 'totalCost', header: 'Total Cost' },
+  ],
+  sales: [
+    { accessorKey: 'saleDate', header: 'Date' },
+    { accessorKey: 'customerName', header: 'Customer' },
+    { accessorKey: 'orderId', header: 'Order ID' },
+    { accessorKey: 'sku', header: 'SKU' },
+    { accessorKey: 'qtySold', header: 'Qty' },
+    { accessorKey: 'totalSales', header: 'Total Sale' },
+    { accessorKey: 'salesChannel', header: 'Channel' },
+    { accessorKey: 'fulfillmentWarehouse', header: 'Fulfilled From' },
+  ],
+  expenses: [
+    { accessorKey: 'expenseDate', header: 'Date' },
+    { accessorKey: 'description', header: 'Description' },
+    { accessorKey: 'category', header: 'Category' },
+    { accessorKey: 'amount', header: 'Amount' },
+  ],
+  customers: [
+    { accessorKey: 'name', header: 'Name' },
+    { accessorKey: 'contact', header: 'Contact' },
+    { accessorKey: 'email', header: 'Email' },
+    { accessorKey: 'address', header: 'Address' },
+    { accessorKey: 'city', header: 'City' },
+    { accessorKey: 'country', header: 'Country' },
+  ],
+  vendors: [
+    { accessorKey: 'name', header: 'Name' },
+    { accessorKey: 'contact', header: 'Contact' },
+    { accessorKey: 'email', header: 'Email' },
+    { accessorKey: 'address', header: 'Address' },
+    { accessorKey: 'website', header: 'Website' },
+    { accessorKey: 'city', header: 'City' },
+    { accessorKey: 'country', header: 'Country' },
+  ],
+   users: [
+    { accessorKey: 'username', header: 'Username' },
+    { accessorKey: 'role', header: 'Role' },
+    { accessorKey: 'joinDate', header: 'Join Date' },
+  ],
+  roles: [
+    { accessorKey: 'name', header: 'Role Name' },
+    { accessorKey: 'description', header: 'Description' },
+  ],
+  categories: [
+    { accessorKey: 'name', header: 'Category Name' },
+    { accessorKey: 'description', header: 'Description' },
+  ],
+  brands: [
+    { accessorKey: 'name', header: 'Brand Name' },
+    { accessorKey: 'website', header: 'Website' },
+  ],
+  warehouses: [
+    { accessorKey: 'name', header: 'Warehouse Name' },
+    { accessorKey: 'location', header: 'Location' },
+  ],
+  logistics: [
+    { accessorKey: 'companyName', header: 'Company Name' },
+    { accessorKey: 'type', header: 'Type' },
+    { accessorKey: 'serviceDescription', header: 'Service Description' },
+    { accessorKey: 'contactDetails', header: 'Contact' },
+    { accessorKey: 'location', header: 'Location' },
+    { accessorKey: 'notes', header: 'Notes' },
+  ],
+  ipcc: [
+      { accessorKey: 'date', header: 'Date' },
+      { accessorKey: 'sku', header: 'SKU' },
+      { accessorKey: 'quantity', header: 'QTY' },
+      { accessorKey: 'usd', header: 'USD' },
+      { accessorKey: 'aed', header: 'AED' },
+      { accessorKey: 'totalCost', header: 'Total Cost AED' },
+      { accessorKey: 'totalCostPerUnit', header: 'Unit Cost AED' },
+  ],
+  ipbt: [
+      { accessorKey: 'ipbtId', header: 'ID' },
+      { accessorKey: 'taskName', header: 'Task' },
+      { accessorKey: 'assignedTo', header: 'Assigned To' },
+      { accessorKey: 'dueDate', header: 'Due Date' },
+      { accessorKey: 'priority', header: 'Priority' },
+  ],
+   'chart-of-accounts': [
+    { accessorKey: 'code', header: 'Code' },
+    { accessorKey: 'name', header: 'Account Name' },
+    { accessorKey: 'type', header: 'Type' },
+  ],
+};
+
+export const getColumns = (slug: string): ColumnDefinition[] => {
+  return columnDefinitions[slug] || [];
 };
