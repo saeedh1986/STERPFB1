@@ -64,6 +64,13 @@ export function SidebarNav() {
   const { profile } = useCompanyProfile();
   const { t } = useLanguage();
 
+  const isModuleActive = (item: NavItem) => {
+    if (item.href === '/dashboard' || item.href === '/') {
+        return pathname === item.href;
+    }
+    return pathname.startsWith(item.href);
+  };
+
   return (
     <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
       <div className="flex h-16 items-center justify-center border-b border-sidebar-border px-4">
@@ -80,7 +87,7 @@ export function SidebarNav() {
               href={item.href}
               className={cn(
                 'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-                pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/dashboard' && item.href !== '/')
+                isModuleActive(item)
                   ? 'bg-sidebar-primary text-sidebar-primary-foreground font-medium'
                   : 'text-sidebar-foreground'
               )}
@@ -106,7 +113,7 @@ export function SidebarNav() {
                       href={item.href}
                       className={cn(
                         'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-                        pathname.startsWith(item.href)
+                        isModuleActive(item)
                           ? 'bg-sidebar-primary text-sidebar-primary-foreground font-medium'
                           : 'text-sidebar-foreground'
                       )}
@@ -133,7 +140,7 @@ export function SidebarNav() {
                       href={item.href}
                       className={cn(
                         'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-                        pathname.startsWith(item.href)
+                        isModuleActive(item)
                           ? 'bg-sidebar-primary text-sidebar-primary-foreground font-medium'
                           : 'text-sidebar-foreground'
                       )}
@@ -160,7 +167,7 @@ export function SidebarNav() {
                       href={item.href}
                       className={cn(
                         'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-                        pathname.startsWith(item.href)
+                        isModuleActive(item)
                           ? 'bg-sidebar-primary text-sidebar-primary-foreground font-medium'
                           : 'text-sidebar-foreground'
                       )}
@@ -193,3 +200,5 @@ export function SidebarNav() {
     </div>
   );
 }
+
+    

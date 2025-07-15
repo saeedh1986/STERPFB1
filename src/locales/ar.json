@@ -30,6 +30,15 @@
     "balance_sheet": "الميزانية العمومية",
     "settings": "الإعدادات"
   },
+  "login": {
+    "username": "اسم المستخدم",
+    "password": "كلمة المرور",
+    "button": "تسجيل الدخول",
+    "success_title": "تم تسجيل الدخول بنجاح",
+    "success_desc": "مرحباً بعودتك، {{username}}!",
+    "failed_title": "فشل تسجيل الدخول",
+    "failed_desc": "اسم المستخدم أو كلمة المرور غير صالحة."
+  },
   "settings": {
     "title": "الإعدادات",
     "company_profile": {
@@ -105,3 +114,5 @@
     }
   }
 }
+
+    

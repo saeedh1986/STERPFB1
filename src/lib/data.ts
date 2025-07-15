@@ -68,6 +68,10 @@ export const customersPool = [
     { id: 'cust-6', name: 'Dmytro SHEMET Boxpark', contact: '(97156) 258-5044', email: 'motorcrashvine@gmail.com', address: '', city: 'Dubai', country: 'UAE' },
 ];
 
+export const usersPool = [
+    { id: 'user-1', username: 'admin', password: 'password', role: 'Administrator', joinDate: '01-Jan-2024' },
+];
+
 
 const mockExpenseDescriptions = [
   "Domain subscription",
@@ -171,6 +175,9 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
   }
   if (slug === 'customers') {
     return customersPool;
+  }
+  if (slug === 'users') {
+    return usersPool;
   }
   if (slug === 'product-catalog') {
     return productCatalogPool;
@@ -362,6 +369,7 @@ const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   expenses: { fields: ['expenseDate', 'description', 'supplier', 'category', 'amount'], count: 20 },
   customers: { fields: ['name', 'contact', 'email', 'address', 'city', 'country'], count: customersPool.length },
   vendors: { fields: ['name', 'contact', 'email', 'address', 'website', 'city', 'country'], count: vendorsPool.length },
+  users: { fields: ['username', 'password', 'role', 'joinDate'], count: usersPool.length },
   logistics: { fields: ['companyName', 'type', 'serviceDescription', 'contactDetails', 'location', 'notes'], count: 6 },
   ipcc: { fields: ['date', 'sku', 'quantity', 'usd', 'exchangeRate', 'aed', 'customsFees', 'shippingFees', 'bankCharges', 'totalCost', 'totalCostPerUnit'], count: 20 },
   ipbt: { fields: ['ipbtId', 'taskName', 'assignedTo', 'dueDate', 'priority'], count: 7 },
@@ -491,6 +499,9 @@ export const getPageTitle = (slug: string): string => {
   if (slug === 'vendors') {
     return 'Vendors Management';
   }
+  if (slug === 'users') {
+    return 'Users Management';
+  }
    if (slug === 'general-journal') {
     return 'General Journal';
   }
@@ -592,3 +603,5 @@ export const getDashboardSummaryData = () => {
         lowStockItems,
     };
 };
+
+    

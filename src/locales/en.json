@@ -30,6 +30,15 @@
     "balance_sheet": "Balance Sheet",
     "settings": "Settings"
   },
+  "login": {
+    "username": "Username",
+    "password": "Password",
+    "button": "Login",
+    "success_title": "Login Successful",
+    "success_desc": "Welcome back, {{username}}!",
+    "failed_title": "Login Failed",
+    "failed_desc": "Invalid username or password."
+  },
   "settings": {
     "title": "Settings",
     "company_profile": {
@@ -105,3 +114,5 @@
     }
   }
 }
+
+    
