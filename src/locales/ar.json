@@ -84,6 +84,22 @@
         "description": "قم بتعيين عملة المحاسبة الافتراضية.",
         "currency": "العملة"
     },
+    "user_management": {
+        "title": "إدارة المستخدمين",
+        "description": "إضافة، تحرير، وحذف المستخدمين.",
+        "add_user": "إضافة مستخدم",
+        "username": "اسم المستخدم",
+        "role": "الدور",
+        "actions": "الإجراءات"
+    },
+    "role_management": {
+        "title": "إدارة الأدوار",
+        "description": "تحديد أدوار المستخدمين وأوصافهم.",
+        "add_role": "إضافة دور",
+        "role_name": "اسم الدور",
+        "description": "الوصف",
+        "actions": "الإجراءات"
+    },
     "danger_zone": {
       "title": "منطقة الخطر",
       "description": "هذه الإجراءات مدمرة ولا يمكن التراجع عنها.",
@@ -109,10 +125,12 @@
         "account_updated_desc": "تم تحديث الحساب بنجاح.",
         "account_created": "تم إنشاء الحساب",
         "account_created_desc": "تمت إضافة حساب جديد بنجاح.",
+        "user_updated": "تم تحديث المستخدم",
+        "user_created": "تم إنشاء المستخدم",
+        "role_updated": "تم تحديث الدور",
+        "role_created": "تم إنشاء الدور",
         "app_reset": "تمت إعادة تعيين التطبيق",
         "app_reset_desc": "تم مسح جميع البيانات. سيتم الآن إعادة تحميل التطبيق."
     }
   }
 }
-
-    

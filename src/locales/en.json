@@ -84,6 +84,22 @@
         "description": "Set your default accounting currency.",
         "currency": "Currency"
     },
+    "user_management": {
+        "title": "User Management",
+        "description": "Add, edit, and delete application users.",
+        "add_user": "Add User",
+        "username": "Username",
+        "role": "Role",
+        "actions": "Actions"
+    },
+    "role_management": {
+        "title": "Role Management",
+        "description": "Define user roles and their descriptions.",
+        "add_role": "Add Role",
+        "role_name": "Role Name",
+        "description": "Description",
+        "actions": "Actions"
+    },
     "danger_zone": {
       "title": "Danger Zone",
       "description": "These actions are destructive and cannot be undone.",
@@ -109,10 +125,12 @@
         "account_updated_desc": "The account has been successfully updated.",
         "account_created": "Account Created",
         "account_created_desc": "A new account has been successfully added.",
+        "user_updated": "User Updated",
+        "user_created": "User Created",
+        "role_updated": "Role Updated",
+        "role_created": "Role Created",
         "app_reset": "Application Reset",
         "app_reset_desc": "All data has been cleared. The application will now reload."
     }
   }
 }
-
-    

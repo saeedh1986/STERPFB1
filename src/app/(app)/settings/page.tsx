@@ -8,9 +8,9 @@ import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Moon, Sun, Monitor, FilePenLine, PlusCircle, AlertTriangle, Trash2, TextQuote, Building, Save, Languages, Landmark } from "lucide-react";
+import { Moon, Sun, Monitor, FilePenLine, PlusCircle, AlertTriangle, Trash2, TextQuote, Building, Save, Languages, Landmark, Shield, Users } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { chartOfAccountsData as initialChartOfAccountsData, getColumns, type GenericItem } from "@/lib/data";
+import { chartOfAccountsData as initialChartOfAccountsData, getColumns, type GenericItem, usersPool as initialUsers, userRoles as initialUserRoles } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataFormDialog } from '@/components/DataFormDialog';
@@ -64,13 +64,21 @@ export default function SettingsPage() {
   const { theme, setTheme, resolvedTheme, themes } = useTheme();
   const { fontSize, setFontSize } = useAccessibility();
   const { profile, setProfile } = useCompanyProfile();
-  const { t, language, setLanguage } = useLanguage();
+  const { t } = useLanguage();
   const { currency, setCurrency } = useCurrency();
   const { toast } = useToast();
 
   const [accounts, setAccounts] = useState<GenericItem[]>(initialChartOfAccountsData);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isAccountDialogOpen, setIsAccountDialogOpen] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState<GenericItem | null>(null);
+
+  const [users, setUsers] = useState<GenericItem[]>(initialUsers);
+  const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<GenericItem | null>(null);
+  
+  const [userRoles, setUserRoles] = useState<GenericItem[]>(initialUserRoles);
+  const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<GenericItem | null>(null);
   
   const [currentColorTheme, setCurrentColorTheme] = useState('theme-amber');
 
@@ -100,21 +108,16 @@ export default function SettingsPage() {
     }
   };
 
+  const chartOfAccountsColumns = getColumns('chart-of-accounts');
+  const chartOfAccountsTitle = t('settings.chart_of_accounts.title');
 
-  const columns = getColumns('chart-of-accounts');
-  const pageTitle = t('settings.chart_of_accounts.title');
+  const usersColumns = getColumns('users');
+  const usersTitle = t('settings.user_management.title');
+  
+  const rolesColumns = getColumns('roles');
+  const rolesTitle = t('settings.role_management.title');
 
-  const handleCreate = () => {
-    setSelectedAccount(null);
-    setIsDialogOpen(true);
-  };
-
-  const handleUpdate = (account: GenericItem) => {
-    setSelectedAccount(account);
-    setIsDialogOpen(true);
-  };
-
-  const handleFormSubmit = (values: GenericItem) => {
+  const handleAccountFormSubmit = (values: GenericItem) => {
     if (selectedAccount) {
       setAccounts(prev => prev.map(acc => acc.id === selectedAccount.id ? { ...acc, ...values } : acc));
       toast({ title: t('settings.toast.account_updated'), description: t('settings.toast.account_updated_desc') });
@@ -123,7 +126,31 @@ export default function SettingsPage() {
       setAccounts(prev => [newAccount, ...prev]);
       toast({ title: t('settings.toast.account_created'), description: t('settings.toast.account_created_desc') });
     }
-    setIsDialogOpen(false);
+    setIsAccountDialogOpen(false);
+  };
+
+  const handleUserFormSubmit = (values: GenericItem) => {
+    if (selectedUser) {
+      setUsers(prev => prev.map(item => item.id === selectedUser.id ? { ...item, ...values } : item));
+      toast({ title: t('settings.toast.user_updated'), description: "The user has been successfully updated." });
+    } else {
+      const newUser = { ...values, id: `user-${Date.now()}`, joinDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '-') };
+      setUsers(prev => [newUser, ...prev]);
+      toast({ title: t('settings.toast.user_created'), description: "A new user has been successfully added." });
+    }
+    setIsUserDialogOpen(false);
+  };
+  
+  const handleRoleFormSubmit = (values: GenericItem) => {
+    if (selectedRole) {
+      setUserRoles(prev => prev.map(item => item.id === selectedRole.id ? { ...item, ...values } : item));
+      toast({ title: t('settings.toast.role_updated'), description: "The role has been successfully updated." });
+    } else {
+      const newRole = { ...values, id: `role-${Date.now()}` };
+      setUserRoles(prev => [newRole, ...prev]);
+      toast({ title: t('settings.toast.role_created'), description: "A new role has been successfully added." });
+    }
+    setIsRoleDialogOpen(false);
   };
   
   const handleResetData = () => {
@@ -160,6 +187,7 @@ export default function SettingsPage() {
       <PageHeader title={t('settings.title')} />
       <main className="flex-1 p-4 md:p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         <div className="space-y-6">
+            {/* Profile Card */}
             <Card className="shadow-lg">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2"><Building /> {t('settings.company_profile.title')}</CardTitle>
@@ -195,60 +223,106 @@ export default function SettingsPage() {
                 </Form>
             </Card>
 
+            {/* User Management Card */}
+            <Card className="shadow-lg">
+                <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                        <CardTitle className="flex items-center gap-2"><Users /> {t('settings.user_management.title')}</CardTitle>
+                        <CardDescription>{t('settings.user_management.description')}</CardDescription>
+                    </div>
+                    <Button variant="outline" onClick={() => { setSelectedUser(null); setIsUserDialogOpen(true); }}><PlusCircle className="mr-2 h-4 w-4" /> {t('settings.user_management.add_user')}</Button>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>{t('settings.user_management.username')}</TableHead>
+                                <TableHead>{t('settings.user_management.role')}</TableHead>
+                                <TableHead className="text-right">{t('settings.user_management.actions')}</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {users.map((user) => (
+                                <TableRow key={user.id}>
+                                    <TableCell className="font-medium">{user.username}</TableCell>
+                                    <TableCell>
+                                        <Badge variant="secondary">{user.role}</Badge>
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <Button variant="ghost" size="icon" onClick={() => { setSelectedUser(user); setIsUserDialogOpen(true); }} aria-label={`Edit user ${user.username}`}>
+                                            <FilePenLine className="h-4 w-4" />
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
+
+            {/* Role Management Card */}
+            <Card className="shadow-lg">
+                <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                        <CardTitle className="flex items-center gap-2"><Shield /> {t('settings.role_management.title')}</CardTitle>
+                        <CardDescription>{t('settings.role_management.description')}</CardDescription>
+                    </div>
+                    <Button variant="outline" onClick={() => { setSelectedRole(null); setIsRoleDialogOpen(true); }}><PlusCircle className="mr-2 h-4 w-4" /> {t('settings.role_management.add_role')}</Button>
+                </CardHeader>
+                <CardContent>
+                     <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>{t('settings.role_management.role_name')}</TableHead>
+                                <TableHead className="w-[40%]">{t('settings.role_management.description')}</TableHead>
+                                <TableHead className="text-right">{t('settings.role_management.actions')}</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {userRoles.map((role) => (
+                                <TableRow key={role.id}>
+                                    <TableCell className="font-medium">{role.name}</TableCell>
+                                    <TableCell>{role.description}</TableCell>
+                                    <TableCell className="text-right">
+                                        <Button variant="ghost" size="icon" onClick={() => { setSelectedRole(role); setIsRoleDialogOpen(true); }} aria-label={`Edit role ${role.name}`}>
+                                            <FilePenLine className="h-4 w-4" />
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
+
+            {/* Appearance Card */}
             <Card className="shadow-lg">
                 <CardHeader>
                     <CardTitle>{t('settings.appearance.title')}</CardTitle>
-                    <CardDescription>
-                    {t('settings.appearance.description')}
-                    </CardDescription>
+                    <CardDescription>{t('settings.appearance.description')}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div>
                         <Label htmlFor="theme">{t('settings.appearance.mode')}</Label>
-                        <RadioGroup
-                            id="theme"
-                            value={theme}
-                            onValueChange={(value) => setTheme(value)}
-                            className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-2"
-                        >
+                        <RadioGroup id="theme" value={theme} onValueChange={(value) => setTheme(value)} className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-2">
                             <Label htmlFor="light" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground" aria-label="Set light theme">
-                            <RadioGroupItem value="light" id="light" className="sr-only" />
-                            <Sun className="h-5 w-5" />
-                            <span>{t('settings.appearance.light')}</span>
+                                <RadioGroupItem value="light" id="light" className="sr-only" /> <Sun className="h-5 w-5" /> <span>{t('settings.appearance.light')}</span>
                             </Label>
                             <Label htmlFor="dark" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground" aria-label="Set dark theme">
-                            <RadioGroupItem value="dark" id="dark" className="sr-only" />
-                            <Moon className="h-5 w-5" />
-                            <span>{t('settings.appearance.dark')}</span>
+                                <RadioGroupItem value="dark" id="dark" className="sr-only" /> <Moon className="h-5 w-5" /> <span>{t('settings.appearance.dark')}</span>
                             </Label>
                             <Label htmlFor="system" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground" aria-label="Set system theme">
-                            <RadioGroupItem value="system" id="system" className="sr-only" />
-                            <Monitor className="h-5 w-5" />
-                            <span>{t('settings.appearance.system')}</span>
+                                <RadioGroupItem value="system" id="system" className="sr-only" /> <Monitor className="h-5 w-5" /> <span>{t('settings.appearance.system')}</span>
                             </Label>
                         </RadioGroup>
                     </div>
-
                     <Separator />
-
                     <div>
                         <Label htmlFor="theme-color">{t('settings.appearance.theme_color')}</Label>
-                        <RadioGroup
-                            id="theme-color"
-                            value={currentColorTheme}
-                            onValueChange={handleThemeChange}
-                            className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-2"
-                        >
+                        <RadioGroup id="theme-color" value={currentColorTheme} onValueChange={handleThemeChange} className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-2">
                             {themeColors.map((color) => (
-                               <Label 
-                                 key={color.value}
-                                 htmlFor={color.value} 
-                                 className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:ring-2 has-[input:checked]:ring-primary"
-                                 aria-label={`Set ${color.nameKey} theme color`}
-                               >
-                                    <RadioGroupItem value={color.value} id={color.value} className="sr-only" />
-                                    <div className={`h-6 w-6 rounded-full ${color.class}`}></div>
-                                    <span>{t(color.nameKey)}</span>
+                               <Label key={color.value} htmlFor={color.value} className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:ring-2 has-[input:checked]:ring-primary" aria-label={`Set ${color.nameKey} theme color`}>
+                                    <RadioGroupItem value={color.value} id={color.value} className="sr-only" /> <div className={`h-6 w-6 rounded-full ${color.class}`}></div> <span>{t(color.nameKey)}</span>
                                 </Label>
                             ))}
                         </RadioGroup>
@@ -256,116 +330,46 @@ export default function SettingsPage() {
                 </CardContent>
             </Card>
 
+             {/* Accessibility and Language Cards */}
             <Card className="shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <TextQuote />
-                    {t('settings.accessibility.title')}
-                </CardTitle>
-                <CardDescription>
-                  {t('settings.accessibility.description')}
-                </CardDescription>
-              </CardHeader>
+              <CardHeader><CardTitle className="flex items-center gap-2"><TextQuote />{t('settings.accessibility.title')}</CardTitle><CardDescription>{t('settings.accessibility.description')}</CardDescription></CardHeader>
               <CardContent>
                 <Label htmlFor="font-size">{t('settings.accessibility.font_size')}</Label>
-                <RadioGroup
-                    id="font-size"
-                    value={fontSize}
-                    onValueChange={setFontSize}
-                    className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-2"
-                >
-                    {fontSizes.map((size) => (
-                       <Label 
-                         key={size.value}
-                         htmlFor={size.value} 
-                         className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center justify-center has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground"
-                         aria-label={`Set font size to ${size.nameKey}`}
-                       >
-                            <RadioGroupItem value={size.value} id={size.value} className="sr-only" />
-                            <span>{t(size.nameKey)}</span>
-                        </Label>
-                    ))}
+                <RadioGroup id="font-size" value={fontSize} onValueChange={setFontSize} className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-2">
+                    {fontSizes.map((size) => (<Label key={size.value} htmlFor={size.value} className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center justify-center has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground" aria-label={`Set font size to ${size.nameKey}`}><RadioGroupItem value={size.value} id={size.value} className="sr-only" /><span>{t(size.nameKey)}</span></Label>))}
                 </RadioGroup>
               </CardContent>
             </Card>
-
             <Card className="shadow-lg">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Languages />{t('settings.language.title')}</CardTitle>
-                    <CardDescription>{t('settings.language.description')}</CardDescription>
-                </CardHeader>
+                <CardHeader><CardTitle className="flex items-center gap-2"><Languages />{t('settings.language.title')}</CardTitle><CardDescription>{t('settings.language.description')}</CardDescription></CardHeader>
                 <CardContent>
                     <RadioGroup value={language} onValueChange={(v) => setLanguage(v as 'en' | 'ar')} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <Label htmlFor="lang-en" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
-                            <RadioGroupItem value="en" id="lang-en" />
-                            <span>{t('settings.language.english')}</span>
-                        </Label>
-                        <Label htmlFor="lang-ar" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
-                             <RadioGroupItem value="ar" id="lang-ar" />
-                            <span>{t('settings.language.arabic')}</span>
-                        </Label>
+                        <Label htmlFor="lang-en" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground"><RadioGroupItem value="en" id="lang-en" /><span>{t('settings.language.english')}</span></Label>
+                        <Label htmlFor="lang-ar" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground"><RadioGroupItem value="ar" id="lang-ar" /><span>{t('settings.language.arabic')}</span></Label>
                     </RadioGroup>
                 </CardContent>
             </Card>
 
+            {/* Accounting and Danger Zone Cards */}
             <Card className="shadow-lg">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Landmark />{t('settings.accounting.title')}</CardTitle>
-                    <CardDescription>{t('settings.accounting.description')}</CardDescription>
-                </CardHeader>
+                <CardHeader><CardTitle className="flex items-center gap-2"><Landmark />{t('settings.accounting.title')}</CardTitle><CardDescription>{t('settings.accounting.description')}</CardDescription></CardHeader>
                 <CardContent>
                     <Label>{t('settings.accounting.currency')}</Label>
                      <RadioGroup value={currency} onValueChange={(v) => setCurrency(v as 'AED' | 'USD')} className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-                        <Label htmlFor="curr-aed" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
-                            <RadioGroupItem value="AED" id="curr-aed" />
-                            <span>AED (United Arab Emirates Dirham)</span>
-                        </Label>
-                        <Label htmlFor="curr-usd" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground">
-                             <RadioGroupItem value="USD" id="curr-usd" />
-                            <span>USD (United States Dollar)</span>
-                        </Label>
+                        <Label htmlFor="curr-aed" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground"><RadioGroupItem value="AED" id="curr-aed" /><span>AED (United Arab Emirates Dirham)</span></Label>
+                        <Label htmlFor="curr-usd" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground"><RadioGroupItem value="USD" id="curr-usd" /><span>USD (United States Dollar)</span></Label>
                     </RadioGroup>
                 </CardContent>
             </Card>
-
              <Card className="shadow-lg border-destructive/50">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-destructive">
-                  <AlertTriangle />
-                  {t('settings.danger_zone.title')}
-                </CardTitle>
-                <CardDescription>
-                  {t('settings.danger_zone.description')}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm mb-2">
-                  {t('settings.danger_zone.reset_text_1')}
-                </p>
-                <p className="text-sm font-medium">
-                  {t('settings.danger_zone.reset_text_2')}
-                </p>
-              </CardContent>
+              <CardHeader><CardTitle className="flex items-center gap-2 text-destructive"><AlertTriangle />{t('settings.danger_zone.title')}</CardTitle><CardDescription>{t('settings.danger_zone.description')}</CardDescription></CardHeader>
+              <CardContent><p className="text-sm mb-2">{t('settings.danger_zone.reset_text_1')}</p><p className="text-sm font-medium">{t('settings.danger_zone.reset_text_2')}</p></CardContent>
               <CardFooter>
                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                        <Button variant="destructive">
-                            <Trash2 className="mr-2 h-4 w-4" /> {t('settings.danger_zone.reset_button')}
-                        </Button>
-                    </AlertDialogTrigger>
+                    <AlertDialogTrigger asChild><Button variant="destructive"><Trash2 className="mr-2 h-4 w-4" /> {t('settings.danger_zone.reset_button')}</Button></AlertDialogTrigger>
                     <AlertDialogContent>
-                        <AlertDialogHeader>
-                        <AlertDialogTitle>{t('settings.danger_zone.reset_dialog_title')}</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            {t('settings.danger_zone.reset_dialog_description')}
-                        </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                        <AlertDialogCancel>{t('settings.cancel')}</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleResetData} className="bg-destructive hover:bg-destructive/90">
-                            {t('settings.danger_zone.reset_dialog_confirm')}
-                        </AlertDialogAction>
-                        </AlertDialogFooter>
+                        <AlertDialogHeader><AlertDialogTitle>{t('settings.danger_zone.reset_dialog_title')}</AlertDialogTitle><AlertDialogDescription>{t('settings.danger_zone.reset_dialog_description')}</AlertDialogDescription></AlertDialogHeader>
+                        <AlertDialogFooter><AlertDialogCancel>{t('settings.cancel')}</AlertDialogCancel><AlertDialogAction onClick={handleResetData} className="bg-destructive hover:bg-destructive/90">{t('settings.danger_zone.reset_dialog_confirm')}</AlertDialogAction></AlertDialogFooter>
                     </AlertDialogContent>
                 </AlertDialog>
               </CardFooter>
@@ -373,56 +377,52 @@ export default function SettingsPage() {
 
         </div>
 
-        <Card className="shadow-lg">
-            <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                 <div>
-                    <CardTitle>{t('settings.chart_of_accounts.title')}</CardTitle>
-                    <CardDescription>{t('settings.chart_of_accounts.description')}</CardDescription>
-                </div>
-                <Button variant="outline" onClick={handleCreate}><PlusCircle className="mr-2 h-4 w-4" /> {t('settings.chart_of_accounts.add_account')}</Button>
-            </CardHeader>
-            <CardContent>
-                 <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Code</TableHead>
-                            <TableHead>Account Name</TableHead>
-                            <TableHead>Type</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {accounts.map((account) => (
-                            <TableRow key={account.id}>
-                                <TableCell className="font-mono">{account.code}</TableCell>
-                                <TableCell className="font-medium">{account.name}</TableCell>
-                                <TableCell>
-                                    <Badge variant="outline" className={`border-transparent ${getBadgeVariantForAccountType(account.type as string)}`}>
-                                        {account.type}
-                                    </Badge>
-                                </TableCell>
-                                <TableCell className="text-right">
-                                     <Button variant="ghost" size="icon" onClick={() => handleUpdate(account)} aria-label={`Edit account ${account.name}`}>
-                                        <FilePenLine className="h-4 w-4" />
-                                        <span className="sr-only">Edit Account for {account.name}</span>
-                                    </Button>
-                                </TableCell>
+        {/* Right Column */}
+        <div className="space-y-6">
+            <Card className="shadow-lg">
+                <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                        <CardTitle>{t('settings.chart_of_accounts.title')}</CardTitle>
+                        <CardDescription>{t('settings.chart_of_accounts.description')}</CardDescription>
+                    </div>
+                    <Button variant="outline" onClick={() => { setSelectedAccount(null); setIsAccountDialogOpen(true); }}><PlusCircle className="mr-2 h-4 w-4" /> {t('settings.chart_of_accounts.add_account')}</Button>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Code</TableHead>
+                                <TableHead>Account Name</TableHead>
+                                <TableHead>Type</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </CardContent>
-        </Card>
+                        </TableHeader>
+                        <TableBody>
+                            {accounts.map((account) => (
+                                <TableRow key={account.id}>
+                                    <TableCell className="font-mono">{account.code}</TableCell>
+                                    <TableCell className="font-medium">{account.name}</TableCell>
+                                    <TableCell>
+                                        <Badge variant="outline" className={`border-transparent ${getBadgeVariantForAccountType(account.type as string)}`}>{account.type}</Badge>
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <Button variant="ghost" size="icon" onClick={() => { setSelectedAccount(account); setIsAccountDialogOpen(true); }} aria-label={`Edit account ${account.name}`}>
+                                            <FilePenLine className="h-4 w-4" />
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
+        </div>
       </main>
 
-      <DataFormDialog
-        isOpen={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
-        onSubmit={handleFormSubmit}
-        defaultValues={selectedAccount}
-        columns={columns.filter(c => c.accessorKey !== 'id')}
-        title={selectedAccount ? `Edit ${pageTitle}` : `Create New ${pageTitle}`}
-      />
+      {/* Dialogs */}
+      <DataFormDialog isOpen={isAccountDialogOpen} onClose={() => setIsAccountDialogOpen(false)} onSubmit={handleAccountFormSubmit} defaultValues={selectedAccount} columns={chartOfAccountsColumns.filter(c => c.accessorKey !== 'id')} title={selectedAccount ? `Edit ${chartOfAccountsTitle}` : `Create New ${chartOfAccountsTitle}`} />
+      <DataFormDialog isOpen={isUserDialogOpen} onClose={() => setIsUserDialogOpen(false)} onSubmit={handleUserFormSubmit} defaultValues={selectedUser} columns={usersColumns.filter(c => c.accessorKey !== 'id')} title={selectedUser ? `Edit ${usersTitle}` : `Create New ${usersTitle}`} options={{ roles: userRoles.map(r => r.name) }} />
+      <DataFormDialog isOpen={isRoleDialogOpen} onClose={() => setIsRoleDialogOpen(false)} onSubmit={handleRoleFormSubmit} defaultValues={selectedRole} columns={rolesColumns.filter(c => c.accessorKey !== 'id')} title={selectedRole ? `Edit ${rolesTitle}` : `Create New ${rolesTitle}`} />
     </>
   );
 }

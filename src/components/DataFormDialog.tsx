@@ -28,6 +28,9 @@ interface DataFormDialogProps {
   defaultValues?: GenericItem | null;
   columns: ColumnDefinition[];
   title: string;
+  options?: {
+    roles?: string[];
+  }
 }
 
 // Helper to convert file to data URI
@@ -41,9 +44,10 @@ const fileToDataURI = (file: File): Promise<string> => {
 };
 
 
-export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, columns, title }: DataFormDialogProps) {
+export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, columns, title, options }: DataFormDialogProps) {
 
   const isBankStatement = title.includes('Bank Statement');
+  const isUsers = title.includes('User');
   const [expenseCategories, setExpenseCategories] = useState(defaultExpenseCategories);
   const [comboboxOpen, setComboboxOpen] = useState(false);
   const [newCategoryValue, setNewCategoryValue] = useState('');
@@ -51,17 +55,21 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
 
   // Create a dynamic Zod schema from columns
   const formSchemaObject = columns.reduce((acc, col) => {
-      if (col.accessorKey === 'itemName') {
+      if (col.accessorKey === 'itemName' || col.accessorKey === 'imageUrl') {
         acc[col.accessorKey] = z.string().optional();
-      } else if (col.accessorKey === 'imageUrl') {
-        acc[col.accessorKey] = z.string().optional();
-      }
-      else if (isBankStatement && ['debit', 'credit', 'balance'].includes(col.accessorKey)) {
+      } else if (isBankStatement && ['debit', 'credit', 'balance'].includes(col.accessorKey)) {
         acc[col.accessorKey] = z.coerce.number().optional();
       }
       else if (title.includes('Cost Calculator') && ['usd', 'quantity', 'customsFees', 'shippingFees', 'bankCharges', 'aed', 'totalCost', 'totalCostPerUnit', 'exchangeRate'].includes(col.accessorKey)) {
         acc[col.accessorKey] = z.coerce.number().optional();
-      } else {
+      } else if(isUsers && col.accessorKey === 'password' && !defaultValues) {
+        // Password is only required when creating a new user
+        acc[col.accessorKey] = z.string().min(1, `${col.header} is required.`);
+      } else if (isUsers && col.accessorKey === 'password' && defaultValues) {
+        // Password is optional when updating
+        acc[col.accessorKey] = z.string().optional();
+      }
+      else {
          acc[col.accessorKey] = z.string().min(1, `${col.header} is required.`);
       }
       return acc;
@@ -201,6 +209,34 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                     {columns.map((col) => {
                     
                     const isCalculated = isCostCalculator && calculatedFields.includes(col.accessorKey);
+
+                    if (isUsers && col.accessorKey === 'role') {
+                        return (
+                          <FormField
+                            key={col.accessorKey}
+                            control={form.control}
+                            name={col.accessorKey as keyof FormValues}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>{col.header}</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select a role" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {options?.roles?.map(role => (
+                                      <SelectItem key={role} value={role}>{role}</SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        );
+                    }
 
                     if (col.accessorKey.toLowerCase().includes('date')) {
                         return (
@@ -440,7 +476,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                                 <Input 
                                     placeholder={`Enter ${col.header.toLowerCase()}...`}
                                     {...field}
-                                    type={typeof field.value === 'number' ? 'number' : 'text'}
+                                    type={isUsers && col.accessorKey === 'password' ? 'password' : typeof field.value === 'number' ? 'number' : 'text'}
                                     step="any"
                                     readOnly={isCalculated}
                                     className={isCalculated ? 'bg-muted' : ''}
@@ -519,7 +555,3 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
     </Dialog>
   );
 }
-
-    
-
-    

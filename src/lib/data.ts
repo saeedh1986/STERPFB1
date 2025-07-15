@@ -68,7 +68,13 @@ export const customersPool = [
     { id: 'cust-6', name: 'Dmytro SHEMET Boxpark', contact: '(97156) 258-5044', email: 'motorcrashvine@gmail.com', address: '', city: 'Dubai', country: 'UAE' },
 ];
 
-export const usersPool = [
+export const userRoles: GenericItem[] = [
+    { id: 'role-1', name: 'Administrator', description: 'Full access to all modules and settings.' },
+    { id: 'role-2', name: 'Sales Manager', description: 'Access to sales, customers, and reports.' },
+    { id: 'role-3', name: 'Warehouse Staff', description: 'Access to inventory and logistics.' },
+];
+
+export const usersPool: GenericItem[] = [
     { id: 'user-1', username: 'admin', password: 'password', role: 'Administrator', joinDate: '01-Jan-2024' },
 ];
 
@@ -181,6 +187,9 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
   }
   if (slug === 'product-catalog') {
     return productCatalogPool;
+  }
+  if (slug === 'roles') {
+    return userRoles;
   }
   if (slug === 'invoices' || slug === 'purchases-cal' || slug === 'bank-statement' || slug === 'general-journal' || slug === 'chart-of-accounts' || slug === 'trial-balance' || slug === 'balance-sheet' || slug === 'income-statement') {
     // These pages have custom data handling
@@ -369,7 +378,8 @@ const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   expenses: { fields: ['expenseDate', 'description', 'supplier', 'category', 'amount'], count: 20 },
   customers: { fields: ['name', 'contact', 'email', 'address', 'city', 'country'], count: customersPool.length },
   vendors: { fields: ['name', 'contact', 'email', 'address', 'website', 'city', 'country'], count: vendorsPool.length },
-  users: { fields: ['username', 'password', 'role', 'joinDate'], count: usersPool.length },
+  users: { fields: ['username', 'password', 'role'], count: usersPool.length },
+  roles: { fields: ['name', 'description'], count: userRoles.length },
   logistics: { fields: ['companyName', 'type', 'serviceDescription', 'contactDetails', 'location', 'notes'], count: 6 },
   ipcc: { fields: ['date', 'sku', 'quantity', 'usd', 'exchangeRate', 'aed', 'customsFees', 'shippingFees', 'bankCharges', 'totalCost', 'totalCostPerUnit'], count: 20 },
   ipbt: { fields: ['ipbtId', 'taskName', 'assignedTo', 'dueDate', 'priority'], count: 7 },
@@ -603,5 +613,3 @@ export const getDashboardSummaryData = () => {
         lowStockItems,
     };
 };
-
-    
