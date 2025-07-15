@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { GenericItem, ColumnDefinition } from '@/lib/data';
-import { productCatalogPool, expenseCategories as defaultExpenseCategories, vendorsPool, USD_TO_AED_RATE, categoriesPool, brandsPool, warehousesPool } from '@/lib/data';
+import { productCatalogPool, expenseCategories as defaultExpenseCategories, vendorsPool, USD_TO_AED_RATE } from '@/lib/data';
 import { useState, useEffect } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
@@ -60,7 +60,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
 
   // Create a dynamic Zod schema from columns
   const formSchemaObject = columns.reduce((acc, col) => {
-      if (col.accessorKey === 'itemName' || col.accessorKey === 'imageUrl') {
+      if (['itemName', 'imageUrl', 'note'].includes(col.accessorKey)) {
         acc[col.accessorKey] = z.string().optional();
       } else if (isBankStatement && ['debit', 'credit', 'balance'].includes(col.accessorKey)) {
         acc[col.accessorKey] = z.coerce.number().optional();
@@ -458,7 +458,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                                 <SelectContent>
                                     {productCatalogPool.map(item => (
                                     <SelectItem key={item.sku} value={item.sku}>
-                                        {item.sku}
+                                        {item.sku} ({item.itemName})
                                     </SelectItem>
                                     ))}
                                 </SelectContent>
@@ -707,3 +707,5 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
     </Dialog>
   );
 }
+
+    

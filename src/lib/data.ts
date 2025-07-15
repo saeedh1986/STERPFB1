@@ -363,7 +363,7 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
              item[field] = slug === 'expenses' ? expenseCategories[i % expenseCategories.length] : `Category ${String.fromCharCode(65 + (i % 5))}`;
              break;
         case 'brand':
-             item[field] = `Brand ${String.fromCharCode(88 + (i % 3))}`;
+             item[field] = brandsPool[i % brandsPool.length].name;
              break;
         case 'description':
              item[field] = slug === 'expenses' ? mockExpenseDescriptions[i % mockExpenseDescriptions.length] : `Sample Transaction Description ${i + 1}`;
@@ -431,8 +431,9 @@ export const purchasesCalDetailsData = [
 
 
 const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
-  inventory: { fields: ['itemName', 'sku', 'warehouse', 'quantity', 'unitPrice', 'category'], count: 0 }, // count is 0 because data is generated customly
-  'inventory-barcode': { fields: ['itemName', 'barcode', 'quantity'], count: 20 },
+  'product-catalog': { fields: ['imageUrl', 'itemName', 'sku', 'category', 'brand', 'unitPrice', 'description', 'productWeight', 'productDimensions', 'packageWeight', 'packageDimensions'], count: 40 },
+  inventory: { fields: ['itemName', 'sku', 'warehouse', 'quantity', 'unitPrice', 'category'], count: 0 },
+  'inventory-barcode': { fields: ['itemName', 'sku', 'quantity'], count: 20 },
   purchases: { fields: ['purchaseDate', 'supplier', 'sku', 'itemName', 'quantity', 'unitCost', 'totalCost'], count: 25 },
   sales: { fields: ['saleDate', 'customerName', 'orderId', 'sku', 'itemName', 'qtySold', 'qtyRtv', 'note', 'price', 'shipping', 'referralFees', 'shippingCost', 'paymentFees', 'totalSales', 'salesChannel', 'fulfillmentWarehouse'], count: 40 },
   invoices: { fields: [], count: 0 },
@@ -450,7 +451,6 @@ const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   'purchases-cal': { fields: [], count: 0 },
   'bank-statement': { fields: [], count: 0 }, 
   'inventory-transfer': { fields: [], count: 0 },
-  'product-catalog': { fields: ['imageUrl', 'itemName', 'sku', 'category', 'brand', 'unitPrice', 'description', 'productWeight', 'productDimensions', 'packageWeight', 'packageDimensions'], count: 40 },
   'general-journal': { fields: [], count: 0 },
   'chart-of-accounts': { fields: ['code', 'name', 'type'], count: 0 },
   'trial-balance': { fields: [], count: 0 },
@@ -699,3 +699,5 @@ export const getDashboardSummaryData = () => {
         lowStockItems,
     };
 };
+
+    

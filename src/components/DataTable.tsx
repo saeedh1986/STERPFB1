@@ -18,7 +18,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
@@ -36,7 +35,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { DataFormDialog } from './DataFormDialog';
-import { categoriesPool, brandsPool, warehousesPool } from '@/lib/data';
+import { categoriesPool, brandsPool, warehousesPool, userRoles, getMockData } from '@/lib/data';
 
 interface DataTableProps {
   data: GenericItem[];
@@ -116,15 +115,17 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
           throw new Error("CSV file must have a header and at least one data row.");
         }
         
-        const headerLine = lines[0].trim();
+        const headerLine = lines[0].trim().replace(/\r/g, '');
         const headers = headerLine.split(',').map(h => h.trim());
+
+        const columnAccessors = columns.filter(c => c.accessorKey !== 'id').map(c => c.accessorKey);
+        
         const dataLines = lines.slice(1);
         
-        const columnAccessors = columns.filter(c => c.accessorKey !== 'id').map(c => c.accessorKey);
-
-        const newRecords = dataLines.map(line => {
+        const newRecords = dataLines.map((line, lineIndex) => {
           const values = line.split(',').map(v => v.trim());
-          const record: GenericItem = { id: `new-${Date.now()}-${Math.random()}` };
+          const record: GenericItem = { id: `imported-${Date.now()}-${lineIndex}` };
+          
           columnAccessors.forEach((accessor, index) => {
             record[accessor] = values[index] || '';
           });
@@ -171,18 +172,12 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
   };
 
   const formOptions = {
-    ...(pageTitle === 'Product Catalog' && {
-        categories: categoriesPool,
-        brands: brandsPool
-    }),
-    ...(pageTitle === 'Inventory' && {
-        warehouses: warehousesPool,
-        categories: categoriesPool,
-    }),
-    ...(pageTitle === 'Sales' && {
-        salesChannels: ['Direct Sales', 'Amazon AE', 'Noon AE'],
-        fulfillmentWarehouses: ['Main Warehouse', 'Amazon Warehouse', 'Noon Warehouse'],
-    }),
+    roles: userRoles.map(r => r.name),
+    categories: categoriesPool,
+    brands: brandsPool,
+    warehouses: warehousesPool,
+    salesChannels: ['Direct Sales', 'Amazon AE', 'Noon AE'],
+    fulfillmentWarehouses: ['Main Warehouse', 'Amazon Warehouse', 'Noon Warehouse'],
   };
 
 
@@ -325,3 +320,5 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
     </div>
   );
 }
+
+    
