@@ -28,11 +28,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const storedLanguage = localStorage.getItem('erpLanguage') as Language | null;
     const initialLang = storedLanguage || 'en';
-    setLanguageState(initialLang);
-    const initialDir = initialLang === 'ar' ? 'rtl' : 'ltr';
-    setDirection(initialDir);
-    document.documentElement.lang = initialLang;
-    document.documentElement.dir = initialDir;
+    setLanguage(initialLang); // Use the setter to correctly initialize everything
     setLoading(false);
   }, []);
 
@@ -41,8 +37,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     const newDirection = lang === 'ar' ? 'rtl' : 'ltr';
     setDirection(newDirection);
     localStorage.setItem('erpLanguage', lang);
-    document.documentElement.lang = lang;
-    document.documentElement.dir = newDirection;
+    if (typeof window !== 'undefined') {
+        document.documentElement.lang = lang;
+        document.documentElement.dir = newDirection;
+    }
   };
   
   const t = useCallback((key: string, options?: Record<string, string | number>): string => {
@@ -51,7 +49,14 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     for (const k of keys) {
       result = result?.[k];
       if (result === undefined) {
-        return key;
+        // Fallback to English if translation is missing
+        let fallbackResult = translations.en as any;
+        for (const fk of keys) {
+          fallbackResult = fallbackResult?.[fk];
+          if (fallbackResult === undefined) return key;
+        }
+        result = fallbackResult;
+        break;
       }
     }
     
