@@ -24,19 +24,19 @@ export type LabelSize = typeof labelSizes[0];
 
 
 export const categoriesPool: GenericItem[] = [
-    { id: 'cat-1', name: 'Electronics', description: 'Consumer electronics and gadgets.' },
-    { id: 'cat-2', name: 'Audio Equipment', description: 'Headphones, speakers, and audio accessories.' },
-    { id: 'cat-3', name: 'Computer Accessories', description: 'Keyboards, mice, and other peripherals.' },
-    { id: 'cat-4', name: 'Gaming', description: 'Gaming-specific hardware and accessories.' },
-    { id: 'cat-5', name: 'Mobile Accessories', description: 'Cases, chargers, and accessories for mobile phones.' },
+    { id: 'cat-1', name: 'Microphones', description: 'Microphones for various purposes.' },
+    { id: 'cat-2', name: 'Mixers', description: 'Audio mixers.' },
+    { id: 'cat-3', name: 'Gaming handheld', description: 'Handheld gaming devices.' },
+    { id: 'cat-4', name: 'Headset', description: 'Audio headsets.' },
+    { id: 'cat-5', name: 'Airpods', description: 'Wireless earbuds.' },
+    { id: 'cat-6', name: 'Microphone Accessores', description: 'Accessories for microphones.' },
 ];
 
 export const brandsPool: GenericItem[] = [
     { id: 'brand-1', name: 'FIFINE', website: 'https://fifinemicrophone.com/' },
-    { id: 'brand-2', name: 'Anker', website: 'https://www.anker.com/' },
-    { id: 'brand-3', name: 'Logitech', website: 'https://www.logitech.com/' },
-    { id: 'brand-4', name: 'Razer', website: 'https://www.razer.com/' },
-    { id: 'brand-5', name: 'Sony', website: 'https://www.sony.com/' },
+    { id: 'brand-2', name: 'Trimui', website: '' },
+    { id: 'brand-3', name: 'MIYOO', website: '' },
+    { id: 'brand-4', name: 'Generic', website: '' },
 ];
 
 export const warehousesPool: GenericItem[] = [
@@ -47,31 +47,199 @@ export const warehousesPool: GenericItem[] = [
 ];
 
 
-// Master product catalog
-export const productCatalogPool: GenericItem[] = Array.from({ length: 40 }, (_, i) => {
-  const category = categoriesPool[i % categoriesPool.length];
-  const brand = brandsPool[i % brandsPool.length];
-  return {
-    id: `cat-item-${i + 1}`,
-    itemName: `Master Product ${i + 1}`,
-    sku: `SKU-${String(10001 + i)}`,
-    unitPrice: parseFloat((Math.random() * 500 + 10).toFixed(2)),
-    category: category.name,
-    brand: brand.name,
-    description: `This is the master description for Product ${i + 1}.`,
+// Master product catalog based on user provided data
+export const productCatalogPool: GenericItem[] = [
+  {
+    id: 'prod-1',
+    itemName: 'FIFINE XLR/USB Dynamic Microphone Black',
+    sku: 'FIFUXDMAM8B',
+    category: 'Microphones',
+    brand: 'FIFINE',
+    unitPrice: parseFloat((Math.random() * 200 + 150).toFixed(2)),
+  },
+  {
+    id: 'prod-2',
+    itemName: 'FIFINE XLR/USB Dynamic Microphone White',
+    sku: 'FIFUXDMAM8W',
+    category: 'Microphones',
+    brand: 'FIFINE',
+    unitPrice: parseFloat((Math.random() * 200 + 150).toFixed(2)),
+  },
+  {
+    id: 'prod-3',
+    itemName: 'FIFINE XLR/USB Dynamic Microphone Pink',
+    sku: 'FIFUXDMAM8P',
+    category: 'Microphones',
+    brand: 'FIFINE',
+    unitPrice: parseFloat((Math.random() * 200 + 150).toFixed(2)),
+  },
+  {
+    id: 'prod-4',
+    itemName: 'FIFINE Gaming Audio Mixer SC3 Black',
+    sku: 'FIFGAMSSC3B',
+    category: 'Mixers',
+    brand: 'FIFINE',
+    unitPrice: parseFloat((Math.random() * 100 + 80).toFixed(2)),
+  },
+  {
+    id: 'prod-5',
+    itemName: 'FIFINE Gaming Audio Mixer SC3 White',
+    sku: 'FIFGAMSSC3W',
+    category: 'Mixers',
+    brand: 'FIFINE',
+    unitPrice: parseFloat((Math.random() * 100 + 80).toFixed(2)),
+  },
+  {
+    id: 'prod-6',
+    itemName: 'Trimui Smart Pro Handheld Game 126 GB Black',
+    sku: 'TSPHGCRB128G',
+    category: 'Gaming handheld',
+    brand: 'Trimui',
+    unitPrice: parseFloat((Math.random() * 300 + 250).toFixed(2)),
+  },
+  {
+    id: 'prod-7',
+    itemName: 'MIYOO Mini Plus Portable Retro Handheld 64 GB Purple',
+    sku: 'MMPPRHGCV2P64G',
+    category: 'Gaming handheld',
+    brand: 'MIYOO',
+    unitPrice: parseFloat((Math.random() * 250 + 200).toFixed(2)),
+  },
+  {
+    id: 'prod-8',
+    itemName: 'FIFINE RGB Gaming Headset White',
+    sku: 'FIFRGHH6WW',
+    category: 'Headset',
+    brand: 'FIFINE',
+    unitPrice: parseFloat((Math.random() * 150 + 100).toFixed(2)),
+  },
+  {
+    id: 'prod-9',
+    itemName: 'FIFINE RGB Gaming Headset Pink',
+    sku: 'FIFRGHH6WP',
+    category: 'Headset',
+    brand: 'FIFINE',
+    unitPrice: parseFloat((Math.random() * 150 + 100).toFixed(2)),
+  },
+  {
+    id: 'prod-10',
+    itemName: 'FIFINE RGB Gaming Headset Black',
+    sku: 'FIFRGHH6WB',
+    category: 'Headset',
+    brand: 'FIFINE',
+    unitPrice: parseFloat((Math.random() * 150 + 100).toFixed(2)),
+  },
+  {
+    id: 'prod-11',
+    itemName: 'TWSM90 Eirpods',
+    sku: 'TWSM89',
+    category: 'Airpods',
+    brand: 'Generic',
+    unitPrice: parseFloat((Math.random() * 80 + 50).toFixed(2)),
+  },
+  {
+    id: 'prod-12',
+    itemName: 'Trimui Smart Pro Handheld Game 126 GB Retro Grey',
+    sku: 'TSPHGCRRG128G',
+    category: 'Gaming handheld',
+    brand: 'Trimui',
+    unitPrice: parseFloat((Math.random() * 300 + 250).toFixed(2)),
+  },
+  {
+    id: 'prod-13',
+    itemName: 'MIYOO Mini Plus Portable Retro Handheld 64 GB Retro Grey',
+    sku: 'MMPPRHGCV2RG64G',
+    category: 'Gaming handheld',
+    brand: 'MIYOO',
+    unitPrice: parseFloat((Math.random() * 250 + 200).toFixed(2)),
+  },
+  {
+    id: 'prod-14',
+    itemName: 'FIFINE TAM8 RGB BOOM ARM MIC black',
+    sku: 'FIFUXDTAM8B',
+    category: 'Microphones',
+    brand: 'FIFINE',
+    unitPrice: parseFloat((Math.random() * 180 + 120).toFixed(2)),
+  },
+  {
+    id: 'prod-15',
+    itemName: 'FIFINE TAM8 RGB BOOM ARM MIC Whaite', // Assuming 'Whaite' is a typo for 'White'
+    sku: 'FIFUXDTAM8W',
+    category: 'Microphones',
+    brand: 'FIFINE',
+    unitPrice: parseFloat((Math.random() * 180 + 120).toFixed(2)),
+  },
+  {
+    id: 'prod-16',
+    itemName: 'FIFINE AM8 NEO RGB MIC Black',
+    sku: 'FIFUXDMAM8NB',
+    category: 'Microphones',
+    brand: 'FIFINE',
+    unitPrice: parseFloat((Math.random() * 180 + 120).toFixed(2)),
+  },
+  {
+    id: 'prod-17',
+    itemName: 'FIFINE Wireless Lavalier MIC M6 Black',
+    sku: 'FIFWLMM6B',
+    category: 'Microphones',
+    brand: 'FIFINE',
+    unitPrice: parseFloat((Math.random() * 100 + 70).toFixed(2)),
+  },
+  {
+    id: 'prod-18',
+    itemName: 'FIFINE Wireless Lavalier System with 2 Microphones M8 Black',
+    sku: 'FIFWLS2MM8B',
+    category: 'Microphones',
+    brand: 'FIFINE',
+    unitPrice: parseFloat((Math.random() * 150 + 120).toFixed(2)),
+  },
+  {
+    id: 'prod-19',
+    itemName: 'FIFINE Microphone Arm Boom CS1 Black',
+    sku: 'FIFMABCS1B',
+    category: 'Microphone Accessores',
+    brand: 'FIFINE',
+    unitPrice: parseFloat((Math.random() * 80 + 60).toFixed(2)),
+  },
+  {
+    id: 'prod-20',
+    itemName: 'Trimui Smart Pro Handheld Game 64 GB Retro Grey',
+    sku: 'TSPHGCRRG64G',
+    category: 'Gaming handheld',
+    brand: 'Trimui',
+    unitPrice: parseFloat((Math.random() * 280 + 220).toFixed(2)),
+  },
+  {
+    id: 'prod-21',
+    itemName: 'Trimui Smart Pro Handheld Game Stand Retro Grey',
+    sku: 'TSPHGCRRGNSDC',
+    category: 'Gaming handheld',
+    brand: 'Trimui',
+    unitPrice: parseFloat((Math.random() * 50 + 30).toFixed(2)),
+  },
+  {
+    id: 'prod-22',
+    itemName: 'FIFINE Microphone Arm Boom CS1 Whaite', // Assuming 'Whaite' is a typo for 'White'
+    sku: 'FIFMABCS1W',
+    category: 'Microphone Accessores',
+    brand: 'FIFINE',
+    unitPrice: parseFloat((Math.random() * 80 + 60).toFixed(2)),
+  },
+].map(item => ({
+    ...item,
+    description: `This is the master description for ${item.itemName}.`,
     productWeight: `${(Math.random() * 2).toFixed(2)} kg`,
     productDimensions: `${(Math.random() * 20).toFixed(1)}x${(Math.random() * 15).toFixed(1)}x${(Math.random() * 10).toFixed(1)} cm`,
     packageWeight: `${(Math.random() * 2 + 0.1).toFixed(2)} kg`,
     packageDimensions: `${(Math.random() * 20 + 2).toFixed(1)}x${(Math.random() * 15 + 2).toFixed(1)}x${(Math.random() * 10 + 2).toFixed(1)} cm`,
     imageUrl: `https://placehold.co/100x100.png`,
     dataAiHint: `product photo`,
-  }
-});
+})));
 
 
 // Generate a pool of inventory items that can be referenced by other modules
 // This is now a flattened list of product stock per warehouse
-export const inventoryItemsPool: GenericItem[] = productCatalogPool.slice(0, 20).flatMap((product, i) => {
+export const inventoryItemsPool: GenericItem[] = productCatalogPool.flatMap((product, i) => {
     // Each product will be in 1 or 2 warehouses
     const numWarehouses = Math.random() > 0.5 ? 2 : 1;
     const assignedWarehouses = warehousesPool.slice(0, numWarehouses);
@@ -211,9 +379,9 @@ export const chartOfAccountsData: GenericItem[] = [
 ];
 
 const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
-  'product-catalog': { fields: ['imageUrl', 'itemName', 'sku', 'category', 'brand', 'unitPrice', 'description', 'productWeight', 'productDimensions', 'packageWeight', 'packageDimensions'], count: 40 },
+  'product-catalog': { fields: ['imageUrl', 'itemName', 'sku', 'category', 'brand', 'unitPrice', 'description', 'productWeight', 'productDimensions', 'packageWeight', 'packageDimensions'], count: productCatalogPool.length },
   inventory: { fields: ['itemName', 'sku', 'warehouse', 'quantity', 'unitPrice', 'category'], count: 0 },
-  'inventory-barcode': { fields: ['itemName', 'sku', 'quantity'], count: 20 },
+  'inventory-barcode': { fields: ['itemName', 'sku', 'quantity'], count: productCatalogPool.length },
   purchases: { fields: ['purchaseDate', 'purchaseType', 'supplier', 'sku', 'itemName', 'description', 'referenceNumber', 'quantity', 'unitCost', 'customsFees', 'shippingFees', 'bankCharges', 'totalCost'], count: 25 },
   sales: { fields: ['saleDate', 'customerName', 'orderId', 'sku', 'itemName', 'qtySold', 'qtyRtv', 'note', 'price', 'shipping', 'referralFees', 'shippingCost', 'paymentFees', 'totalSales', 'salesChannel', 'fulfillmentWarehouse'], count: 40 },
   invoices: { fields: [], count: 0 },
@@ -266,8 +434,9 @@ export const createMockData = (count: number, fields: string[], slug: string): G
   if (slug === 'roles') {
     return userRoles;
   }
-  if (['invoices', 'purchases-cal', 'bank-statement', 'inventory-transfer'].includes(slug) || slug.endsWith('-journal') || slug.endsWith('-balance') || slug.endsWith('-sheet') || slug.endsWith('-statement')) {
+  if (['invoices', 'purchases-cal', 'bank-statement', 'inventory-transfer', 'inventory-barcode'].includes(slug) || slug.endsWith('-journal') || slug.endsWith('-balance') || slug.endsWith('-sheet') || slug.endsWith('-statement')) {
     // These pages have custom data handling or are handled by dedicated page components
+    if (slug === 'inventory-barcode') return productCatalogPool;
     return [];
   }
   
@@ -562,7 +731,7 @@ export const getDashboardSummaryData = () => {
     const itemsSold = salesData.reduce((acc, sale) => acc + (sale.qtySold || 0), 0);
     
     // Aggregate inventory quantities across warehouses
-    const aggregatedInventory = productCatalogPool.slice(0, 20).map(product => {
+    const aggregatedInventory = productCatalogPool.map(product => {
         const totalQuantity = inventoryData
             .filter(item => item.sku === product.sku)
             .reduce((sum, item) => sum + item.quantity, 0);
