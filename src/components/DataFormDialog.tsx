@@ -56,6 +56,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
   const isBankStatement = title.includes('Bank Statement');
   const isUsers = title.includes('User');
   const isPurchases = title.includes('Purchases');
+  const isSales = title.includes('Sales');
   const [expenseCategories, setExpenseCategories] = useState(defaultExpenseCategories);
   const [comboboxOpen, setComboboxOpen] = useState(false);
   const [newCategoryValue, setNewCategoryValue] = useState('');
