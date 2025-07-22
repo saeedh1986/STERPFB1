@@ -42,7 +42,7 @@ export default function SalesReportPage() {
             salesByMonth[month] += item.totalSales || 0;
         });
         
-        const chartData = Object.entries(salesByMonth).map(([name, sales]) => ({ name, sales })).reverse();
+        const chartData = Object.entries(salesByMonth).map(([name, revenue]) => ({ name, revenue })).reverse();
 
         const salesByProduct: Record<string, { quantity: number; revenue: number }> = {};
         salesData.forEach(item => {
@@ -54,7 +54,7 @@ export default function SalesReportPage() {
         });
 
         const productTableData = Object.entries(salesByProduct).map(([sku, data]) => {
-            const productInfo = getMockData('inventory').find(p => p.sku === sku);
+            const productInfo = getMockData('product-catalog').find(p => p.sku === sku);
             return {
                 sku,
                 itemName: productInfo?.itemName || 'Unknown',
@@ -72,7 +72,7 @@ export default function SalesReportPage() {
     }, []);
     
     const chartConfig = {
-      sales: { label: "Sales", color: "hsl(var(--chart-1))" },
+      revenue: { label: "Revenue", color: "hsl(var(--chart-1))" },
     };
 
     return (
@@ -127,7 +127,7 @@ export default function SalesReportPage() {
                                             formatter={(value) => currencyFormatter(value as number)} 
                                         />} 
                                     />
-                                    <Bar dataKey="sales" fill="var(--color-sales)" radius={4} />
+                                    <Bar dataKey="revenue" fill="var(--color-revenue)" radius={4} />
                                 </BarChart>
                             </ChartContainer>
                         </CardContent>

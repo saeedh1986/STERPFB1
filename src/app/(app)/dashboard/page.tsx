@@ -33,7 +33,7 @@ export default function DashboardPage() {
     const summaryData = React.useMemo(() => getDashboardSummaryData(), []);
 
     const barChartConfig = {
-      sales: { label: "Sales", color: "hsl(var(--chart-2))" },
+      revenue: { label: "Revenue", color: "hsl(var(--chart-2))" },
       expenses: { label: "Expenses", color: "hsl(var(--chart-4))" },
     };
     
@@ -108,7 +108,7 @@ export default function DashboardPage() {
                                         />} 
                                     />
                                     <Legend />
-                                    <Bar dataKey="sales" fill="var(--color-sales)" radius={[4, 4, 0, 0]} />
+                                    <Bar dataKey="revenue" fill="var(--color-revenue)" radius={[4, 4, 0, 0]} />
                                     <Bar dataKey="expenses" fill="var(--color-expenses)" radius={[4, 4, 0, 0]} />
                                 </BarChart>
                             </ChartContainer>

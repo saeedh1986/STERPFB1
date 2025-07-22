@@ -768,7 +768,7 @@ export const getDashboardSummaryData = () => {
 
     const barChartData = allMonths.map(month => ({
         name: month,
-        sales: salesByMonth[month] || 0,
+        revenue: salesByMonth[month] || 0,
         expenses: expensesByMonth[month] || 0,
     }));
     

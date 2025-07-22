@@ -41,7 +41,7 @@ export default function PurchasesReportPage() {
             purchasesByMonth[month] += item.totalCost || 0;
         });
         
-        const chartData = Object.entries(purchasesByMonth).map(([name, purchases]) => ({ name, purchases })).reverse();
+        const chartData = Object.entries(purchasesByMonth).map(([name, cost]) => ({ name, cost })).reverse();
 
         const purchasesBySupplier: Record<string, { quantity: number; cost: number }> = {};
         purchasesData.forEach(item => {
@@ -66,7 +66,7 @@ export default function PurchasesReportPage() {
     }, []);
     
     const chartConfig = {
-      purchases: { label: "Purchases", color: "hsl(var(--chart-2))" },
+      cost: { label: "Cost", color: "hsl(var(--chart-2))" },
     };
 
     return (
@@ -112,7 +112,7 @@ export default function PurchasesReportPage() {
                                             formatter={(value) => currencyFormatter(value as number)} 
                                         />} 
                                     />
-                                    <Bar dataKey="purchases" fill="var(--color-purchases)" radius={4} />
+                                    <Bar dataKey="cost" fill="var(--color-cost)" radius={4} />
                                 </BarChart>
                             </ChartContainer>
                         </CardContent>
