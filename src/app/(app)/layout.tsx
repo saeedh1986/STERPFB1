@@ -39,13 +39,13 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       )}>
         <div className={cn(
           "hidden bg-sidebar md:block glass-sidebar",
-           direction === 'rtl' ? "border-l [grid-column-start:2]" : "border-r [grid-column-start:1]"
+           direction === 'rtl' ? "border-l [grid-column:2]" : "border-r [grid-column:1]"
         )}>
           <SidebarNav />
         </div>
         <div className={cn(
           "flex flex-col", 
-          direction === 'rtl' ? "[grid-column-start:1]" : "[grid-column-start:2]"
+          direction === 'rtl' ? "[grid-column:1]" : "[grid-column:2]"
         )}>
           {children}
         </div>
