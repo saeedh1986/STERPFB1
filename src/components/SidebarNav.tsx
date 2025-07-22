@@ -112,10 +112,11 @@ export function SidebarNav() {
      <AccordionItem value={value} className="border-b-0">
         <AccordionTrigger className={cn(
             "px-3 py-2.5 text-sm font-medium hover:no-underline hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-lg [&[data-state=open]]:bg-sidebar-accent",
-             direction === 'rtl' && 'flex-row-reverse'
+            direction === 'rtl' && 'flex-row-reverse'
         )}>
         <span className={cn(
             "flex items-center gap-3",
+             direction === 'rtl' && 'flex-row-reverse'
         )}>
             <Icon className="h-5 w-5" />
             <span>{t(titleKey)}</span>
