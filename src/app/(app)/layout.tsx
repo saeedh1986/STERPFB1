@@ -35,7 +35,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem themes={THEMES}>
       <div className={cn(
         "grid min-h-screen w-full",
-        direction === 'rtl' ? "md:grid-cols-[1fr_280px]" : "md:grid-cols-[280px_1fr]"
+        direction === 'rtl' ? "md:grid-cols-[1fr_240px]" : "md:grid-cols-[240px_1fr]"
       )}>
         <div className={cn(
           "hidden bg-sidebar md:block glass-sidebar",
