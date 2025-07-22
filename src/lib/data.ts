@@ -1,4 +1,5 @@
 
+
 import { cn } from '@/lib/utils';
 
 
@@ -142,6 +143,7 @@ export const expenseCategories = [
   "Storage Expenses",
   "Office Utilities",
   "Marketing",
+  "Customs Fees",
 ];
 
 export const USD_TO_AED_RATE = 3.6725;
@@ -205,6 +207,7 @@ export const chartOfAccountsData: GenericItem[] = [
   { id: 'coa-19', code: '5090', name: 'FBN Charges', type: 'Expense' },
   { id: 'coa-20', code: '5100', name: 'Storage Expenses', type: 'Expense' },
   { id: 'coa-21', code: '5110', name: 'Freelance Services', type: 'Expense' },
+  { id: 'coa-22', code: '5120', name: 'Customs Fees', type: 'Expense' },
 ];
 
 const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
@@ -214,7 +217,7 @@ const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   purchases: { fields: ['purchaseDate', 'purchaseType', 'supplier', 'sku', 'itemName', 'description', 'referenceNumber', 'quantity', 'unitCost', 'customsFees', 'shippingFees', 'bankCharges', 'totalCost'], count: 25 },
   sales: { fields: ['saleDate', 'customerName', 'orderId', 'sku', 'itemName', 'qtySold', 'qtyRtv', 'note', 'price', 'shipping', 'referralFees', 'shippingCost', 'paymentFees', 'totalSales', 'salesChannel', 'fulfillmentWarehouse'], count: 40 },
   invoices: { fields: [], count: 0 },
-  expenses: { fields: ['expenseDate', 'description', 'supplier', 'category', 'amount'], count: 20 },
+  expenses: { fields: ['expenseDate', 'description', 'supplier', 'category', 'amount', 'referenceNumber'], count: 20 },
   customers: { fields: ['name', 'contact', 'email', 'address', 'city', 'country'], count: customersPool.length },
   vendors: { fields: ['name', 'contact', 'email', 'address', 'website', 'city', 'country'], count: vendorsPool.length },
   employees: { fields: ['name', 'username', 'password', 'role', 'joinDate'], count: usersPool.length },
@@ -376,7 +379,15 @@ export const createMockData = (count: number, fields: string[], slug: string): G
             item[field] = `${Math.floor(Math.random()*100)}-${Math.floor(Math.random()*1000000)}-${Math.floor(Math.random()*1000000)}`;
             break;
         case 'referenceNumber':
-            item[field] = `INV-${Math.floor(Math.random() * 9000) + 1000}`;
+            item[field] = `PO-${Math.floor(Math.random() * 9000) + 1000}`;
+            if (slug === 'expenses') {
+              // Give some expenses a PO number to link them
+              if (Math.random() > 0.5) {
+                item[field] = `PO-${Math.floor(Math.random() * 5) + 1000}`; // Link to one of the first 5 purchases
+              } else {
+                 item[field] = `EXP-${Math.floor(Math.random() * 9000) + 1000}`;
+              }
+            }
             break;
         case 'supplier':
             item[field] = slug === 'expenses' ? randomVendor.name : randomVendor.name;
@@ -643,6 +654,7 @@ const columnDefinitions: Record<string, ColumnDefinition[]> = {
   ],
   purchases: [
     { accessorKey: 'purchaseDate', header: 'datatable.headers.date' },
+    { accessorKey: 'referenceNumber', header: 'datatable.headers.referenceNumber'},
     { accessorKey: 'purchaseType', header: 'datatable.headers.type' },
     { accessorKey: 'supplier', header: 'datatable.headers.supplier' },
     { accessorKey: 'sku', header: 'datatable.headers.sku' },
@@ -668,8 +680,10 @@ const columnDefinitions: Record<string, ColumnDefinition[]> = {
   expenses: [
     { accessorKey: 'expenseDate', header: 'datatable.headers.date' },
     { accessorKey: 'description', header: 'datatable.headers.description' },
+    { accessorKey: 'supplier', header: 'datatable.headers.supplier' },
     { accessorKey: 'category', header: 'datatable.headers.category' },
     { accessorKey: 'amount', header: 'datatable.headers.amount' },
+    { accessorKey: 'referenceNumber', header: 'datatable.headers.referenceNumber' },
   ],
   customers: [
     { accessorKey: 'name', header: 'datatable.headers.name' },
