@@ -35,6 +35,7 @@ interface DataFormDialogProps {
     warehouses?: GenericItem[];
     salesChannels?: string[];
     fulfillmentWarehouses?: string[];
+    purchaseTypes?: string[];
   }
 }
 
@@ -67,10 +68,10 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
       }
       else if (title.includes('Cost Calculator') && ['usd', 'quantity', 'customsFees', 'shippingFees', 'bankCharges', 'aed', 'totalCost', 'totalCostPerUnit', 'exchangeRate'].includes(col.accessorKey)) {
         acc[col.accessorKey] = z.coerce.number().optional();
-      } else if(isUsers && col.accessorKey === 'password' && !defaultValues) {
+      } else if(isUsers && col.accessorKey === 'password' && !defaultValues?.id) {
         // Password is only required when creating a new user
         acc[col.accessorKey] = z.string().min(1, `${col.header} is required.`);
-      } else if (isUsers && col.accessorKey === 'password' && defaultValues) {
+      } else if (isUsers && col.accessorKey === 'password' && defaultValues?.id) {
         // Password is optional when updating
         acc[col.accessorKey] = z.string().optional();
       }
@@ -130,14 +131,19 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
 
         columns.forEach(col => {
             if (col.accessorKey.toLowerCase().includes('date') && defaultValues?.[col.accessorKey]) {
-                const dateParts = (defaultValues[col.accessorKey] as string).split('-');
-                if (dateParts.length === 3) {
-                    // Assuming format is DD-Mon-YYYY e.g., "01-Jan-2023"
-                    const date = new Date(`${dateParts[1]} ${dateParts[0]}, ${dateParts[2]}`);
-                    if (!isNaN(date.getTime())) {
-                        (transformedDefaults as any)[col.accessorKey] = date;
+                 const dateValue = defaultValues[col.accessorKey];
+                 if(typeof dateValue === 'string') {
+                    const dateParts = dateValue.split('-');
+                    if (dateParts.length === 3) {
+                        // Assuming format is DD-Mon-YYYY e.g., "01-Jan-2023"
+                        const date = new Date(`${dateParts[1]} ${dateParts[0]}, ${dateParts[2]}`);
+                        if (!isNaN(date.getTime())) {
+                            (transformedDefaults as any)[col.accessorKey] = date;
+                        }
                     }
-                }
+                 } else if (dateValue instanceof Date) {
+                    (transformedDefaults as any)[col.accessorKey] = dateValue;
+                 }
             }
         });
         form.reset(transformedDefaults || {});
@@ -169,6 +175,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
   const isProductCatalog = title.includes('Product Catalog');
   const isInventory = title.includes('Inventory');
   const isSales = title.includes('Sales');
+  const isPurchases = title.includes('Purchases');
   
   const handleSkuChange = (sku: string) => {
     const selectedItem = productCatalogPool.find(item => item.sku === sku);
@@ -177,6 +184,9 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
       if (isInventory) {
           form.setValue('unitPrice' as keyof FormValues, selectedItem.unitPrice);
           form.setValue('category' as keyof FormValues, selectedItem.category);
+      }
+      if (isPurchases) {
+          form.setValue('unitCost' as keyof FormValues, selectedItem.unitPrice);
       }
     }
   };
@@ -210,7 +220,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>
-            {defaultValues ? "Make changes to the record here. Click save when you're done." : "Enter the details for the new record. Click create when you're done."}
+            {defaultValues?.id ? "Make changes to the record here. Click save when you're done." : "Enter the details for the new record. Click create when you're done."}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -220,6 +230,34 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                     {columns.map((col) => {
                     
                     const isCalculated = isCostCalculator && calculatedFields.includes(col.accessorKey);
+
+                    if (isPurchases && col.accessorKey === 'purchaseType') {
+                        return (
+                          <FormField
+                            key={col.accessorKey}
+                            control={form.control}
+                            name={col.accessorKey as keyof FormValues}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>{col.header}</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select a purchase type" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {options?.purchaseTypes?.map(type => (
+                                      <SelectItem key={type} value={type}>{type}</SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        );
+                    }
 
                     if (isUsers && col.accessorKey === 'role') {
                         return (
@@ -699,7 +737,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
             </ScrollArea>
             <DialogFooter className="border-t pt-4">
               <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-              <Button type="submit">{defaultValues ? 'Save Changes' : 'Create Record'}</Button>
+              <Button type="submit">{defaultValues?.id ? 'Save Changes' : 'Create Record'}</Button>
             </DialogFooter>
           </form>
         </Form>
@@ -707,5 +745,3 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
     </Dialog>
   );
 }
-
-    

@@ -22,7 +22,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import { FilePlus, FilePenLine, Trash2, ChevronDown, Upload, Download, Barcode } from 'lucide-react';
+import { FilePlus, FilePenLine, Trash2, ChevronDown, Upload, Download, Barcode, ScanLine } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import {
   AlertDialog,
@@ -40,6 +40,7 @@ import { categoriesPool, brandsPool, warehousesPool, userRoles, moduleSlugs, get
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { ScanInvoiceDialog } from './purchases/ScanInvoiceDialog';
 
 
 interface DataTableProps {
@@ -58,6 +59,7 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
   const [globalFilter, setGlobalFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isScanDialogOpen, setIsScanDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<GenericItem | null>(null);
   const { toast } = useToast();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -81,8 +83,8 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
 
   const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
 
-  const handleCreate = () => {
-    setSelectedItem(null);
+  const handleCreate = (prefilledData: GenericItem | null = null) => {
+    setSelectedItem(prefilledData);
     setIsDialogOpen(true);
   };
 
@@ -97,13 +99,11 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
   };
   
   const handleFormSubmit = (values: GenericItem) => {
-    if (selectedItem) {
-      // Update existing item
+    if (selectedItem && selectedItem.id) { // Check if it's an update
       setTableData(prev => prev.map(item => item.id === selectedItem.id ? { ...item, ...values } : item));
       toast({ title: "Item Updated", description: "The record has been successfully updated." });
-    } else {
-      // Create new item
-      const newItem = { ...values, id: `${pageSlug}-${Date.now()}` };
+    } else { // It's a create
+      const newItem = { ...selectedItem, ...values, id: `${pageSlug}-${Date.now()}` };
       setTableData(prev => [newItem, ...prev]);
       toast({ title: "Item Created", description: "A new record has been successfully added." });
     }
@@ -186,6 +186,7 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
     warehouses: warehousesPool,
     salesChannels: ['Direct Sales', 'Amazon AE', 'Noon AE'],
     fulfillmentWarehouses: ['Main Warehouse', 'Amazon Warehouse', 'Noon Warehouse'],
+    purchaseTypes: ['Inventory', 'Asset', 'Expense'],
   };
 
 
@@ -199,7 +200,12 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
           className="max-w-sm"
         />
         <div className="flex flex-wrap gap-2">
-          <Button onClick={handleCreate}>
+          {pageTitle === 'Purchases' && (
+            <Button onClick={() => setIsScanDialogOpen(true)} variant="outline">
+              <ScanLine className="mr-2 h-4 w-4" /> Scan Invoice
+            </Button>
+          )}
+          <Button onClick={() => handleCreate()}>
             <FilePlus className="mr-2 h-4 w-4" /> Create New
           </Button>
            <label htmlFor="file-upload" className="cursor-pointer">
@@ -232,7 +238,6 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
                     const cellValue = item[column.accessorKey];
                     const isImageUrl = typeof cellValue === 'string' && cellValue.startsWith('https://placehold.co');
 
-                    // Special rendering for Chart of Accounts type
                     if (pageTitle === 'Chart of Accounts' && column.accessorKey === 'type') {
                         return (
                              <TableCell key={column.accessorKey}>
@@ -245,9 +250,7 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
 
                     return (
                       <TableCell key={column.accessorKey}>
-                        {column.cell 
-                          ? column.cell({ row: { getValue: (key: string) => item[key], original: item } })
-                          : isImageUrl
+                        {isImageUrl
                           ? <Image src={cellValue} alt={item.itemName || 'Product Image'} width={40} height={40} className="rounded" data-ai-hint={item.dataAiHint} />
                           : cellValue
                         }
@@ -343,9 +346,20 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
         onSubmit={handleFormSubmit}
         defaultValues={selectedItem}
         columns={columns.filter(c => c.accessorKey !== 'id')} // Don't show ID in form
-        title={selectedItem ? `Edit ${pageTitle}` : `Create New ${pageTitle}`}
+        title={selectedItem?.id ? `Edit ${pageTitle}` : `Create New ${pageTitle}`}
         options={formOptions}
       />
+
+      {pageTitle === 'Purchases' && (
+        <ScanInvoiceDialog
+          isOpen={isScanDialogOpen}
+          onClose={() => setIsScanDialogOpen(false)}
+          onScanComplete={(data) => {
+            setIsScanDialogOpen(false);
+            handleCreate(data);
+          }}
+        />
+      )}
     </div>
   );
 }

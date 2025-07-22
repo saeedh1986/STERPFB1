@@ -12,7 +12,6 @@ export interface GenericItem {
 export interface ColumnDefinition {
   accessorKey: string;
   header: string;
-  cell?: ({ row }: { row: { getValue: (key: string) => any, original: GenericItem } }) => JSX.Element | string | number;
 }
 
 export const labelSizes = [
@@ -210,7 +209,7 @@ const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   'product-catalog': { fields: ['imageUrl', 'itemName', 'sku', 'category', 'brand', 'unitPrice', 'description', 'productWeight', 'productDimensions', 'packageWeight', 'packageDimensions'], count: 40 },
   inventory: { fields: ['itemName', 'sku', 'warehouse', 'quantity', 'unitPrice', 'category'], count: 0 },
   'inventory-barcode': { fields: ['itemName', 'sku', 'quantity'], count: 20 },
-  purchases: { fields: ['purchaseDate', 'supplier', 'sku', 'itemName', 'quantity', 'unitCost', 'totalCost'], count: 25 },
+  purchases: { fields: ['purchaseDate', 'purchaseType', 'supplier', 'sku', 'itemName', 'quantity', 'unitCost', 'totalCost'], count: 25 },
   sales: { fields: ['saleDate', 'customerName', 'orderId', 'sku', 'itemName', 'qtySold', 'qtyRtv', 'note', 'price', 'shipping', 'referralFees', 'shippingCost', 'paymentFees', 'totalSales', 'salesChannel', 'fulfillmentWarehouse'], count: 40 },
   invoices: { fields: [], count: 0 },
   expenses: { fields: ['expenseDate', 'description', 'supplier', 'category', 'amount'], count: 20 },
@@ -327,6 +326,9 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
             item[field] = parseFloat((Math.random() * 5 + 1).toFixed(4));
             break;
         case 'totalCost':
+            const quantity = item['quantity'] || 1;
+            const unitCost = item['unitCost'] || item['unitPrice'] || 0;
+            item[field] = parseFloat((quantity * unitCost).toFixed(2));
             break;
         case 'totalCostPerUnit':
             break;
@@ -371,6 +373,9 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
             break;
         case 'supplier':
             item[field] = slug === 'expenses' ? randomVendor.name : randomVendor.name;
+            break;
+        case 'purchaseType':
+            item[field] = ['Inventory', 'Asset', 'Expense'][i % 3];
             break;
         case 'salesChannel':
             item[field] = ['Direct Sales', 'Amazon AE', 'Noon AE'][i % 3];
@@ -651,6 +656,7 @@ const columnDefinitions: Record<string, ColumnDefinition[]> = {
   ],
   purchases: [
     { accessorKey: 'purchaseDate', header: 'Date' },
+    { accessorKey: 'purchaseType', header: 'Type' },
     { accessorKey: 'supplier', header: 'Supplier' },
     { accessorKey: 'sku', header: 'SKU' },
     { accessorKey: 'quantity', header: 'Quantity' },
