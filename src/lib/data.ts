@@ -209,7 +209,7 @@ const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   'product-catalog': { fields: ['imageUrl', 'itemName', 'sku', 'category', 'brand', 'unitPrice', 'description', 'productWeight', 'productDimensions', 'packageWeight', 'packageDimensions'], count: 40 },
   inventory: { fields: ['itemName', 'sku', 'warehouse', 'quantity', 'unitPrice', 'category'], count: 0 },
   'inventory-barcode': { fields: ['itemName', 'sku', 'quantity'], count: 20 },
-  purchases: { fields: ['purchaseDate', 'purchaseType', 'supplier', 'sku', 'itemName', 'quantity', 'unitCost', 'totalCost'], count: 25 },
+  purchases: { fields: ['purchaseDate', 'purchaseType', 'supplier', 'sku', 'itemName', 'description', 'referenceNumber', 'quantity', 'unitCost', 'totalCost'], count: 25 },
   sales: { fields: ['saleDate', 'customerName', 'orderId', 'sku', 'itemName', 'qtySold', 'qtyRtv', 'note', 'price', 'shipping', 'referralFees', 'shippingCost', 'paymentFees', 'totalSales', 'salesChannel', 'fulfillmentWarehouse'], count: 40 },
   invoices: { fields: [], count: 0 },
   expenses: { fields: ['expenseDate', 'description', 'supplier', 'category', 'amount'], count: 20 },
@@ -370,6 +370,9 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
           break;
         case 'orderId':
             item[field] = `${Math.floor(Math.random()*100)}-${Math.floor(Math.random()*1000000)}-${Math.floor(Math.random()*1000000)}`;
+            break;
+        case 'referenceNumber':
+            item[field] = `INV-${Math.floor(Math.random() * 9000) + 1000}`;
             break;
         case 'supplier':
             item[field] = slug === 'expenses' ? randomVendor.name : randomVendor.name;
@@ -659,6 +662,9 @@ const columnDefinitions: Record<string, ColumnDefinition[]> = {
     { accessorKey: 'purchaseType', header: 'Type' },
     { accessorKey: 'supplier', header: 'Supplier' },
     { accessorKey: 'sku', header: 'SKU' },
+    { accessorKey: 'itemName', header: 'Item Name' },
+    { accessorKey: 'referenceNumber', header: 'Reference/Invoice #' },
+    { accessorKey: 'description', header: 'Description' },
     { accessorKey: 'quantity', header: 'Quantity' },
     { accessorKey: 'unitCost', header: 'Unit Cost' },
     { accessorKey: 'totalCost', header: 'Total Cost' },

@@ -19,6 +19,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Textarea } from '@/components/ui/textarea';
 
 
 interface DataFormDialogProps {
@@ -54,6 +55,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
 
   const isBankStatement = title.includes('Bank Statement');
   const isUsers = title.includes('User');
+  const isPurchases = title.includes('Purchases');
   const [expenseCategories, setExpenseCategories] = useState(defaultExpenseCategories);
   const [comboboxOpen, setComboboxOpen] = useState(false);
   const [newCategoryValue, setNewCategoryValue] = useState('');
@@ -61,7 +63,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
 
   // Create a dynamic Zod schema from columns
   const formSchemaObject = columns.reduce((acc, col) => {
-      if (['itemName', 'imageUrl', 'note'].includes(col.accessorKey)) {
+      if (['itemName', 'imageUrl', 'note', 'description', 'referenceNumber', 'sku'].includes(col.accessorKey)) {
         acc[col.accessorKey] = z.string().optional();
       } else if (isBankStatement && ['debit', 'credit', 'balance'].includes(col.accessorKey)) {
         acc[col.accessorKey] = z.coerce.number().optional();
@@ -90,10 +92,18 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
      if (isBankStatement) {
         return !(data.debit && data.credit);
      }
+     if (isPurchases) {
+        if (data.purchaseType === 'Inventory') {
+            return !!data.sku && !!data.itemName;
+        }
+        if (data.purchaseType === 'Asset' || data.purchaseType === 'Expense') {
+            return !!data.description;
+        }
+     }
      return true;
   }, {
-    message: "Cannot have both Debit and Credit values.",
-    path: ['credit'],
+    message: "Required fields are missing for the selected purchase type.",
+    path: ['sku'], // You might want to point to a more generic path or handle this differently in the UI
   });
 
   type FormValues = z.infer<typeof formSchema>;
@@ -103,6 +113,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
     defaultValues: defaultValues || {},
   });
 
+  const purchaseType = form.watch('purchaseType');
   const isCostCalculator = title.includes('Cost Calculator');
   const watchedFields = form.watch(['usd', 'quantity', 'customsFees', 'shippingFees', 'bankCharges', 'exchangeRate']);
 
@@ -174,8 +185,6 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
   const isExpenseMode = title.includes('Expenses');
   const isProductCatalog = title.includes('Product Catalog');
   const isInventory = title.includes('Inventory');
-  const isSales = title.includes('Sales');
-  const isPurchases = title.includes('Purchases');
   
   const handleSkuChange = (sku: string) => {
     const selectedItem = productCatalogPool.find(item => item.sku === sku);
@@ -231,6 +240,15 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                     
                     const isCalculated = isCostCalculator && calculatedFields.includes(col.accessorKey);
 
+                    // --- Conditional Field Rendering for Purchases ---
+                    if (isPurchases) {
+                        if (purchaseType === 'Inventory') {
+                            if (['description', 'referenceNumber'].includes(col.accessorKey)) return null;
+                        } else if (purchaseType === 'Asset' || purchaseType === 'Expense') {
+                            if (['sku', 'itemName'].includes(col.accessorKey)) return null;
+                        }
+                    }
+
                     if (isPurchases && col.accessorKey === 'purchaseType') {
                         return (
                           <FormField
@@ -257,6 +275,25 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                             )}
                           />
                         );
+                    }
+
+                    if (isPurchases && col.accessorKey === 'description') {
+                        return (
+                           <FormField
+                                key={col.accessorKey}
+                                control={form.control}
+                                name={col.accessorKey as keyof FormValues}
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>{col.header}</FormLabel>
+                                    <FormControl>
+                                        <Textarea placeholder="Enter a detailed description for the asset or expense..." {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        )
                     }
 
                     if (isUsers && col.accessorKey === 'role') {
@@ -508,7 +545,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                         );
                     }
                     
-                    if ((isExpenseMode || title.includes('Purchases')) && col.accessorKey === 'supplier') {
+                    if ((isExpenseMode || isPurchases) && col.accessorKey === 'supplier') {
                         return (
                             <FormField
                                 key={col.accessorKey}
