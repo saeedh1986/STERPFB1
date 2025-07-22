@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard, Package, Barcode, ShoppingCart, CreditCard, TrendingUp,
-  Users, Building, Truck, Layers, Combine, CalendarDays, Landmark, BotMessageSquare, Package2, Library, FileText, Calculator, BookOpen, Settings, Scale, FileSpreadsheet, AreaChart, PieChart, Users2, Tag, Copyright, Warehouse, ArrowRightLeft, Handshake, Briefcase
+  Users, Building, Truck, Layers, Combine, CalendarDays, Landmark, BotMessageSquare, Package2, Library, FileText, Calculator, BookOpen, Settings, Scale, FileSpreadsheet, AreaChart, PieChart, Users2, Tag, Copyright, Warehouse, ArrowRightLeft, Handshake, Briefcase, Wrench
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import {
@@ -35,7 +35,27 @@ interface NavItem {
   subItems?: NavItem[];
 }
 
+const productNavItems: NavItem[] = [
+    { href: '/product-catalog', labelKey: 'sidebar.product_catalog', icon: Library },
+    { href: '/categories', labelKey: 'sidebar.categories', icon: Tag },
+    { href: '/brands', labelKey: 'sidebar.brands', icon: Copyright },
+];
+
+const crmNavItems: NavItem[] = [
+    { href: '/customers', labelKey: 'sidebar.customers', icon: Users },
+    { href: '/vendors', labelKey: 'sidebar.vendors', icon: Building },
+];
+
+const supplyChainNavItems: NavItem[] = [
+  { href: '/purchases', labelKey: 'sidebar.purchases', icon: ShoppingCart },
+  { href: '/inventory', labelKey: 'sidebar.inventory_list', icon: Package },
+  { href: '/inventory-transfer', labelKey: 'sidebar.inventory_transfer', icon: ArrowRightLeft },
+  { href: '/warehouses', labelKey: 'sidebar.warehouses', icon: Warehouse },
+  { href: '/logistics', labelKey: 'sidebar.logistics', icon: Truck },
+];
+
 const financeNavItems: NavItem[] = [
+  { href: '/sales', labelKey: 'sidebar.sales', icon: TrendingUp },
   { href: '/invoices', labelKey: 'sidebar.invoices', icon: FileText },
   { href: '/expenses', labelKey: 'sidebar.expenses', icon: CreditCard },
   { 
@@ -52,33 +72,17 @@ const financeNavItems: NavItem[] = [
   },
 ];
 
-const salesNavItems: NavItem[] = [
-  { href: '/sales', labelKey: 'sidebar.sales', icon: TrendingUp },
-  { 
-    href: '/crm', 
-    labelKey: 'sidebar.crm', 
-    icon: Users2,
-    subItems: [
-        { href: '/customers', labelKey: 'sidebar.customers', icon: Users },
-        { href: '/vendors', labelKey: 'sidebar.vendors', icon: Building },
-    ]
-  },
+const reportsNavItems: NavItem[] = [
+    { href: '/reports/sales', labelKey: 'sidebar.sales_report', icon: AreaChart },
+    { href: '/reports/purchases', labelKey: 'sidebar.purchases_report', icon: AreaChart },
+    { href: '/reports/expenses', labelKey: 'sidebar.expenses_report', icon: PieChart },
+    { href: '/reports/inventory', labelKey: 'sidebar.inventory_report', icon: AreaChart },
 ];
 
-const supplyChainNavItems: NavItem[] = [
-  { href: '/purchases', labelKey: 'sidebar.purchases', icon: ShoppingCart },
-  { 
-    href: '/inventory', 
-    labelKey: 'sidebar.inventory', 
-    icon: Package,
-    subItems: [
-      { href: '/inventory', labelKey: 'sidebar.inventory_list', icon: Package },
-      { href: '/warehouses', labelKey: 'sidebar.warehouses', icon: Warehouse },
-      { href: '/inventory-barcode', labelKey: 'sidebar.inventory_barcode', icon: Barcode },
-      { href: '/inventory-transfer', labelKey: 'sidebar.inventory_transfer', icon: ArrowRightLeft },
-    ]
-  },
-  { href: '/logistics', labelKey: 'sidebar.logistics', icon: Truck },
+const toolsNavItems: NavItem[] = [
+    { href: '/inventory-barcode', labelKey: 'sidebar.inventory_barcode', icon: Barcode },
+    { href: '/logistics-insights', labelKey: 'sidebar.logistics_insights', icon: BotMessageSquare },
+    { href: '/purchases-cal', labelKey: 'sidebar.purchases_cal', icon: Calculator },
 ];
 
 const hrNavItems: NavItem[] = [
@@ -129,8 +133,10 @@ export function SidebarNav() {
                      direction === 'rtl' && 'flex-row-reverse'
                 )}
             >
-                <Icon className="h-4 w-4 shrink-0" />
-                <span className="truncate">{t(titleKey)}</span>
+                <div className={cn("flex items-center gap-2", direction === 'rtl' && 'flex-row-reverse')}>
+                    <Icon className="h-4 w-4 shrink-0" />
+                    <span className="truncate">{t(titleKey)}</span>
+                </div>
             </AccordionTrigger>
             <AccordionContent className="pt-1">
                 <SidebarMenuSub>
@@ -175,10 +181,13 @@ export function SidebarNav() {
         <SidebarMenu>
           <NavLink item={{ href: '/dashboard', labelKey: 'sidebar.dashboard', icon: LayoutDashboard }} />
           
-          <Accordion type="multiple" defaultValue={['finance', 'sales', 'supply_chain', 'human_resources']} className="w-full">
+          <Accordion type="multiple" defaultValue={['finance', 'sales', 'supply_chain', 'human_resources', 'products', 'crm', 'reports', 'tools']} className="w-full">
             <NavAccordion titleKey="sidebar.finance" icon={Landmark} items={financeNavItems} value="finance" />
-            <NavAccordion titleKey="sidebar.sales" icon={Handshake} items={salesNavItems} value="sales" />
+            <NavAccordion titleKey="sidebar.products" icon={Package2} items={productNavItems} value="products" />
+            <NavAccordion titleKey="sidebar.crm" icon={Handshake} items={crmNavItems} value="crm" />
             <NavAccordion titleKey="sidebar.supply_chain" icon={Truck} items={supplyChainNavItems} value="supply_chain" />
+            <NavAccordion titleKey="sidebar.reports" icon={AreaChart} items={reportsNavItems} value="reports" />
+            <NavAccordion titleKey="sidebar.tools" icon={Wrench} items={toolsNavItems} value="tools" />
             <NavAccordion titleKey="sidebar.human_resources" icon={Users} items={hrNavItems} value="human_resources" />
           </Accordion>
 
