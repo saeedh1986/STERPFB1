@@ -77,7 +77,7 @@ const hrNavItems: NavItem[] = [
 export function SidebarNav() {
   const pathname = usePathname();
   const { profile } = useCompanyProfile();
-  const { t } = useLanguage();
+  const { t, direction } = useLanguage();
 
   const isModuleActive = (item: NavItem) => {
     if (item.href === '/dashboard' || item.href === '/') {
@@ -99,7 +99,8 @@ export function SidebarNav() {
       className={cn(
         'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
         isModuleActive(item) ? 'bg-sidebar-primary text-sidebar-primary-foreground font-medium' : 'text-sidebar-foreground',
-        isSubItem && 'py-2'
+        isSubItem && 'py-2',
+        direction === 'rtl' && 'flex-row-reverse justify-start'
       )}
     >
       <item.icon className="h-5 w-5" />
@@ -109,13 +110,22 @@ export function SidebarNav() {
 
   const NavAccordion = ({ titleKey, icon: Icon, items, value }: { titleKey: string, icon: LucideIcon, items: NavItem[], value: string }) => (
      <AccordionItem value={value} className="border-b-0">
-        <AccordionTrigger className="px-3 py-2.5 text-sm font-medium hover:no-underline hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-lg [&[data-state=open]]:bg-sidebar-accent">
-        <span className="flex items-center gap-3">
+        <AccordionTrigger className={cn(
+            "px-3 py-2.5 text-sm font-medium hover:no-underline hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-lg [&[data-state=open]]:bg-sidebar-accent",
+            direction === 'rtl' && 'flex-row-reverse'
+        )}>
+        <span className={cn(
+            "flex items-center gap-3",
+            direction === 'rtl' && 'flex-row-reverse'
+        )}>
             <Icon className="h-5 w-5" />
             {t(titleKey)}
         </span>
         </AccordionTrigger>
-        <AccordionContent className="pl-7 pt-1">
+        <AccordionContent className={cn(
+            "pt-1",
+            direction === 'rtl' ? "pr-7" : "pl-7"
+        )}>
             <div className="flex flex-col gap-1">
             {items.map((item) => (
                  item.subItems ? (
@@ -157,7 +167,8 @@ export function SidebarNav() {
               'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
               pathname.startsWith('/settings')
                 ? 'bg-sidebar-primary text-sidebar-primary-foreground font-medium'
-                : 'text-sidebar-foreground'
+                : 'text-sidebar-foreground',
+              direction === 'rtl' && 'flex-row-reverse justify-start'
             )}
           >
             <Settings className="h-5 w-5" />
