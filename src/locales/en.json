@@ -62,7 +62,9 @@
       "website": "Website",
       "email": "Email",
       "whatsapp": "WhatsApp",
-      "save_profile": "Save Profile"
+      "save_profile": "Save Profile",
+      "show_logo": "Show Logo in Invoices",
+      "show_logo_desc": "Enable or disable the company logo on all invoice templates."
     },
     "appearance": {
       "title": "Appearance",

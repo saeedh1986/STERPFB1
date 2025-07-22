@@ -8,7 +8,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Moon, Sun, Monitor, FilePenLine, PlusCircle, AlertTriangle, Trash2, TextQuote, Building, Save, Languages, Landmark, Shield, Users } from "lucide-react";
+import { Moon, Sun, Monitor, FilePenLine, PlusCircle, AlertTriangle, Trash2, TextQuote, Building, Save, Languages, Landmark, Shield, Users, Image as ImageIcon } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { chartOfAccountsData as initialChartOfAccountsData, getColumns, type GenericItem, usersPool as initialUsers, userRoles as initialUserRoles } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
@@ -34,6 +34,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { fileToDataURI, cn } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
 import { useCurrency } from '@/context/CurrencyContext';
+import { Switch } from '@/components/ui/switch';
 
 
 const getBadgeVariantForAccountType = (type: string) => {
@@ -196,6 +197,20 @@ export default function SettingsPage() {
                 <Form {...profileForm}>
                     <form onSubmit={profileForm.handleSubmit(handleProfileSubmit)}>
                         <CardContent className="space-y-4">
+                             <FormField
+                                control={profileForm.control} name="showLogoInInvoice"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                        <div className="space-y-0.5">
+                                            <FormLabel className="text-base flex items-center gap-2"><ImageIcon /> {t('settings.company_profile.show_logo')}</FormLabel>
+                                            <FormDescription>{t('settings.company_profile.show_logo_desc')}</FormDescription>
+                                        </div>
+                                        <FormControl>
+                                            <Switch checked={field.value} onCheckedChange={field.onChange} />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
+                            />
                             <FormField
                                 control={profileForm.control} name="logo"
                                 render={({ field }) => (
@@ -223,7 +238,24 @@ export default function SettingsPage() {
                 </Form>
             </Card>
 
-            <Card className="shadow-lg">
+            <Card className="shadow-lg border-destructive/50">
+              <CardHeader><CardTitle className="flex items-center gap-2 text-destructive"><AlertTriangle />{t('settings.danger_zone.title')}</CardTitle><CardDescription>{t('settings.danger_zone.description')}</CardDescription></CardHeader>
+              <CardContent><p className="text-sm mb-2">{t('settings.danger_zone.reset_text_1')}</p><p className="text-sm font-medium">{t('settings.danger_zone.reset_text_2')}</p></CardContent>
+              <CardFooter>
+                 <AlertDialog>
+                    <AlertDialogTrigger asChild><Button variant="destructive"><Trash2 className="mr-2 h-4 w-4" /> {t('settings.danger_zone.reset_button')}</Button></AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader><AlertDialogTitle>{t('settings.danger_zone.reset_dialog_title')}</AlertDialogTitle><AlertDialogDescription>{t('settings.danger_zone.reset_dialog_description')}</AlertDialogDescription></AlertDialogHeader>
+                        <AlertDialogFooter><AlertDialogCancel>{t('settings.cancel')}</AlertDialogCancel><AlertDialogAction onClick={handleResetData} className="bg-destructive hover:bg-destructive/90">{t('settings.danger_zone.reset_dialog_confirm')}</AlertDialogAction></AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+              </CardFooter>
+            </Card>
+        </div>
+
+        {/* Right Column */}
+        <div className="space-y-6">
+             <Card className="shadow-lg">
                 <CardHeader>
                     <CardTitle>{t('settings.appearance.title')}</CardTitle>
                     <CardDescription>{t('settings.appearance.description')}</CardDescription>
@@ -267,131 +299,6 @@ export default function SettingsPage() {
               </CardContent>
             </Card>
             
-            <Card className="shadow-lg border-destructive/50">
-              <CardHeader><CardTitle className="flex items-center gap-2 text-destructive"><AlertTriangle />{t('settings.danger_zone.title')}</CardTitle><CardDescription>{t('settings.danger_zone.description')}</CardDescription></CardHeader>
-              <CardContent><p className="text-sm mb-2">{t('settings.danger_zone.reset_text_1')}</p><p className="text-sm font-medium">{t('settings.danger_zone.reset_text_2')}</p></CardContent>
-              <CardFooter>
-                 <AlertDialog>
-                    <AlertDialogTrigger asChild><Button variant="destructive"><Trash2 className="mr-2 h-4 w-4" /> {t('settings.danger_zone.reset_button')}</Button></AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader><AlertDialogTitle>{t('settings.danger_zone.reset_dialog_title')}</AlertDialogTitle><AlertDialogDescription>{t('settings.danger_zone.reset_dialog_description')}</AlertDialogDescription></AlertDialogHeader>
-                        <AlertDialogFooter><AlertDialogCancel>{t('settings.cancel')}</AlertDialogCancel><AlertDialogAction onClick={handleResetData} className="bg-destructive hover:bg-destructive/90">{t('settings.danger_zone.reset_dialog_confirm')}</AlertDialogAction></AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
-              </CardFooter>
-            </Card>
-        </div>
-
-        {/* Right Column */}
-        <div className="space-y-6">
-            <Card className="shadow-lg">
-                <CardHeader className={cn("flex flex-col sm:flex-row items-center justify-between gap-4", direction === 'rtl' ? 'sm:flex-row-reverse' : 'sm:flex-row')}>
-                    <div>
-                        <CardTitle>{t('settings.chart_of_accounts.title')}</CardTitle>
-                        <CardDescription>{t('settings.chart_of_accounts.description')}</CardDescription>
-                    </div>
-                    <Button variant="outline" onClick={() => { setSelectedAccount(null); setIsAccountDialogOpen(true); }}><PlusCircle className="mr-2 h-4 w-4" /> {t('settings.chart_of_accounts.add_account')}</Button>
-                </CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Code</TableHead>
-                                <TableHead>Account Name</TableHead>
-                                <TableHead>Type</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {accounts.map((account) => (
-                                <TableRow key={account.id}>
-                                    <TableCell className="font-mono">{account.code}</TableCell>
-                                    <TableCell className="font-medium">{account.name}</TableCell>
-                                    <TableCell>
-                                        <Badge variant="outline" className={`border-transparent ${getBadgeVariantForAccountType(account.type as string)}`}>{account.type}</Badge>
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                        <Button variant="ghost" size="icon" onClick={() => { setSelectedAccount(account); setIsAccountDialogOpen(true); }} aria-label={`Edit account ${account.name}`}>
-                                            <FilePenLine className="h-4 w-4" />
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
-
-            <Card className="shadow-lg">
-                <CardHeader className={cn("flex flex-col sm:flex-row items-center justify-between gap-4", direction === 'rtl' ? 'sm:flex-row-reverse' : 'sm:flex-row')}>
-                    <div>
-                        <CardTitle className="flex items-center gap-2"><Users /> {t('settings.user_management.title')}</CardTitle>
-                        <CardDescription>{t('settings.user_management.description')}</CardDescription>
-                    </div>
-                    <Button variant="outline" onClick={() => { setSelectedUser(null); setIsUserDialogOpen(true); }}><PlusCircle className="mr-2 h-4 w-4" /> {t('settings.user_management.add_user')}</Button>
-                </CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>{t('settings.user_management.username')}</TableHead>
-                                <TableHead>{t('settings.user_management.role')}</TableHead>
-                                <TableHead className="text-right">{t('settings.user_management.actions')}</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {users.map((user) => (
-                                <TableRow key={user.id}>
-                                    <TableCell className="font-medium">{user.username}</TableCell>
-                                    <TableCell>
-                                        <Badge variant="secondary">{user.role}</Badge>
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                        <Button variant="ghost" size="icon" onClick={() => { setSelectedUser(user); setIsUserDialogOpen(true); }} aria-label={`Edit user ${user.username}`}>
-                                            <FilePenLine className="h-4 w-4" />
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
-
-            <Card className="shadow-lg">
-                <CardHeader className={cn("flex flex-col sm:flex-row items-center justify-between gap-4", direction === 'rtl' ? 'sm:flex-row-reverse' : 'sm:flex-row')}>
-                    <div>
-                        <CardTitle className="flex items-center gap-2"><Shield /> {t('settings.role_management.title')}</CardTitle>
-                        <CardDescription>{t('settings.role_management.description')}</CardDescription>
-                    </div>
-                    <Button variant="outline" onClick={() => { setSelectedRole(null); setIsRoleDialogOpen(true); }}><PlusCircle className="mr-2 h-4 w-4" /> {t('settings.role_management.add_role')}</Button>
-                </CardHeader>
-                <CardContent>
-                     <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>{t('settings.role_management.role_name')}</TableHead>
-                                <TableHead className="w-[40%]">{t('settings.role_management.description')}</TableHead>
-                                <TableHead className="text-right">{t('settings.role_management.actions')}</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {userRoles.map((role) => (
-                                <TableRow key={role.id}>
-                                    <TableCell className="font-medium">{role.name}</TableCell>
-                                    <TableCell>{role.description}</TableCell>
-                                    <TableCell className="text-right">
-                                        <Button variant="ghost" size="icon" onClick={() => { setSelectedRole(role); setIsRoleDialogOpen(true); }} aria-label={`Edit role ${role.name}`}>
-                                            <FilePenLine className="h-4 w-4" />
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
-
             <Card className="shadow-lg">
                 <CardHeader><CardTitle className="flex items-center gap-2"><Languages />{t('settings.language.title')}</CardTitle><CardDescription>{t('settings.language.description')}</CardDescription></CardHeader>
                 <CardContent>
@@ -401,7 +308,6 @@ export default function SettingsPage() {
                     </RadioGroup>
                 </CardContent>
             </Card>
-
             <Card className="shadow-lg">
                 <CardHeader><CardTitle className="flex items-center gap-2"><Landmark />{t('settings.accounting.title')}</CardTitle><CardDescription>{t('settings.accounting.description')}</CardDescription></CardHeader>
                 <CardContent>

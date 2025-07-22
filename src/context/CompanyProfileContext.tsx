@@ -11,6 +11,7 @@ export interface CompanyProfile {
   website: string;
   email: string;
   whatsapp: string;
+  showLogoInInvoice: boolean;
 }
 
 const defaultProfile: CompanyProfile = {
@@ -21,6 +22,7 @@ const defaultProfile: CompanyProfile = {
   website: "S3eed.ae",
   email: "info@s3eed.ae",
   whatsapp: "+971553813831",
+  showLogoInInvoice: true,
 };
 
 interface CompanyProfileContextType {
@@ -39,7 +41,11 @@ export function CompanyProfileProvider({ children }: { children: ReactNode }) {
     try {
       const storedProfile = localStorage.getItem('erpCompanyProfile');
       if (storedProfile) {
-        setProfileState(JSON.parse(storedProfile));
+        // Ensure new fields have default values if not in storage
+        const parsed = JSON.parse(storedProfile);
+        setProfileState({ ...defaultProfile, ...parsed });
+      } else {
+        setProfileState(defaultProfile);
       }
     } catch (error) {
         console.error("Failed to parse company profile from localStorage", error);
