@@ -227,7 +227,7 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
           <TableHeader>
             <TableRow>
               {columns.map((column) => (
-                <TableHead key={column.accessorKey} className="font-semibold">{column.header}</TableHead>
+                <TableHead key={column.accessorKey} className="font-semibold">{t(column.header)}</TableHead>
               ))}
               <TableHead className="text-right font-semibold">{t('datatable.actions')}</TableHead>
             </TableRow>

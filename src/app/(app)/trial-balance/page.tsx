@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { getMockData, chartOfAccountsData } from '@/lib/data';
+import { useLanguage } from '@/context/LanguageContext';
 
 const currencyFormatter = (value: number) => {
     if (value === 0) return '-';
@@ -65,6 +66,7 @@ const getLedgerData = () => {
 };
 
 export default function TrialBalancePage() {
+    const { t } = useLanguage();
     const trialBalanceData = useMemo(() => {
         const ledger = getLedgerData();
         const accounts: Record<string, { debit: number; credit: number }> = {};
@@ -122,10 +124,10 @@ export default function TrialBalancePage() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Code</TableHead>
-                                    <TableHead>Account</TableHead>
-                                    <TableHead className="text-right">Debit (Dr)</TableHead>
-                                    <TableHead className="text-right">Credit (Cr)</TableHead>
+                                    <TableHead>{t('datatable.headers.code')}</TableHead>
+                                    <TableHead>{t('datatable.headers.account')}</TableHead>
+                                    <TableHead className="text-right">{t('datatable.headers.debit')}</TableHead>
+                                    <TableHead className="text-right">{t('datatable.headers.credit')}</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>

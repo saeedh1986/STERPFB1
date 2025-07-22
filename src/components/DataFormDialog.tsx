@@ -74,13 +74,13 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
         acc[col.accessorKey] = z.coerce.number().optional();
       } else if(isUsers && col.accessorKey === 'password' && !defaultValues?.id) {
         // Password is only required when creating a new user
-        acc[col.accessorKey] = z.string().min(1, `${col.header} is required.`);
+        acc[col.accessorKey] = z.string().min(1, `${t(col.header)} is required.`);
       } else if (isUsers && col.accessorKey === 'password' && defaultValues?.id) {
         // Password is optional when updating
         acc[col.accessorKey] = z.string().optional();
       }
       else {
-         acc[col.accessorKey] = z.string().min(1, `${col.header} is required.`);
+         acc[col.accessorKey] = z.string().min(1, `${t(col.header)} is required.`);
       }
       return acc;
     }, {} as Record<string, z.ZodTypeAny>);
@@ -259,7 +259,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                             name={col.accessorKey as keyof FormValues}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>{col.header}</FormLabel>
+                                <FormLabel>{t(col.header)}</FormLabel>
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                   <FormControl>
                                     <SelectTrigger>
@@ -287,7 +287,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                                 name={col.accessorKey as keyof FormValues}
                                 render={({ field }) => (
                                     <FormItem>
-                                    <FormLabel>{col.header}</FormLabel>
+                                    <FormLabel>{t(col.header)}</FormLabel>
                                     <FormControl>
                                         <Textarea placeholder={t('datatable.dialog.textarea_placeholder', {item: 'detailed description for asset/expense'})} {...field} />
                                     </FormControl>
@@ -306,7 +306,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                             name={col.accessorKey as keyof FormValues}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>{col.header}</FormLabel>
+                                <FormLabel>{t(col.header)}</FormLabel>
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                   <FormControl>
                                     <SelectTrigger>
@@ -334,7 +334,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                             name={col.accessorKey as keyof FormValues}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>{col.header}</FormLabel>
+                                <FormLabel>{t(col.header)}</FormLabel>
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                   <FormControl>
                                     <SelectTrigger>
@@ -362,7 +362,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                             name={col.accessorKey as keyof FormValues}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>{col.header}</FormLabel>
+                                <FormLabel>{t(col.header)}</FormLabel>
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                   <FormControl>
                                     <SelectTrigger>
@@ -390,7 +390,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                             name={col.accessorKey as keyof FormValues}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>{col.header}</FormLabel>
+                                <FormLabel>{t(col.header)}</FormLabel>
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                   <FormControl>
                                     <SelectTrigger>
@@ -419,7 +419,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                             name={col.accessorKey as keyof FormValues}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>{col.header}</FormLabel>
+                                <FormLabel>{t(col.header)}</FormLabel>
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                   <FormControl>
                                     <SelectTrigger>
@@ -447,7 +447,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                             name={col.accessorKey as keyof FormValues}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>{col.header}</FormLabel>
+                                <FormLabel>{t(col.header)}</FormLabel>
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                   <FormControl>
                                     <SelectTrigger>
@@ -475,7 +475,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                             name={col.accessorKey as keyof FormValues}
                             render={({ field }) => (
                             <FormItem className="flex flex-col">
-                                <FormLabel>{col.header}</FormLabel>
+                                <FormLabel>{t(col.header)}</FormLabel>
                                 <Popover>
                                 <PopoverTrigger asChild>
                                     <FormControl>
@@ -522,7 +522,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                             name={col.accessorKey as keyof FormValues}
                             render={({ field }) => (
                             <FormItem>
-                                <FormLabel>{col.header}</FormLabel>
+                                <FormLabel>{t(col.header)}</FormLabel>
                                 <Select onValueChange={(value) => {
                                 field.onChange(value);
                                 handleSkuChange(value);
@@ -555,7 +555,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                                 name={col.accessorKey as keyof FormValues}
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>{col.header}</FormLabel>
+                                        <FormLabel>{t(col.header)}</FormLabel>
                                         <FormControl>
                                             <Input placeholder={t('datatable.dialog.input_placeholder', {item: col.header.toLowerCase()})} {...field} />
                                         </FormControl>
@@ -574,7 +574,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                             name={col.accessorKey as keyof FormValues}
                             render={({ field }) => (
                             <FormItem className="flex flex-col">
-                                <FormLabel>{col.header}</FormLabel>
+                                <FormLabel>{t(col.header)}</FormLabel>
                                 <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
                                 <PopoverTrigger asChild>
                                     <FormControl>
@@ -649,7 +649,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                             name={col.accessorKey as keyof FormValues}
                             render={({ field }) => (
                             <FormItem>
-                                <FormLabel>{col.header}</FormLabel>
+                                <FormLabel>{t(col.header)}</FormLabel>
                                 <FormControl>
                                 <Input placeholder={t('datatable.dialog.autofilled_placeholder')} {...field} readOnly className="bg-muted" />
                                 </FormControl>
@@ -700,7 +700,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                         name={col.accessorKey as keyof FormValues}
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>{col.header}</FormLabel>
+                            <FormLabel>{t(col.header)}</FormLabel>
                             <FormControl>
                                 <Input 
                                     placeholder={t('datatable.dialog.input_placeholder', {item: col.header.toLowerCase()})}
