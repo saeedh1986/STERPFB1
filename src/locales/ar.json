@@ -240,6 +240,17 @@
       "account": "الحساب",
       "debit": "مدين",
       "credit": "دائن"
+    },
+     "mapper": {
+      "title": "مطابقة أعمدة CSV",
+      "description": "طابق الأعمدة من ملف CSV الخاص بك مع الحقول المطلوبة في التطبيق.",
+      "csv_column": "عمود CSV الخاص بك",
+      "target_field": "حقل التطبيق",
+      "select_placeholder": "اختر حقلاً...",
+      "skip_column": "تجاهل هذا العمود",
+      "warning_title": "حقول غير مطابقة",
+      "warning_desc": "الحقول المطلوبة التالية لم يتم مطابقتها:",
+      "submit_button": "معالجة الاستيراد"
     }
   },
   "invoice": {

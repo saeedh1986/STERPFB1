@@ -177,7 +177,7 @@
       "template_download_title": "Template Downloaded",
       "template_download_desc": "A CSV template has been downloaded."
     },
-    "dialog": {
+     "dialog": {
         "description_edit": "Make changes to the record here. Click save when you're done.",
         "description_create": "Enter the details for the new record. Click create when you're done.",
         "input_placeholder": "Enter {{item}}...",
@@ -240,6 +240,17 @@
       "account": "Account",
       "debit": "Debit (Dr)",
       "credit": "Credit (Cr)"
+    },
+    "mapper": {
+      "title": "Map CSV Columns",
+      "description": "Match the columns from your CSV file to the required fields in the application.",
+      "csv_column": "Your CSV Column",
+      "target_field": "Application Field",
+      "select_placeholder": "Select a field...",
+      "skip_column": "Skip this column",
+      "warning_title": "Unmapped Fields",
+      "warning_desc": "The following required fields have not been mapped:",
+      "submit_button": "Process Import"
     }
   },
   "invoice": {

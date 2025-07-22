@@ -42,6 +42,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { ScanInvoiceDialog } from './purchases/ScanInvoiceDialog';
 import { useLanguage } from '@/context/LanguageContext';
+import { CsvColumnMapper, type Mapping } from './CsvColumnMapper';
 
 
 interface DataTableProps {
@@ -62,6 +63,8 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
   const [currentPage, setCurrentPage] = useState(1);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isScanDialogOpen, setIsScanDialogOpen] = useState(false);
+  const [isMappingDialogOpen, setIsMappingDialogOpen] = useState(false);
+  const [csvData, setCsvData] = useState<{ headers: string[], lines: string[] } | null>(null);
   const [selectedItem, setSelectedItem] = useState<GenericItem | null>(null);
   const { toast } = useToast();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -127,26 +130,10 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
         
         const headerLine = lines[0].trim().replace(/\r/g, '');
         const headers = headerLine.split(',').map(h => h.trim());
-
-        const columnAccessors = columns.filter(c => c.accessorKey !== 'id').map(c => c.accessorKey);
-        
         const dataLines = lines.slice(1);
-        
-        const newRecords = dataLines.map((line, lineIndex) => {
-          const record: GenericItem = { id: `imported-${Date.now()}-${lineIndex}` };
-          const values = line.split(',').map(v => v.trim());
-          
-          columnAccessors.forEach((accessor, index) => {
-            record[accessor] = values[index] || '';
-          });
-          return record;
-        });
 
-        setTableData(prev => [...newRecords, ...prev]);
-        toast({
-          title: t('datatable.toast.import_success_title'),
-          description: t('datatable.toast.import_success_desc', {count: newRecords.length}),
-        });
+        setCsvData({ headers, lines: dataLines });
+        setIsMappingDialogOpen(true);
 
       } catch (error) {
         toast({
@@ -155,7 +142,6 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
           variant: "destructive",
         });
       } finally {
-        // Reset file input
         if(fileInputRef.current) {
           fileInputRef.current.value = "";
         }
@@ -164,8 +150,44 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
     reader.readAsText(file);
   };
 
+  const handleMappingComplete = (mapping: Mapping) => {
+    if (!csvData) return;
+    
+    try {
+        const newRecords = csvData.lines.map((line, lineIndex) => {
+            const record: GenericItem = { id: `imported-${Date.now()}-${lineIndex}` };
+            const values = line.split(',').map(v => v.trim());
+
+            Object.entries(mapping).forEach(([csvHeader, targetField]) => {
+                if (targetField !== 'skip') {
+                    const csvHeaderIndex = csvData.headers.indexOf(csvHeader);
+                    if (csvHeaderIndex !== -1) {
+                        record[targetField] = values[csvHeaderIndex] || '';
+                    }
+                }
+            });
+            return record;
+        });
+
+        setTableData(prev => [...newRecords, ...prev]);
+        toast({
+            title: t('datatable.toast.import_success_title'),
+            description: t('datatable.toast.import_success_desc', { count: newRecords.length }),
+        });
+    } catch (error) {
+         toast({
+          title: t('datatable.toast.import_failed_title'),
+          description: error instanceof Error ? error.message : "Could not process data with the provided mapping.",
+          variant: "destructive",
+        });
+    }
+
+    setIsMappingDialogOpen(false);
+    setCsvData(null);
+  };
+
   const handleDownloadTemplate = () => {
-    const headers = columns.filter(c => c.accessorKey !== 'id').map(c => c.header).join(',');
+    const headers = columns.filter(c => c.accessorKey !== 'id').map(c => t(c.header)).join(',');
     const blob = new Blob([headers], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
@@ -340,6 +362,16 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
             {t('datatable.next')}
           </Button>
         </div>
+      )}
+
+      {isMappingDialogOpen && csvData && (
+        <CsvColumnMapper
+            isOpen={isMappingDialogOpen}
+            onClose={() => setIsMappingDialogOpen(false)}
+            csvHeaders={csvData.headers}
+            targetColumns={columns.filter(c => c.accessorKey !== 'id')}
+            onSubmit={handleMappingComplete}
+        />
       )}
 
       <DataFormDialog
