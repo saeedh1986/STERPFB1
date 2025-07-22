@@ -19,6 +19,7 @@ import {
   SidebarMenuButton,
   SidebarMenuSub,
   SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -104,8 +105,8 @@ export function SidebarNav() {
   
   const NavLink = ({ item }: { item: NavItem }) => (
     <SidebarMenuItem>
-        <Link href={item.href} passHref legacyBehavior>
-             <SidebarMenuButton asChild isActive={isModuleActive(item.href)} tooltip={t(item.labelKey)}>
+        <Link href={item.href}>
+             <SidebarMenuButton isActive={isModuleActive(item.href)} tooltip={t(item.labelKey)}>
                 <item.icon />
                 <span>{t(item.labelKey)}</span>
             </SidebarMenuButton>
@@ -122,7 +123,7 @@ export function SidebarNav() {
                 "hover:no-underline hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-md",
                  isActive && "bg-sidebar-accent text-sidebar-accent-foreground"
             )}>
-                <SidebarMenuButton asChild size="default" variant="ghost" className="w-full justify-start p-2 h-auto" isActive={isActive}>
+                <SidebarMenuButton size="default" variant="ghost" className="w-full justify-start p-2 h-auto" isActive={isActive}>
                     <>
                         <Icon />
                         <span>{t(titleKey)}</span>
@@ -138,8 +139,8 @@ export function SidebarNav() {
                         </SidebarMenuSubItem>
                     ) : (
                         <SidebarMenuSubItem key={item.labelKey}>
-                            <Link href={item.href} passHref legacyBehavior>
-                                <SidebarMenuSubButton asChild isActive={isModuleActive(item.href)}>
+                            <Link href={item.href}>
+                                <SidebarMenuSubButton isActive={isModuleActive(item.href)}>
                                     <item.icon />
                                     <span>{t(item.labelKey)}</span>
                                 </SidebarMenuSubButton>
@@ -183,8 +184,8 @@ export function SidebarNav() {
        <SidebarFooter>
           <SidebarMenu>
             <SidebarMenuItem>
-                <Link href="/settings" passHref legacyBehavior>
-                    <SidebarMenuButton asChild isActive={pathname.startsWith('/settings')} tooltip={t('sidebar.settings')}>
+                <Link href="/settings">
+                    <SidebarMenuButton isActive={pathname.startsWith('/settings')} tooltip={t('sidebar.settings')}>
                          <Settings />
                         <span>{t('sidebar.settings')}</span>
                     </SidebarMenuButton>
