@@ -8,11 +8,13 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { ThemeProvider } from "next-themes";
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/context/LanguageContext';
 
 const THEMES = ["light", "dark", "system", "theme-amber", "theme-blue", "theme-green"];
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   const { isAuthenticated, loading } = useAuth();
+  const { direction } = useLanguage();
   const router = useRouter();
 
   useEffect(() => {
@@ -31,8 +33,14 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem themes={THEMES}>
-      <div className="grid min-h-screen w-full md:grid-cols-[280px_1fr]">
-        <div className="hidden border-r bg-sidebar md:block glass-sidebar">
+      <div className={cn(
+        "grid min-h-screen w-full",
+        direction === 'rtl' ? "md:grid-cols-[1fr_280px]" : "md:grid-cols-[280px_1fr]"
+      )}>
+        <div className={cn(
+          "hidden bg-sidebar md:block glass-sidebar",
+           direction === 'rtl' ? "border-l" : "border-r"
+        )}>
           <SidebarNav />
         </div>
         <div className="flex flex-col">
