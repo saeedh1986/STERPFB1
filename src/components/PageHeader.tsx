@@ -18,6 +18,7 @@ import {
 import { useTheme } from "next-themes";
 import { useLanguage } from '@/context/LanguageContext';
 import { cn } from '@/lib/utils';
+import { SidebarTrigger } from '@/components/ui/sidebar';
 
 interface PageHeaderProps {
   title: string;
@@ -29,18 +30,8 @@ export function PageHeader({ title }: PageHeaderProps) {
   const { direction } = useLanguage();
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
-      <Sheet>
-        <SheetTrigger asChild>
-          <Button variant="outline" size="icon" className="md:hidden">
-            <Menu className="h-5 w-5" />
-            <span className="sr-only">Toggle navigation menu</span>
-          </Button>
-        </SheetTrigger>
-        <SheetContent side={direction === 'rtl' ? 'right' : 'left'} className="p-0">
-          <SidebarNav />
-        </SheetContent>
-      </Sheet>
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-lg md:px-6">
+       <SidebarTrigger className="md:hidden" />
 
       <h1 className="flex-1 text-xl font-semibold font-headline">{title}</h1>
       
@@ -63,7 +54,7 @@ export function PageHeader({ title }: PageHeaderProps) {
                 <span className="sr-only">User menu</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align={direction === 'rtl' ? 'start' : 'end'}>
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>

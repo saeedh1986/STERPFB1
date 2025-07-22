@@ -9,6 +9,8 @@ import { useEffect } from 'react';
 import { ThemeProvider } from "next-themes";
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
+import { PageHeader } from '@/components/PageHeader';
+import { Sidebar, SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 
 const THEMES = ["light", "dark", "system", "theme-amber", "theme-blue", "theme-green"];
 
@@ -33,23 +35,14 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem themes={THEMES}>
-       <div className={cn(
-        "grid min-h-screen w-full md:grid-cols-[240px_1fr]",
-        direction === 'rtl' && "md:grid-cols-[1fr_240px]"
-      )}>
-        <div className={cn(
-          "hidden bg-sidebar md:block glass-sidebar",
-           direction === 'rtl' ? "border-l [grid-column:2]" : "border-r [grid-column:1]"
-        )}>
-          <SidebarNav />
-        </div>
-        <div className={cn(
-          "flex flex-col", 
-          direction === 'rtl' ? "[grid-column:1]" : "[grid-column:2]"
-        )}>
-          {children}
-        </div>
-      </div>
+      <SidebarProvider>
+          <Sidebar side={direction === 'rtl' ? 'right' : 'left'} collapsible="icon">
+              <SidebarNav />
+          </Sidebar>
+          <SidebarInset>
+            {children}
+          </SidebarInset>
+       </SidebarProvider>
     </ThemeProvider>
   );
 }

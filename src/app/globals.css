@@ -42,10 +42,8 @@ html {
     --radius: 0.75rem;
 
     /* Sidebar specific colors */
-    --sidebar-background: 220 14% 96% / 0.8; /* Light Gray */
+    --sidebar-background: 220 14% 96% / 0.8;
     --sidebar-foreground: 220 15% 25%;
-    --sidebar-primary: 38 92% 50%;
-    --sidebar-primary-foreground: 38 92% 10%;
     --sidebar-accent: 220 14% 90%;
     --sidebar-accent-foreground: 220 15% 15%;
     --sidebar-border: 220 13% 88%;
@@ -79,10 +77,8 @@ html {
     --chart-5: 27 87% 67%;
     
     /* Dark Sidebar specific colors */
-    --sidebar-background: 220 15% 10% / 0.7; /* Semi-transparent dark */
+    --sidebar-background: 220 15% 10% / 0.7;
     --sidebar-foreground: 220 13% 90%; 
-    --sidebar-primary: 38 92% 50%; 
-    --sidebar-primary-foreground: 38 92% 10%; 
     --sidebar-accent: 220 15% 20%; 
     --sidebar-accent-foreground: 220 13% 90%;
     --sidebar-border: 220 15% 25%;
@@ -94,8 +90,6 @@ html {
     --primary-foreground: 217 91% 10%;
     --ring: 217 91% 60%;
     --chart-1: 217 91% 60%;
-    --sidebar-primary: 217 91% 60%;
-    --sidebar-primary-foreground: 217 91% 10%;
     --sidebar-ring: 217 91% 60%;
   }
 
@@ -104,8 +98,6 @@ html {
     --primary-foreground: 217 91% 10%;
     --ring: 217 91% 60%;
     --chart-1: 217 91% 60%;
-    --sidebar-primary: 217 91% 60%;
-    --sidebar-primary-foreground: 217 91% 10%;
     --sidebar-ring: 217 91% 60%;
   }
 
@@ -114,8 +106,6 @@ html {
     --primary-foreground: 142 76% 5%;
     --ring: 142 76% 36%;
     --chart-1: 142 76% 36%;
-    --sidebar-primary: 142 76% 36%;
-    --sidebar-primary-foreground: 142 76% 5%;
     --sidebar-ring: 142 76% 36%;
   }
 
@@ -124,8 +114,6 @@ html {
     --primary-foreground: 142 76% 5%;
     --ring: 142 76% 36%;
     --chart-1: 142 76% 36%;
-    --sidebar-primary: 142 76% 36%;
-    --sidebar-primary-foreground: 142 76% 5%;
     --sidebar-ring: 142 76% 36%;
   }
 }
@@ -137,14 +125,31 @@ html {
   body {
     @apply text-foreground;
   }
+  
+  [data-sidebar='sidebar'] {
+    @apply bg-sidebar text-sidebar-foreground;
+  }
+
+  [data-sidebar='sidebar'] [data-sidebar='menu-button'][data-active='true'] {
+      @apply bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground;
+  }
+
+  [data-sidebar='sidebar'] [data-sidebar='menu-sub-button'][data-active='true'] {
+      @apply bg-primary/10 text-primary font-medium;
+  }
+  
+  [data-sidebar='sidebar'] .accordion-trigger:hover {
+      @apply bg-accent text-accent-foreground;
+  }
+  
+  [data-sidebar='sidebar'] .accordion-trigger[data-state='open'] {
+       @apply bg-accent/50;
+  }
 }
 
 /* Glassmorphism styles */
 @layer components {
   .glass-card {
     @apply backdrop-blur-lg border border-white/10;
-  }
-  .glass-sidebar {
-    @apply backdrop-blur-xl border-r border-white/5;
   }
 }

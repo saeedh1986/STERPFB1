@@ -10,7 +10,17 @@ import {
   Users, Building, Truck, Layers, Combine, CalendarDays, Landmark, BotMessageSquare, Package2, Library, FileText, Calculator, BookOpen, Settings, Scale, FileSpreadsheet, AreaChart, PieChart, Users2, Tag, Copyright, Warehouse, ArrowRightLeft, Handshake, Briefcase
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  SidebarHeader,
+  SidebarContent,
+  SidebarFooter,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarTrigger,
+} from '@/components/ui/sidebar';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useCompanyProfile } from '@/context/CompanyProfileContext';
 import { useLanguage } from '@/context/LanguageContext';
@@ -79,76 +89,85 @@ export function SidebarNav() {
   const { profile } = useCompanyProfile();
   const { t, direction } = useLanguage();
 
-  const isModuleActive = (item: NavItem) => {
-    if (item.href === '/dashboard' || item.href === '/') {
-        return pathname === item.href;
+  const isModuleActive = (href: string, subItems?: NavItem[]) => {
+    if (href === '/dashboard' || href === '/') {
+        return pathname === href;
     }
-    // Check if the current path starts with the item's href, or if any sub-item is active
-    if (pathname.startsWith(item.href)) {
+    if (pathname.startsWith(href)) {
         return true;
     }
-    if (item.subItems) {
-        return item.subItems.some(sub => pathname.startsWith(sub.href));
+    if (subItems) {
+        return subItems.some(sub => pathname.startsWith(sub.href));
     }
     return false;
   };
   
-  const NavLink = ({ item, isSubItem = false }: { item: NavItem, isSubItem?: boolean }) => (
-    <Link
-      href={item.href}
-      className={cn(
-        'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-        isModuleActive(item) ? 'bg-sidebar-primary text-sidebar-primary-foreground font-medium' : 'text-sidebar-foreground',
-        isSubItem && 'py-2',
-        direction === 'rtl' && 'flex-row-reverse'
-      )}
-    >
-      <item.icon className="h-5 w-5" />
-      {t(item.labelKey)}
-    </Link>
+  const NavLink = ({ item }: { item: NavItem }) => (
+    <SidebarMenuItem>
+        <Link href={item.href} passHref legacyBehavior>
+             <SidebarMenuButton asChild isActive={isModuleActive(item.href)} tooltip={t(item.labelKey)}>
+                <item.icon />
+                <span>{t(item.labelKey)}</span>
+            </SidebarMenuButton>
+        </Link>
+    </SidebarMenuItem>
   );
 
-  const NavAccordion = ({ titleKey, icon: Icon, items, value }: { titleKey: string, icon: LucideIcon, items: NavItem[], value: string }) => (
-     <AccordionItem value={value} className="border-b-0">
-        <AccordionTrigger className={cn(
-            "px-3 py-2.5 text-sm font-medium hover:no-underline hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-lg [&[data-state=open]]:bg-sidebar-accent",
-            direction === 'rtl' && 'flex-row-reverse'
-        )}>
-        <span className={cn(
-            "flex items-center gap-3",
-             direction === 'rtl' && 'flex-row-reverse'
-        )}>
-            <Icon className="h-5 w-5" />
-            <span>{t(titleKey)}</span>
-        </span>
-        </AccordionTrigger>
-        <AccordionContent className={cn(
-            "pt-1",
-            direction === 'rtl' ? "pr-7" : "pl-7"
-        )}>
-            <div className="flex flex-col gap-1">
-            {items.map((item) => (
-                 item.subItems ? (
-                    <NavAccordion key={item.labelKey} titleKey={item.labelKey} icon={item.icon} items={item.subItems} value={item.href} />
-                ) : (
-                    <NavLink key={item.labelKey} item={item} isSubItem />
-                )
-            ))}
-            </div>
-        </AccordionContent>
-    </AccordionItem>
-  )
+  const NavAccordion = ({ titleKey, icon: Icon, items, value }: { titleKey: string, icon: LucideIcon, items: NavItem[], value: string }) => {
+    const isActive = items.some(item => isModuleActive(item.href, item.subItems));
+    
+    return (
+        <AccordionItem value={value} className="border-b-0">
+            <AccordionTrigger className={cn(
+                "hover:no-underline hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-md",
+                 isActive && "bg-sidebar-accent text-sidebar-accent-foreground"
+            )}>
+                <SidebarMenuButton asChild size="default" variant="ghost" className="w-full justify-start p-2 h-auto" isActive={isActive}>
+                    <>
+                        <Icon />
+                        <span>{t(titleKey)}</span>
+                    </>
+                </SidebarMenuButton>
+            </AccordionTrigger>
+            <AccordionContent className="pt-1">
+                <SidebarMenuSub>
+                {items.map((item) => (
+                    item.subItems ? (
+                        <SidebarMenuSubItem key={item.labelKey} className="!p-0">
+                             <NavAccordion titleKey={item.labelKey} icon={item.icon} items={item.subItems} value={item.href} />
+                        </SidebarMenuSubItem>
+                    ) : (
+                        <SidebarMenuSubItem key={item.labelKey}>
+                            <Link href={item.href} passHref legacyBehavior>
+                                <SidebarMenuSubButton asChild isActive={isModuleActive(item.href)}>
+                                    <item.icon />
+                                    <span>{t(item.labelKey)}</span>
+                                </SidebarMenuSubButton>
+                            </Link>
+                        </SidebarMenuSubItem>
+                    )
+                ))}
+                </SidebarMenuSub>
+            </AccordionContent>
+        </AccordionItem>
+    );
+  }
 
   return (
-    <div className="flex h-full w-[240px] flex-col bg-sidebar text-sidebar-foreground glass-sidebar">
-      <div className="flex h-20 items-center justify-center border-b border-sidebar-border px-4">
-        <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
-           {profile.logo && <Image src={profile.logo} alt="Company Logo" width={160} height={160} className="object-contain" />}
-          <span className="text-2xl font-headline">{profile.erpName}</span>
-        </Link>
-      </div>
-      <ScrollArea className="flex-1">
-        <nav className="flex flex-col gap-1 p-4">
+    <>
+      <SidebarHeader className="border-b">
+        <div className="flex items-center gap-2 p-2">
+            <Link href="/dashboard">
+                <Image src={profile.logo} alt="Company Logo" width={32} height={32} />
+            </Link>
+            <span className="text-lg font-semibold">{profile.erpName}</span>
+            <div className="grow" />
+            <SidebarTrigger />
+        </div>
+      </SidebarHeader>
+      
+      <SidebarContent>
+        <SidebarMenu>
           <NavLink item={{ href: '/dashboard', labelKey: 'sidebar.dashboard', icon: LayoutDashboard }} />
           
           <Accordion type="multiple" defaultValue={['finance', 'sales', 'supply_chain', 'human_resources']} className="w-full">
@@ -158,23 +177,21 @@ export function SidebarNav() {
             <NavAccordion titleKey="sidebar.human_resources" icon={Users} items={hrNavItems} value="human_resources" />
           </Accordion>
 
-        </nav>
-      </ScrollArea>
-       <div className="mt-auto border-t border-sidebar-border p-4">
-          <Link
-            href="/settings"
-            className={cn(
-              'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-              pathname.startsWith('/settings')
-                ? 'bg-sidebar-primary text-sidebar-primary-foreground font-medium'
-                : 'text-sidebar-foreground',
-              direction === 'rtl' && 'flex-row-reverse'
-            )}
-          >
-            <Settings className="h-5 w-5" />
-            {t('sidebar.settings')}
-          </Link>
-      </div>
-    </div>
+        </SidebarMenu>
+      </SidebarContent>
+
+       <SidebarFooter>
+          <SidebarMenu>
+            <SidebarMenuItem>
+                <Link href="/settings" passHref legacyBehavior>
+                    <SidebarMenuButton asChild isActive={pathname.startsWith('/settings')} tooltip={t('sidebar.settings')}>
+                         <Settings />
+                        <span>{t('sidebar.settings')}</span>
+                    </SidebarMenuButton>
+                </Link>
+            </SidebarMenuItem>
+          </SidebarMenu>
+      </SidebarFooter>
+    </>
   );
 }
