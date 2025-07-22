@@ -111,6 +111,8 @@ export const userRoles: GenericItem[] = [
 
 export const usersPool: GenericItem[] = [
     { id: 'user-1', username: 'admin', password: 'password', role: 'Administrator', joinDate: '01-Jan-2024' },
+    { id: 'user-2', name: 'Saeed Alhebsi', username: 'saeed', password: 'password', role: 'Administrator', joinDate: '01-Jan-2024' },
+    { id: 'user-3', name: 'Ahmed Ali', username: 'ahmed', password: 'password', role: 'Sales Manager', joinDate: '15-Feb-2024' },
 ];
 
 
@@ -215,7 +217,7 @@ const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   expenses: { fields: ['expenseDate', 'description', 'supplier', 'category', 'amount'], count: 20 },
   customers: { fields: ['name', 'contact', 'email', 'address', 'city', 'country'], count: customersPool.length },
   vendors: { fields: ['name', 'contact', 'email', 'address', 'website', 'city', 'country'], count: vendorsPool.length },
-  users: { fields: ['username', 'password', 'role', 'joinDate'], count: usersPool.length },
+  employees: { fields: ['name', 'username', 'password', 'role', 'joinDate'], count: usersPool.length },
   roles: { fields: ['name', 'description'], count: userRoles.length },
   categories: { fields: ['name', 'description'], count: categoriesPool.length },
   brands: { fields: ['name', 'website'], count: brandsPool.length },
@@ -243,7 +245,7 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
   if (slug === 'customers') {
     return customersPool;
   }
-  if (slug === 'users') {
+  if (slug === 'employees') {
     return usersPool;
   }
   if (slug === 'product-catalog') {
@@ -488,51 +490,31 @@ export const purchasesCalDetailsData = [
 
 
 export const getPageTitle = (slug: string): string => {
-  if (slug === 'product-catalog') {
-    return 'Product Catalog';
+  const titles: Record<string, string> = {
+    'product-catalog': 'Product Catalog',
+    'invoices': 'Invoices',
+    'inventory-barcode': 'Inventory Barcode',
+    'inventory-transfer': 'Inventory Transfer',
+    'ipcc': 'Item Purchased Cost Calculator',
+    'purchases-cal': 'Purchases Calculator',
+    'bank-statement': 'Bank Statement',
+    'vendors': 'Vendors',
+    'employees': 'Employees',
+    'general-journal': 'General Journal',
+    'chart-of-accounts': 'Chart of Accounts',
+    'trial-balance': 'Trial Balance',
+    'balance-sheet': 'Balance Sheet',
+    'income-statement': 'Income Statement',
+  };
+
+  if (titles[slug]) {
+    return titles[slug];
   }
-   if (slug === 'invoices') {
-    return 'Invoices';
-  }
-  if (slug === 'inventory-barcode') {
-    return 'Inventory Barcode';
-  }
-  if (slug === 'inventory-transfer') {
-    return 'Inventory Transfer';
-  }
-  if (slug === 'ipcc') {
-    return 'Item Purchased Cost Calculator';
-  }
-   if (slug === 'purchases-cal') {
-    return 'Purchases Calculator';
-  }
-  if (slug === 'bank-statement') {
-    return 'Bank Statement';
-  }
-  if (slug === 'vendors') {
-    return 'Vendors';
-  }
-   if (slug === 'users') {
-    return 'Users';
-  }
-   if (slug === 'general-journal') {
-    return 'General Journal';
-  }
-  if (slug === 'chart-of-accounts') {
-    return 'Chart of Accounts';
-  }
-   if (slug === 'trial-balance') {
-    return 'Trial Balance';
-  }
-   if (slug === 'balance-sheet') {
-    return 'Balance Sheet';
-  }
-   if (slug === 'income-statement') {
-    return 'Income Statement';
-  }
+  
   if (slug === 'categories' || slug === 'brands' || slug === 'warehouses') {
       return slug.charAt(0).toUpperCase() + slug.slice(1);
   }
+  
   return slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 };
 
@@ -702,7 +684,8 @@ const columnDefinitions: Record<string, ColumnDefinition[]> = {
     { accessorKey: 'city', header: 'City' },
     { accessorKey: 'country', header: 'Country' },
   ],
-   users: [
+   employees: [
+    { accessorKey: 'name', header: 'Name' },
     { accessorKey: 'username', header: 'Username' },
     { accessorKey: 'role', header: 'Role' },
     { accessorKey: 'joinDate', header: 'Join Date' },

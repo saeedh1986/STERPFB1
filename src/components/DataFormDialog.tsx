@@ -54,7 +54,7 @@ const fileToDataURI = (file: File): Promise<string> => {
 export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, columns, title, options }: DataFormDialogProps) {
 
   const isBankStatement = title.includes('Bank Statement');
-  const isUsers = title.includes('User');
+  const isUsers = title.includes('Employees');
   const isPurchases = title.includes('Purchases');
   const isSales = title.includes('Sales');
   const [expenseCategories, setExpenseCategories] = useState(defaultExpenseCategories);

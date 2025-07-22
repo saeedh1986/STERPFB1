@@ -7,6 +7,7 @@
     "categories": "الفئات",
     "brands": "العلامات التجارية",
     "inventory": "المخزون",
+    "inventory_list": "قائمة المخزون",
     "warehouses": "المستودعات",
     "inventory_barcode": "باركود المخزون",
     "inventory_transfer": "تحويل المخزون",
@@ -34,7 +35,11 @@
     "trial_balance": "ميزان المراجعة",
     "income_statement": "قائمة الدخل",
     "balance_sheet": "الميزانية العمومية",
-    "settings": "الإعدادات"
+    "settings": "الإعدادات",
+    "finance": "المالية",
+    "supply_chain": "سلسلة الإمداد",
+    "human_resources": "الموارد البشرية",
+    "employees": "الموظفين"
   },
   "login": {
     "username": "اسم المستخدم",

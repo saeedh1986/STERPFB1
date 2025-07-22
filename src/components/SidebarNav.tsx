@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard, Package, Barcode, ShoppingCart, CreditCard, TrendingUp,
-  Users, Building, Truck, Layers, Combine, CalendarDays, Landmark, BotMessageSquare, Package2, Library, FileText, Calculator, BookOpen, Settings, Scale, FileSpreadsheet, AreaChart, PieChart, Users2, Tag, Copyright, Warehouse, ArrowRightLeft
+  Users, Building, Truck, Layers, Combine, CalendarDays, Landmark, BotMessageSquare, Package2, Library, FileText, Calculator, BookOpen, Settings, Scale, FileSpreadsheet, AreaChart, PieChart, Users2, Tag, Copyright, Warehouse, ArrowRightLeft, Handshake, Briefcase
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -20,58 +20,57 @@ interface NavItem {
   href: string;
   labelKey: string;
   icon: LucideIcon;
+  subItems?: NavItem[];
 }
 
-const navItems: NavItem[] = [
-  { href: '/dashboard', labelKey: 'sidebar.dashboard', icon: LayoutDashboard },
-];
-
-const productNavItems: NavItem[] = [
-    { href: '/product-catalog', labelKey: 'sidebar.product_catalog', icon: Library },
-    { href: '/categories', labelKey: 'sidebar.categories', icon: Tag },
-    { href: '/brands', labelKey: 'sidebar.brands', icon: Copyright },
-];
-
-const inventoryNavItems: NavItem[] = [
-    { href: '/inventory', labelKey: 'sidebar.inventory', icon: Package },
-    { href: '/warehouses', labelKey: 'sidebar.warehouses', icon: Warehouse },
-    { href: '/inventory-barcode', labelKey: 'sidebar.inventory_barcode', icon: Barcode },
-    { href: '/inventory-transfer', labelKey: 'sidebar.inventory_transfer', icon: ArrowRightLeft },
-];
-
-const mainNavItems: NavItem[] = [
-  { href: '/purchases', labelKey: 'sidebar.purchases', icon: ShoppingCart },
-  { href: '/sales', labelKey: 'sidebar.sales', icon: TrendingUp },
+const financeNavItems: NavItem[] = [
   { href: '/invoices', labelKey: 'sidebar.invoices', icon: FileText },
   { href: '/expenses', labelKey: 'sidebar.expenses', icon: CreditCard },
+  { 
+    href: '/accounting', 
+    labelKey: 'sidebar.accounting', 
+    icon: Layers,
+    subItems: [
+      { href: '/general-journal', labelKey: 'sidebar.general_journal', icon: BookOpen },
+      { href: '/bank-statement', labelKey: 'sidebar.bank_statement', icon: Landmark },
+      { href: '/trial-balance', labelKey: 'sidebar.trial_balance', icon: Scale },
+      { href: '/income-statement', labelKey: 'sidebar.income_statement', icon: PieChart },
+      { href: '/balance-sheet', labelKey: 'sidebar.balance_sheet', icon: FileSpreadsheet },
+    ]
+  },
+];
+
+const salesNavItems: NavItem[] = [
+  { href: '/sales', labelKey: 'sidebar.sales', icon: TrendingUp },
+  { 
+    href: '/crm', 
+    labelKey: 'sidebar.crm', 
+    icon: Users2,
+    subItems: [
+        { href: '/customers', labelKey: 'sidebar.customers', icon: Users },
+        { href: '/vendors', labelKey: 'sidebar.vendors', icon: Building },
+    ]
+  },
+];
+
+const supplyChainNavItems: NavItem[] = [
+  { href: '/purchases', labelKey: 'sidebar.purchases', icon: ShoppingCart },
+  { 
+    href: '/inventory', 
+    labelKey: 'sidebar.inventory', 
+    icon: Package,
+    subItems: [
+      { href: '/inventory', labelKey: 'sidebar.inventory_list', icon: Package },
+      { href: '/warehouses', labelKey: 'sidebar.warehouses', icon: Warehouse },
+      { href: '/inventory-barcode', labelKey: 'sidebar.inventory_barcode', icon: Barcode },
+      { href: '/inventory-transfer', labelKey: 'sidebar.inventory_transfer', icon: ArrowRightLeft },
+    ]
+  },
   { href: '/logistics', labelKey: 'sidebar.logistics', icon: Truck },
 ];
 
-const toolsNavItems: NavItem[] = [
-    { href: '/ipcc', labelKey: 'sidebar.cost_calculator', icon: Calculator },
-    { href: '/ipbt', labelKey: 'sidebar.ipbt', icon: Combine },
-    { href: '/purchases-cal', labelKey: 'sidebar.purchases_cal', icon: CalendarDays },
-    { href: '/logistics-insights', labelKey: 'sidebar.logistics_insights', icon: BotMessageSquare },
-];
-
-const crmNavItems: NavItem[] = [
-    { href: '/customers', labelKey: 'sidebar.customers', icon: Users },
-    { href: '/vendors', labelKey: 'sidebar.vendors', icon: Building },
-];
-
-const accountingNavItems: NavItem[] = [
-    { href: '/general-journal', labelKey: 'sidebar.general_journal', icon: BookOpen },
-    { href: '/bank-statement', labelKey: 'sidebar.bank_statement', icon: Landmark },
-    { href: '/trial-balance', labelKey: 'sidebar.trial_balance', icon: Scale },
-    { href: '/income-statement', labelKey: 'sidebar.income_statement', icon: PieChart },
-    { href: '/balance-sheet', labelKey: 'sidebar.balance_sheet', icon: FileSpreadsheet },
-];
-
-const reportsNavItems: NavItem[] = [
-    { href: '/reports/sales', labelKey: 'sidebar.sales_report', icon: TrendingUp },
-    { href: '/reports/purchases', labelKey: 'sidebar.purchases_report', icon: ShoppingCart },
-    { href: '/reports/expenses', labelKey: 'sidebar.expenses_report', icon: CreditCard },
-    { href: '/reports/inventory', labelKey: 'sidebar.inventory_report', icon: Package },
+const hrNavItems: NavItem[] = [
+  { href: '/employees', labelKey: 'sidebar.employees', icon: Briefcase },
 ];
 
 
@@ -84,17 +83,23 @@ export function SidebarNav() {
     if (item.href === '/dashboard' || item.href === '/') {
         return pathname === item.href;
     }
-    return pathname.startsWith(item.href);
+    // Check if the current path starts with the item's href, or if any sub-item is active
+    if (pathname.startsWith(item.href)) {
+        return true;
+    }
+    if (item.subItems) {
+        return item.subItems.some(sub => pathname.startsWith(sub.href));
+    }
+    return false;
   };
   
-  const NavLink = ({ item }: { item: NavItem }) => (
+  const NavLink = ({ item, isSubItem = false }: { item: NavItem, isSubItem?: boolean }) => (
     <Link
       href={item.href}
       className={cn(
         'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-        isModuleActive(item)
-          ? 'bg-sidebar-primary text-sidebar-primary-foreground font-medium'
-          : 'text-sidebar-foreground'
+        isModuleActive(item) ? 'bg-sidebar-primary text-sidebar-primary-foreground font-medium' : 'text-sidebar-foreground',
+        isSubItem && 'py-2'
       )}
     >
       <item.icon className="h-5 w-5" />
@@ -102,102 +107,45 @@ export function SidebarNav() {
     </Link>
   );
 
+  const NavAccordion = ({ titleKey, icon: Icon, items, value }: { titleKey: string, icon: LucideIcon, items: NavItem[], value: string }) => (
+     <AccordionItem value={value} className="border-b-0">
+        <AccordionTrigger className="px-3 py-2.5 text-sm font-medium hover:no-underline hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-lg [&[data-state=open]]:bg-sidebar-accent">
+        <span className="flex items-center gap-3">
+            <Icon className="h-5 w-5" />
+            {t(titleKey)}
+        </span>
+        </AccordionTrigger>
+        <AccordionContent className="pl-7 pt-1">
+            <div className="flex flex-col gap-1">
+            {items.map((item) => (
+                 item.subItems ? (
+                    <NavAccordion key={item.labelKey} titleKey={item.labelKey} icon={item.icon} items={item.subItems} value={item.href} />
+                ) : (
+                    <NavLink key={item.labelKey} item={item} isSubItem />
+                )
+            ))}
+            </div>
+        </AccordionContent>
+    </AccordionItem>
+  )
+
   return (
     <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground glass-sidebar">
       <div className="flex h-20 items-center justify-center border-b border-sidebar-border px-4">
         <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
-           {profile.logo && <Image src={profile.logo} alt="Company Logo" width={80} height={80} className="object-contain" />}
-          <span className="text-lg font-headline">{profile.erpName}</span>
+           {profile.logo && <Image src={profile.logo} alt="Company Logo" width={160} height={160} className="object-contain" />}
+          <span className="text-2xl font-headline">{profile.erpName}</span>
         </Link>
       </div>
       <ScrollArea className="flex-1">
         <nav className="flex flex-col gap-1 p-4">
-          {navItems.map((item) => <NavLink key={item.labelKey} item={item} />)}
+          <NavLink item={{ href: '/dashboard', labelKey: 'sidebar.dashboard', icon: LayoutDashboard }} />
           
-          <Accordion type="multiple" defaultValue={['products', 'inventory', 'main', 'reports', 'accounting', 'crm']} className="w-full">
-            <AccordionItem value="products" className="border-b-0">
-              <AccordionTrigger className="px-3 py-2.5 text-sm hover:no-underline hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-lg [&[data-state=open]]:bg-sidebar-accent">
-                <span className="flex items-center gap-3">
-                  <Package2 className="h-5 w-5" />
-                  {t('sidebar.products')}
-                </span>
-              </AccordionTrigger>
-              <AccordionContent className="pl-7 pt-1">
-                 <div className="flex flex-col gap-1">
-                  {productNavItems.map((item) => <NavLink key={item.labelKey} item={item} />)}
-                 </div>
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="inventory" className="border-b-0">
-              <AccordionTrigger className="px-3 py-2.5 text-sm hover:no-underline hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-lg [&[data-state=open]]:bg-sidebar-accent">
-                <span className="flex items-center gap-3">
-                  <Package className="h-5 w-5" />
-                  {t('sidebar.inventory')}
-                </span>
-              </AccordionTrigger>
-              <AccordionContent className="pl-7 pt-1">
-                 <div className="flex flex-col gap-1">
-                  {inventoryNavItems.map((item) => <NavLink key={item.labelKey} item={item} />)}
-                 </div>
-              </AccordionContent>
-            </AccordionItem>
-
-            {mainNavItems.map((item) => <NavLink key={item.labelKey} item={item} />)}
-
-            <AccordionItem value="tools" className="border-b-0">
-              <AccordionTrigger className="px-3 py-2.5 text-sm hover:no-underline hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-lg [&[data-state=open]]:bg-sidebar-accent">
-                <span className="flex items-center gap-3">
-                  <Combine className="h-5 w-5" />
-                  {t('sidebar.tools')}
-                </span>
-              </AccordionTrigger>
-              <AccordionContent className="pl-7 pt-1">
-                 <div className="flex flex-col gap-1">
-                  {toolsNavItems.map((item) => <NavLink key={item.labelKey} item={item} />)}
-                 </div>
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="crm" className="border-b-0">
-              <AccordionTrigger className="px-3 py-2.5 text-sm hover:no-underline hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-lg [&[data-state=open]]:bg-sidebar-accent">
-                <span className="flex items-center gap-3">
-                  <Users2 className="h-5 w-5" />
-                  {t('sidebar.crm')}
-                </span>
-              </AccordionTrigger>
-              <AccordionContent className="pl-7 pt-1">
-                 <div className="flex flex-col gap-1">
-                  {crmNavItems.map((item) => <NavLink key={item.labelKey} item={item} />)}
-                 </div>
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="reports" className="border-b-0">
-              <AccordionTrigger className="px-3 py-2.5 text-sm hover:no-underline hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-lg [&[data-state=open]]:bg-sidebar-accent">
-                <span className="flex items-center gap-3">
-                  <AreaChart className="h-5 w-5" />
-                  {t('sidebar.reports')}
-                </span>
-              </AccordionTrigger>
-              <AccordionContent className="pl-7 pt-1">
-                 <div className="flex flex-col gap-1">
-                  {reportsNavItems.map((item) => <NavLink key={item.labelKey} item={item} />)}
-                 </div>
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="accounting" className="border-b-0">
-              <AccordionTrigger className="px-3 py-2.5 text-sm hover:no-underline hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-lg [&[data-state=open]]:bg-sidebar-accent">
-                <span className="flex items-center gap-3">
-                  <Layers className="h-5 w-5" />
-                  {t('sidebar.accounting')}
-                </span>
-              </AccordionTrigger>
-              <AccordionContent className="pl-7 pt-1">
-                 <div className="flex flex-col gap-1">
-                  {accountingNavItems.map((item) => <NavLink key={item.labelKey} item={item} />)}
-                 </div>
-              </AccordionContent>
-            </AccordionItem>
+          <Accordion type="multiple" defaultValue={['finance', 'sales', 'supply_chain', 'human_resources']} className="w-full">
+            <NavAccordion titleKey="sidebar.finance" icon={Landmark} items={financeNavItems} value="finance" />
+            <NavAccordion titleKey="sidebar.sales" icon={Handshake} items={salesNavItems} value="sales" />
+            <NavAccordion titleKey="sidebar.supply_chain" icon={Truck} items={supplyChainNavItems} value="supply_chain" />
+            <NavAccordion titleKey="sidebar.human_resources" icon={Users} items={hrNavItems} value="human_resources" />
           </Accordion>
 
         </nav>

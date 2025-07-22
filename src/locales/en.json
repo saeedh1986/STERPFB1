@@ -7,6 +7,7 @@
     "categories": "Categories",
     "brands": "Brands",
     "inventory": "Inventory",
+    "inventory_list": "Inventory List",
     "warehouses": "Warehouses",
     "inventory_barcode": "Inventory Barcode",
     "inventory_transfer": "Inventory Transfer",
@@ -34,7 +35,11 @@
     "trial_balance": "Trial Balance",
     "income_statement": "Income Statement",
     "balance_sheet": "Balance Sheet",
-    "settings": "Settings"
+    "settings": "Settings",
+    "finance": "Finance",
+    "supply_chain": "Supply Chain",
+    "human_resources": "Human Resources",
+    "employees": "Employees"
   },
   "login": {
     "username": "Username",
