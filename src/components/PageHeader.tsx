@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useTheme } from "next-themes";
+import { useLanguage } from '@/context/LanguageContext';
 
 interface PageHeaderProps {
   title: string;
@@ -24,6 +25,7 @@ interface PageHeaderProps {
 export function PageHeader({ title }: PageHeaderProps) {
   const { user, logout } = useAuth();
   const { theme, setTheme } = useTheme();
+  const { direction } = useLanguage();
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
@@ -34,7 +36,7 @@ export function PageHeader({ title }: PageHeaderProps) {
             <span className="sr-only">Toggle navigation menu</span>
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="p-0">
+        <SheetContent side={direction === 'rtl' ? 'right' : 'left'} className="p-0">
           <SidebarNav />
         </SheetContent>
       </Sheet>
