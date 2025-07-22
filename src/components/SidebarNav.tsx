@@ -116,6 +116,7 @@ export function SidebarNav() {
         )}>
         <span className={cn(
             "flex items-center gap-3",
+            direction === 'rtl' && 'flex-row-reverse'
         )}>
             <Icon className="h-5 w-5" />
             <span>{t(titleKey)}</span>
@@ -139,7 +140,7 @@ export function SidebarNav() {
   )
 
   return (
-    <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground glass-sidebar">
+    <div className="flex h-full w-[240px] flex-col bg-sidebar text-sidebar-foreground glass-sidebar">
       <div className="flex h-20 items-center justify-center border-b border-sidebar-border px-4">
         <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
            {profile.logo && <Image src={profile.logo} alt="Company Logo" width={160} height={160} className="object-contain" />}
@@ -177,3 +178,4 @@ export function SidebarNav() {
     </div>
   );
 }
+
