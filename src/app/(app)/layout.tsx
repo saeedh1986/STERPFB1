@@ -43,7 +43,10 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         )}>
           <SidebarNav />
         </div>
-        <div className={cn("flex flex-col", direction === 'rtl' ? "[grid-column:1]" : "[grid-column:2]")}>
+        <div className={cn(
+          "flex flex-col", 
+          direction === 'rtl' ? "[grid-column:1]" : "[grid-column:2]"
+        )}>
           {children}
         </div>
       </div>
