@@ -70,6 +70,9 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
       } else if (isBankStatement && ['debit', 'credit', 'balance'].includes(col.accessorKey)) {
         acc[col.accessorKey] = z.coerce.number().optional();
       }
+       else if (isPurchases && ['customsFees', 'shippingFees', 'bankCharges', 'totalCost'].includes(col.accessorKey)) {
+        acc[col.accessorKey] = z.coerce.number().optional();
+      }
       else if (title.includes('Cost Calculator') && ['usd', 'quantity', 'customsFees', 'shippingFees', 'bankCharges', 'aed', 'totalCost', 'totalCostPerUnit', 'exchangeRate'].includes(col.accessorKey)) {
         acc[col.accessorKey] = z.coerce.number().optional();
       } else if(isUsers && col.accessorKey === 'password' && !defaultValues?.id) {
@@ -117,11 +120,23 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
 
   const purchaseType = form.watch('purchaseType');
   const isCostCalculator = title.includes('Cost Calculator');
-  const watchedFields = form.watch(['usd', 'quantity', 'customsFees', 'shippingFees', 'bankCharges', 'exchangeRate']);
+  
+  const purchaseCostFields = form.watch(['quantity', 'unitCost', 'customsFees', 'shippingFees', 'bankCharges']);
+  const ipccCostFields = form.watch(['usd', 'quantity', 'customsFees', 'shippingFees', 'bankCharges', 'exchangeRate']);
+
+  useEffect(() => {
+    if (isPurchases && purchaseType === 'Inventory') {
+        const [quantity, unitCost, customsFees, shippingFees, bankCharges] = purchaseCostFields;
+        const itemsCost = (parseFloat((quantity || 0).toString()) || 0) * (parseFloat((unitCost || 0).toString()) || 0);
+        const totalCost = itemsCost + (parseFloat((customsFees || 0).toString()) || 0) + (parseFloat((shippingFees || 0).toString()) || 0) + (parseFloat((bankCharges || 0).toString()) || 0);
+        form.setValue('totalCost' as keyof FormValues, parseFloat(totalCost.toFixed(2)));
+    }
+  }, [purchaseCostFields, isPurchases, purchaseType, form]);
+
 
   useEffect(() => {
     if (isCostCalculator) {
-        const [usd, quantity, customsFees, shippingFees, bankCharges, exchangeRate] = watchedFields;
+        const [usd, quantity, customsFees, shippingFees, bankCharges, exchangeRate] = ipccCostFields;
         const finalExchangeRate = parseFloat((exchangeRate || 0).toString()) || USD_TO_AED_RATE;
         const aed = parseFloat((usd || 0).toString()) * finalExchangeRate;
         const totalCost = aed + parseFloat((customsFees || 0).toString()) + parseFloat((shippingFees || 0).toString()) + parseFloat((bankCharges || 0).toString());
@@ -131,7 +146,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
         form.setValue('totalCost' as keyof FormValues, parseFloat(totalCost.toFixed(4)));
         form.setValue('totalCostPerUnit' as keyof FormValues, parseFloat(totalCostPerUnit.toFixed(4)));
     }
-  }, [watchedFields, form, isCostCalculator]);
+  }, [ipccCostFields, form, isCostCalculator]);
 
 
   useEffect(() => {
@@ -224,6 +239,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
   };
 
   const calculatedFields = ['aed', 'totalCost', 'totalCostPerUnit'];
+  const calculatedPurchaseFields = ['totalCost'];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -240,14 +256,17 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                 <div className="space-y-4 px-6 py-4">
                     {columns.map((col) => {
                     
-                    const isCalculated = isCostCalculator && calculatedFields.includes(col.accessorKey);
+                    const isCalculated = isCostCalculator && calculatedFields.includes(col.accessorKey) || isPurchases && calculatedPurchaseFields.includes(col.accessorKey);
 
                     // --- Conditional Field Rendering for Purchases ---
                     if (isPurchases) {
                         if (purchaseType === 'Inventory') {
                             if (['description', 'referenceNumber'].includes(col.accessorKey)) return null;
                         } else if (purchaseType === 'Asset' || purchaseType === 'Expense') {
-                            if (['sku', 'itemName'].includes(col.accessorKey)) return null;
+                             if (['sku', 'itemName', 'quantity', 'unitCost', 'customsFees', 'shippingFees', 'bankCharges'].includes(col.accessorKey)) return null;
+                        } else {
+                            // No purchase type selected yet, hide fields that depend on it
+                            if (['sku', 'itemName', 'description', 'referenceNumber', 'quantity', 'unitCost', 'customsFees', 'shippingFees', 'bankCharges'].includes(col.accessorKey)) return null;
                         }
                     }
 

@@ -211,7 +211,7 @@ const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   'product-catalog': { fields: ['imageUrl', 'itemName', 'sku', 'category', 'brand', 'unitPrice', 'description', 'productWeight', 'productDimensions', 'packageWeight', 'packageDimensions'], count: 40 },
   inventory: { fields: ['itemName', 'sku', 'warehouse', 'quantity', 'unitPrice', 'category'], count: 0 },
   'inventory-barcode': { fields: ['itemName', 'sku', 'quantity'], count: 20 },
-  purchases: { fields: ['purchaseDate', 'purchaseType', 'supplier', 'sku', 'itemName', 'description', 'referenceNumber', 'quantity', 'unitCost', 'totalCost'], count: 25 },
+  purchases: { fields: ['purchaseDate', 'purchaseType', 'supplier', 'sku', 'itemName', 'description', 'referenceNumber', 'quantity', 'unitCost', 'customsFees', 'shippingFees', 'bankCharges', 'totalCost'], count: 25 },
   sales: { fields: ['saleDate', 'customerName', 'orderId', 'sku', 'itemName', 'qtySold', 'qtyRtv', 'note', 'price', 'shipping', 'referralFees', 'shippingCost', 'paymentFees', 'totalSales', 'salesChannel', 'fulfillmentWarehouse'], count: 40 },
   invoices: { fields: [], count: 0 },
   expenses: { fields: ['expenseDate', 'description', 'supplier', 'category', 'amount'], count: 20 },
@@ -319,18 +319,20 @@ export const createMockData = (count: number, fields: string[], slug: string): G
             item[field] = parseFloat((item['usd'] * (item['exchangeRate'] || USD_TO_AED_RATE)).toFixed(4));
             break;
         case 'customsFees':
-            item[field] = parseFloat(((item['usd'] * (item['exchangeRate'] || USD_TO_AED_RATE)) * 0.05).toFixed(4)); // 5% of AED
+            item[field] = parseFloat(((item['unitCost'] * item['quantity']) * 0.05).toFixed(2)); // 5% of item cost
             break;
         case 'shippingFees':
-            item[field] = parseFloat((Math.random() * 20 + 5).toFixed(4));
+            item[field] = parseFloat((Math.random() * 20 + 5).toFixed(2));
             break;
         case 'bankCharges':
-            item[field] = parseFloat((Math.random() * 5 + 1).toFixed(4));
+            item[field] = parseFloat((Math.random() * 5 + 1).toFixed(2));
             break;
         case 'totalCost':
             const quantity = item['quantity'] || 1;
             const unitCost = item['unitCost'] || item['unitPrice'] || 0;
-            item[field] = parseFloat((quantity * unitCost).toFixed(2));
+            const itemsCost = quantity * unitCost;
+            const landedCost = itemsCost + (item['customsFees'] || 0) + (item['shippingFees'] || 0) + (item['bankCharges'] || 0);
+            item[field] = parseFloat(landedCost.toFixed(2));
             break;
         case 'totalCostPerUnit':
             break;
@@ -645,10 +647,12 @@ const columnDefinitions: Record<string, ColumnDefinition[]> = {
     { accessorKey: 'supplier', header: 'datatable.headers.supplier' },
     { accessorKey: 'sku', header: 'datatable.headers.sku' },
     { accessorKey: 'itemName', header: 'datatable.headers.itemName' },
-    { accessorKey: 'referenceNumber', header: 'datatable.headers.referenceNumber' },
     { accessorKey: 'description', header: 'datatable.headers.description' },
     { accessorKey: 'quantity', header: 'datatable.headers.quantity' },
     { accessorKey: 'unitCost', header: 'datatable.headers.unitCost' },
+    { accessorKey: 'customsFees', header: 'datatable.headers.customsFees' },
+    { accessorKey: 'shippingFees', header: 'datatable.headers.shippingFees' },
+    { accessorKey: 'bankCharges', header: 'datatable.headers.bankCharges' },
     { accessorKey: 'totalCost', header: 'datatable.headers.totalCost' },
   ],
   sales: [
