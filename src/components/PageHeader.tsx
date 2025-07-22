@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useTheme } from "next-themes";
 import { useLanguage } from '@/context/LanguageContext';
+import { cn } from '@/lib/utils';
 
 interface PageHeaderProps {
   title: string;
@@ -43,7 +44,7 @@ export function PageHeader({ title }: PageHeaderProps) {
 
       <h1 className="flex-1 text-xl font-semibold font-headline">{title}</h1>
       
-      <div className="flex items-center gap-4">
+      <div className={cn("flex items-center gap-4", direction === 'rtl' && 'flex-row-reverse')}>
         <Button
           variant="outline"
           size="icon"
