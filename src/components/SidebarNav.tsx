@@ -106,9 +106,11 @@ export function SidebarNav() {
   const NavLink = ({ item }: { item: NavItem }) => (
     <SidebarMenuItem>
         <Link href={item.href}>
-             <SidebarMenuButton isActive={isModuleActive(item.href)} tooltip={t(item.labelKey)}>
-                <item.icon />
-                <span>{t(item.labelKey)}</span>
+             <SidebarMenuButton asChild isActive={isModuleActive(item.href)} tooltip={t(item.labelKey)}>
+                <span>
+                    <item.icon />
+                    <span>{t(item.labelKey)}</span>
+                </span>
             </SidebarMenuButton>
         </Link>
     </SidebarMenuItem>
@@ -123,7 +125,8 @@ export function SidebarNav() {
                 className={cn(
                     "hover:no-underline hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-md p-2",
                     "group flex w-full items-center gap-2 overflow-hidden text-left text-sm outline-none ring-sidebar-ring transition-[width,height,padding] focus-visible:ring-2",
-                     isActive && "bg-sidebar-accent text-sidebar-accent-foreground"
+                     isActive && "bg-sidebar-accent text-sidebar-accent-foreground",
+                     direction === 'rtl' && 'flex-row-reverse'
                 )}
             >
                 <Icon className="h-4 w-4 shrink-0" />
@@ -139,9 +142,11 @@ export function SidebarNav() {
                     ) : (
                         <SidebarMenuSubItem key={item.labelKey}>
                             <Link href={item.href}>
-                                <SidebarMenuSubButton isActive={isModuleActive(item.href)}>
-                                    <item.icon />
-                                    <span>{t(item.labelKey)}</span>
+                                <SidebarMenuSubButton asChild isActive={isModuleActive(item.href)}>
+                                    <span>
+                                        <item.icon />
+                                        <span>{t(item.labelKey)}</span>
+                                    </span>
                                 </SidebarMenuSubButton>
                             </Link>
                         </SidebarMenuSubItem>
@@ -184,9 +189,11 @@ export function SidebarNav() {
           <SidebarMenu>
             <SidebarMenuItem>
                 <Link href="/settings">
-                    <SidebarMenuButton isActive={pathname.startsWith('/settings')} tooltip={t('sidebar.settings')}>
-                         <Settings />
-                        <span>{t('sidebar.settings')}</span>
+                    <SidebarMenuButton asChild isActive={pathname.startsWith('/settings')} tooltip={t('sidebar.settings')}>
+                        <span>
+                            <Settings />
+                            <span>{t('sidebar.settings')}</span>
+                        </span>
                     </SidebarMenuButton>
                 </Link>
             </SidebarMenuItem>
