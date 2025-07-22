@@ -236,13 +236,22 @@
       "companyName": "اسم الشركة",
       "serviceDescription": "وصف الخدمة",
       "notes": "ملاحظات",
+      "note": "ملاحظة",
       "totalCostAED": "التكلفة الإجمالية (د.إ)",
       "unitCostAED": "تكلفة الوحدة (د.إ)",
       "code": "الرمز",
       "accountName": "اسم الحساب",
       "account": "الحساب",
       "debit": "مدين",
-      "credit": "دائن"
+      "credit": "دائن",
+      "qtySold": "الكمية المباعة",
+      "qtyRtv": "الكمية المرتجعة",
+      "price": "السعر",
+      "shipping": "الشحن",
+      "referralFees": "رسوم الإحالة",
+      "shippingCost": "تكلفة الشحن",
+      "paymentFees": "رسوم الدفع",
+      "totalSales": "إجمالي المبيعات"
     },
     "mapper": {
       "title": "مطابقة أعمدة CSV",

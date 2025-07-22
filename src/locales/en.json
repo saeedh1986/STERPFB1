@@ -236,13 +236,22 @@
       "companyName": "Company Name",
       "serviceDescription": "Service Description",
       "notes": "Notes",
+      "note": "Note",
       "totalCostAED": "Total Cost AED",
       "unitCostAED": "Unit Cost AED",
       "code": "Code",
       "accountName": "Account Name",
       "account": "Account",
       "debit": "Debit (Dr)",
-      "credit": "Credit (Cr)"
+      "credit": "Credit (Cr)",
+      "qtySold": "QTY Sold",
+      "qtyRtv": "QTY RTV",
+      "price": "Price",
+      "shipping": "Shipping",
+      "referralFees": "Referral Fees",
+      "shippingCost": "Shipping Cost",
+      "paymentFees": "Payment Fees",
+      "totalSales": "Total Sales"
     },
     "mapper": {
       "title": "Map CSV Columns",

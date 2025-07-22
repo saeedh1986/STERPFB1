@@ -111,7 +111,7 @@ export const userRoles: GenericItem[] = [
 ];
 
 export const usersPool: GenericItem[] = [
-    { id: 'user-1', username: 'admin', password: 'password', role: 'Administrator', joinDate: '01-Jan-2024' },
+    { id: 'user-1', name: 'admin', username: 'admin', password: 'password', role: 'Administrator', joinDate: '01-Jan-2024' },
     { id: 'user-2', name: 'Saeed Alhebsi', username: 'saeed', password: 'password', role: 'Administrator', joinDate: '01-Jan-2024' },
     { id: 'user-3', name: 'Ahmed Ali', username: 'ahmed', password: 'password', role: 'Sales Manager', joinDate: '15-Feb-2024' },
 ];
@@ -287,6 +287,7 @@ export const createMockData = (count: number, fields: string[], slug: string): G
     const item: GenericItem = { id: `${slug}-item-${i + 1}` };
     const randomInventoryItem = inventoryItemsPool[Math.floor(Math.random() * inventoryItemsPool.length)];
     const randomVendor = vendorsPool[Math.floor(Math.random() * vendorsPool.length)];
+    const randomCustomer = customersPool[Math.floor(Math.random() * customersPool.length)];
 
     fields.forEach(field => {
       switch (field) {
@@ -296,6 +297,9 @@ export const createMockData = (count: number, fields: string[], slug: string): G
         case 'sku':
           item[field] = randomInventoryItem.sku;
           break;
+        case 'customerName':
+            item[field] = randomCustomer.name;
+            break;
         case 'quantity':
         case 'stock':
         case 'qtySold':
@@ -308,6 +312,8 @@ export const createMockData = (count: number, fields: string[], slug: string): G
            item[field] = item['qtyRtv'] ? 'Returned' : '';
            break;
         case 'price':
+          item[field] = parseFloat((randomInventoryItem.unitPrice * (1.2 + Math.random() * 0.3)).toFixed(2));
+          break;
         case 'unitPrice':
         case 'unitCost':
           item[field] = parseFloat((randomInventoryItem.unitPrice * (0.9 + Math.random() * 0.2)).toFixed(2));
@@ -324,11 +330,19 @@ export const createMockData = (count: number, fields: string[], slug: string): G
         case 'customsFees':
             item[field] = parseFloat(((item['unitCost'] * item['quantity']) * 0.05).toFixed(2)); // 5% of item cost
             break;
+        case 'shipping':
         case 'shippingFees':
+        case 'shippingCost':
             item[field] = parseFloat((Math.random() * 20 + 5).toFixed(2));
             break;
         case 'bankCharges':
             item[field] = parseFloat((Math.random() * 5 + 1).toFixed(2));
+            break;
+        case 'paymentFees':
+            item[field] = parseFloat((Math.random() > 0.5 ? -12 : -15).toFixed(2));
+            break;
+        case 'referralFees':
+            item[field] = parseFloat(((item['price'] || 0) * -0.15).toFixed(2)); // ~15% referral fee
             break;
         case 'totalCost':
             const quantity = item['quantity'] || 1;
@@ -336,6 +350,14 @@ export const createMockData = (count: number, fields: string[], slug: string): G
             const itemsCost = quantity * unitCost;
             const landedCost = itemsCost + (item['customsFees'] || 0) + (item['shippingFees'] || 0) + (item['bankCharges'] || 0);
             item[field] = parseFloat(landedCost.toFixed(2));
+            break;
+        case 'totalSales':
+            const price = item['price'] || 0;
+            const shippingFee = item['shipping'] || 0;
+            const referral = item['referralFees'] || 0;
+            const shippingC = item['shippingCost'] || 0;
+            const payment = item['paymentFees'] || 0;
+            item[field] = parseFloat((price + shippingFee + referral + shippingC + payment).toFixed(2));
             break;
         case 'totalCostPerUnit':
             break;
@@ -347,20 +369,6 @@ export const createMockData = (count: number, fields: string[], slug: string): G
            const unitCostTA = item['unitCost'] || item['unitPrice'] || randomInventoryItem.unitPrice * 0.8;
            item[field] = parseFloat((quantityTA * unitCostTA).toFixed(2));
            break;
-        case 'shipping':
-        case 'shippingCost':
-        case 'referralFees':
-        case 'paymentFees':
-          item[field] = parseFloat((Math.random() * -30).toFixed(2));
-          break;
-        case 'totalSales':
-            const price = item['price'] || 0;
-            const shippingFee = item['shipping'] || 0;
-            const referral = item['referralFees'] || 0;
-            const shippingC = item['shippingCost'] || 0;
-            const payment = item['paymentFees'] || 0;
-            item[field] = parseFloat((price + shippingFee + referral + shippingC + payment).toFixed(2));
-            break;
         case 'date':
         case 'purchaseDate':
         case 'saleDate':
@@ -672,10 +680,16 @@ const columnDefinitions: Record<string, ColumnDefinition[]> = {
     { accessorKey: 'customerName', header: 'datatable.headers.customer' },
     { accessorKey: 'orderId', header: 'datatable.headers.orderId' },
     { accessorKey: 'sku', header: 'datatable.headers.sku' },
-    { accessorKey: 'qtySold', header: 'datatable.headers.quantity' },
-    { accessorKey: 'totalSales', header: 'datatable.headers.totalSale' },
-    { accessorKey: 'salesChannel', header: 'datatable.headers.channel' },
-    { accessorKey: 'fulfillmentWarehouse', header: 'datatable.headers.fulfilledFrom' },
+    { accessorKey: 'itemName', header: 'datatable.headers.itemName' },
+    { accessorKey: 'qtySold', header: 'datatable.headers.qtySold' },
+    { accessorKey: 'qtyRtv', header: 'datatable.headers.qtyRtv' },
+    { accessorKey: 'note', header: 'datatable.headers.note' },
+    { accessorKey: 'price', header: 'datatable.headers.price' },
+    { accessorKey: 'shipping', header: 'datatable.headers.shipping' },
+    { accessorKey: 'referralFees', header: 'datatable.headers.referralFees' },
+    { accessorKey: 'shippingCost', header: 'datatable.headers.shippingCost' },
+    { accessorKey: 'paymentFees', header: 'datatable.headers.paymentFees' },
+    { accessorKey: 'totalSales', header: 'datatable.headers.totalSales' },
   ],
   expenses: [
     { accessorKey: 'expenseDate', header: 'datatable.headers.date' },
