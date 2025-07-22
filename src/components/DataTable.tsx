@@ -43,6 +43,7 @@ import { cn } from '@/lib/utils';
 import { ScanInvoiceDialog } from './purchases/ScanInvoiceDialog';
 import { useLanguage } from '@/context/LanguageContext';
 import { CsvColumnMapper, type Mapping } from './CsvColumnMapper';
+import { format } from 'date-fns';
 
 
 interface DataTableProps {
@@ -52,6 +53,38 @@ interface DataTableProps {
 }
 
 const ITEMS_PER_PAGE = 10;
+
+// Helper to create an invoice object from a sale
+const createInvoiceFromSale = (sale: GenericItem): GenericItem => {
+  const quantity = sale.qtySold || 1;
+  const unitPrice = sale.price || 0;
+  const subtotal = quantity * unitPrice;
+  const vat = subtotal * 0.05;
+  const shipping = sale.shipping || 0;
+  const codFees = 0; // Assuming no COD fees for auto-generated invoices for now
+  const total = subtotal + vat + shipping + codFees;
+
+  return {
+    invoiceNumber: sale.orderId,
+    invoiceDate: sale.saleDate,
+    billTo: sale.customerName,
+    shipTo: sale.customerName,
+    instructions: sale.note || `Order ID: ${sale.orderId}`,
+    lineItems: [
+      {
+        productId: sale.sku,
+        description: sale.itemName,
+        quantity: quantity,
+        unitPrice: unitPrice,
+      },
+    ],
+    vat: parseFloat(vat.toFixed(2)),
+    shipping: parseFloat(shipping.toFixed(2)),
+    codFees: parseFloat(codFees.toFixed(2)),
+    subtotal: parseFloat(subtotal.toFixed(2)),
+    total: parseFloat(total.toFixed(2)),
+  };
+};
 
 export function DataTable({ data: initialData, columns, pageTitle }: DataTableProps) {
   const { t } = useLanguage();
@@ -111,6 +144,18 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
       const newItem = { ...selectedItem, ...values, id: `${pageSlug}-${Date.now()}` };
       setTableData(prev => [newItem, ...prev]);
       toast({ title: t('datatable.toast.item_created_title'), description: t('datatable.toast.item_created_desc') });
+      
+      // If a new sale is created, also create an invoice
+      if (pageSlug === 'sales') {
+        const newInvoice = createInvoiceFromSale(newItem);
+        const savedInvoices = JSON.parse(localStorage.getItem('invoices') || '[]');
+        savedInvoices.unshift(newInvoice);
+        localStorage.setItem('invoices', JSON.stringify(savedInvoices));
+        toast({
+            title: "Invoice Auto-Generated",
+            description: `Invoice ${newInvoice.invoiceNumber} created from sale.`,
+        });
+      }
     }
     setIsDialogOpen(false);
   };

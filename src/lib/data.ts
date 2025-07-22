@@ -1,6 +1,7 @@
 
 
 import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
 
 
 // Mock data for various ERP modules
@@ -406,6 +407,38 @@ const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   'income-statement': { fields: [], count: 0 },
 };
 
+// Helper to create an invoice object from a sale
+const createInvoiceFromSale = (sale: GenericItem): GenericItem => {
+  const quantity = sale.qtySold || 1;
+  const unitPrice = sale.price || 0;
+  const subtotal = quantity * unitPrice;
+  const vat = subtotal * 0.05;
+  const shipping = sale.shipping || 0;
+  const codFees = 0; // Assuming no COD fees for auto-generated invoices for now
+  const total = subtotal + vat + shipping + codFees;
+
+  return {
+    invoiceNumber: sale.orderId,
+    invoiceDate: sale.saleDate,
+    billTo: sale.customerName,
+    shipTo: sale.customerName,
+    instructions: sale.note || `Order ID: ${sale.orderId}`,
+    lineItems: [
+      {
+        productId: sale.sku,
+        description: sale.itemName,
+        quantity: quantity,
+        unitPrice: unitPrice,
+      },
+    ],
+    vat: parseFloat(vat.toFixed(2)),
+    shipping: parseFloat(shipping.toFixed(2)),
+    codFees: parseFloat(codFees.toFixed(2)),
+    subtotal: parseFloat(subtotal.toFixed(2)),
+    total: parseFloat(total.toFixed(2)),
+  };
+};
+
 export const createMockData = (count: number, fields: string[], slug: string): GenericItem[] => {
   if (slug === 'inventory') {
     return inventoryItemsPool;
@@ -434,7 +467,7 @@ export const createMockData = (count: number, fields: string[], slug: string): G
   if (slug === 'roles') {
     return userRoles;
   }
-  if (['invoices', 'purchases-cal', 'bank-statement', 'inventory-transfer', 'inventory-barcode'].includes(slug) || slug.endsWith('-journal') || slug.endsWith('-balance') || slug.endsWith('-sheet') || slug.endsWith('-statement')) {
+  if (['purchases-cal', 'bank-statement', 'inventory-transfer', 'inventory-barcode'].includes(slug) || slug.endsWith('-journal') || slug.endsWith('-balance') || slug.endsWith('-sheet') || slug.endsWith('-statement')) {
     // These pages have custom data handling or are handled by dedicated page components
     if (slug === 'inventory-barcode') return productCatalogPool;
     return [];
@@ -631,6 +664,15 @@ export const createMockData = (count: number, fields: string[], slug: string): G
 
     return item;
   });
+  
+  // Auto-generate invoices from sales data
+  if (slug === 'sales') {
+    const invoices = data.map(createInvoiceFromSale);
+    if (typeof window !== 'undefined') {
+        localStorage.setItem('invoices', JSON.stringify(invoices));
+    }
+  }
+
 
   return data;
 };
@@ -638,6 +680,11 @@ export const createMockData = (count: number, fields: string[], slug: string): G
 // This function now correctly checks localStorage before creating mock data.
 export const getMockData = (slug: string): GenericItem[] => {
   if (typeof window !== 'undefined') {
+    if (slug === 'invoices') {
+        const storedInvoices = localStorage.getItem('invoices');
+        if (storedInvoices) return JSON.parse(storedInvoices);
+        // If no invoices, they will be created when sales data is fetched
+    }
     const storedData = localStorage.getItem(`erp-data-${slug}`);
     if (storedData) {
       try {
