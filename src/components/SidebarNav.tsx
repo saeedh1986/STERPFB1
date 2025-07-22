@@ -119,7 +119,7 @@ export function SidebarNav() {
             direction === 'rtl' && 'flex-row-reverse'
         )}>
             <Icon className="h-5 w-5" />
-            {t(titleKey)}
+            <span>{t(titleKey)}</span>
         </span>
         </AccordionTrigger>
         <AccordionContent className={cn(
