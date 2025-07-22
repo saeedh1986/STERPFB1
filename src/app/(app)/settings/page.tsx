@@ -30,7 +30,7 @@ import { Separator } from '@/components/ui/separator';
 import { useAccessibility } from '@/context/AccessibilityContext';
 import { useCompanyProfile, type CompanyProfile } from '@/context/CompanyProfileContext';
 import { Input } from '@/components/ui/input';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { fileToDataURI, cn } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
 import { useCurrency } from '@/context/CurrencyContext';
@@ -238,6 +238,17 @@ export default function SettingsPage() {
                 </Form>
             </Card>
 
+            <Card className="shadow-lg">
+              <CardHeader><CardTitle className="flex items-center gap-2"><Landmark />{t('settings.accounting.title')}</CardTitle><CardDescription>{t('settings.accounting.description')}</CardDescription></CardHeader>
+              <CardContent>
+                  <Label>{t('settings.accounting.currency')}</Label>
+                   <RadioGroup value={currency} onValueChange={(v) => setCurrency(v as 'AED' | 'USD')} className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                      <Label htmlFor="curr-aed" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground"><RadioGroupItem value="AED" id="curr-aed" /><span>AED (United Arab Emirates Dirham)</span></Label>
+                      <Label htmlFor="curr-usd" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground"><RadioGroupItem value="USD" id="curr-usd" /><span>USD (United States Dollar)</span></Label>
+                  </RadioGroup>
+              </CardContent>
+            </Card>
+
             <Card className="shadow-lg border-destructive/50">
               <CardHeader><CardTitle className="flex items-center gap-2 text-destructive"><AlertTriangle />{t('settings.danger_zone.title')}</CardTitle><CardDescription>{t('settings.danger_zone.description')}</CardDescription></CardHeader>
               <CardContent><p className="text-sm mb-2">{t('settings.danger_zone.reset_text_1')}</p><p className="text-sm font-medium">{t('settings.danger_zone.reset_text_2')}</p></CardContent>
@@ -305,16 +316,6 @@ export default function SettingsPage() {
                     <RadioGroup value={language} onValueChange={(v) => setLanguage(v as 'en' | 'ar')} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <Label htmlFor="lang-en" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground"><RadioGroupItem value="en" id="lang-en" /><span>{t('settings.language.english')}</span></Label>
                         <Label htmlFor="lang-ar" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground"><RadioGroupItem value="ar" id="lang-ar" /><span>{t('settings.language.arabic')}</span></Label>
-                    </RadioGroup>
-                </CardContent>
-            </Card>
-            <Card className="shadow-lg">
-                <CardHeader><CardTitle className="flex items-center gap-2"><Landmark />{t('settings.accounting.title')}</CardTitle><CardDescription>{t('settings.accounting.description')}</CardDescription></CardHeader>
-                <CardContent>
-                    <Label>{t('settings.accounting.currency')}</Label>
-                     <RadioGroup value={currency} onValueChange={(v) => setCurrency(v as 'AED' | 'USD')} className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-                        <Label htmlFor="curr-aed" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground"><RadioGroupItem value="AED" id="curr-aed" /><span>AED (United Arab Emirates Dirham)</span></Label>
-                        <Label htmlFor="curr-usd" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground"><RadioGroupItem value="USD" id="curr-usd" /><span>USD (United States Dollar)</span></Label>
                     </RadioGroup>
                 </CardContent>
             </Card>
