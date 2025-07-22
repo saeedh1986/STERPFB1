@@ -45,11 +45,32 @@ export function ScanInvoiceDialog({ isOpen, onClose, onScanComplete }: ScanInvoi
     try {
       const invoiceImage = await fileToDataURI(selectedFile);
       const result = await scanPurchaseInvoice({ invoiceImage });
+      
+      // Transform the AI output to match the flat structure of the form pre-filler
+      const prefillData: GenericItem = {
+        purchaseDate: result.purchaseDate,
+        supplier: result.supplier,
+        purchaseType: result.purchaseType,
+        totalCost: result.totalCost,
+        shippingFees: result.shippingFee || 0,
+        bankCharges: result.otherFees || 0,
+      };
+
+      if (result.lineItems && result.lineItems.length > 0) {
+        // For simplicity, we'll use the first item for the main form fields
+        // and a more advanced implementation could handle multiple items
+        prefillData.sku = result.lineItems[0].sku;
+        prefillData.itemName = result.lineItems[0].itemName;
+        prefillData.quantity = result.lineItems.reduce((sum, item) => sum + item.quantity, 0);
+        prefillData.unitCost = result.lineItems[0].unitCost; // This might need adjustment based on business logic
+      }
+
+
       toast({
         title: "Scan Successful",
         description: "Invoice data has been extracted."
       });
-      onScanComplete(result as GenericItem);
+      onScanComplete(prefillData);
     } catch (error) {
       console.error("Failed to scan invoice:", error);
       toast({

@@ -20,13 +20,19 @@ const ScanPurchaseInvoiceInputSchema = z.object({
 });
 export type ScanPurchaseInvoiceInput = z.infer<typeof ScanPurchaseInvoiceInputSchema>;
 
+const LineItemSchema = z.object({
+    sku: z.string().optional().describe('The SKU or item number of the product.'),
+    itemName: z.string().describe('The name or description of the item.'),
+    quantity: z.number().describe('The quantity of this item.'),
+    unitCost: z.number().describe('The cost per unit of this item.'),
+});
+
 const ScanPurchaseInvoiceOutputSchema = z.object({
     purchaseDate: z.string().describe('The date of the purchase in DD-MMM-YYYY format. e.g., 24-Jul-2024.'),
     supplier: z.string().describe('The name of the supplier or vendor.'),
-    sku: z.string().optional().describe('The SKU or product code of the primary item, if available.'),
-    itemName: z.string().describe('The name of the primary item purchased. If multiple items, list the most prominent one.'),
-    quantity: z.number().describe('The total quantity of items purchased.'),
-    unitCost: z.number().describe('The cost per unit of the primary item.'),
+    lineItems: z.array(LineItemSchema).describe('An array of all line items found on the invoice.'),
+    shippingFee: z.number().optional().describe('The shipping fee, if listed separately.'),
+    otherFees: z.number().optional().describe('Any other fees (like bank charges or customs) listed separately.'),
     totalCost: z.number().describe('The grand total amount of the invoice.'),
     purchaseType: z.enum(['Inventory', 'Asset', 'Expense']).describe('The type of purchase. Categorize as "Asset" for equipment, hardware, or devices. Categorize as "Inventory" for goods intended for resale. Categorize as "Expense" for services or consumables.')
 });
@@ -49,14 +55,12 @@ Analyze the invoice image carefully: {{media url=invoiceImage}}
 Extract the following information:
 - The supplier's name.
 - The date of the invoice. Format it as DD-MMM-YYYY.
-- The SKU of the main item, if listed.
-- The name/description of the main item.
-- The quantity of the main item.
-- The unit price/cost of the main item.
+- All line items from the invoice. For each item, extract its SKU/item number, description, quantity, and unit price.
+- Any separate fees, such as 'Shipping fee' or other charges.
 - The grand total of the invoice.
 - The type of purchase. If the items are hardware, equipment, printers, or other devices, classify it as 'Asset'. If the items are for resale, classify as 'Inventory'. If it's for a service or consumable, classify as 'Expense'.
 
-Return the extracted data as a JSON object matching the schema. If a value is not found, omit it or use a sensible default (e.g., 1 for quantity).`,
+Return the extracted data as a JSON object matching the schema. If a value is not found, omit it or use a sensible default (e.g., 0 for fees).`,
 });
 
 const scanPurchaseInvoiceFlow = ai.defineFlow(
