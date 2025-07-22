@@ -17,7 +17,7 @@ const currencyFormatter = (value: number) => {
     }).format(value);
 };
 
-const aedSymbol = (amount: number) => amount > 0 ? <Image src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/UAE_Dirham_Symbol.svg/1377px-UAE_Dirham_Symbol.svg.png" alt="AED" width={14} height={14} className="inline-block dark:invert" /> : null;
+const aedSymbol = (amount: number) => amount > 0 ? <Image src="https://s3eed.ae/wp-content/uploads/2025/07/AED-Symbol-for-parse-1-300x218.png" alt="AED" width={14} height={14} className="inline-block dark:invert" /> : null;
 
 interface LedgerEntry {
     date: Date;

@@ -235,7 +235,7 @@ const moduleDataConfig: Record<string, { fields: string[], count: number }> = {
   'income-statement': { fields: [], count: 0 },
 };
 
-const createMockData = (count: number, fields: string[], slug: string): GenericItem[] => {
+export const createMockData = (count: number, fields: string[], slug: string): GenericItem[] => {
   if (slug === 'inventory') {
     return inventoryItemsPool;
   }
@@ -263,8 +263,8 @@ const createMockData = (count: number, fields: string[], slug: string): GenericI
   if (slug === 'roles') {
     return userRoles;
   }
-  if (slug === 'invoices' || slug === 'purchases-cal' || slug === 'bank-statement' || slug === 'general-journal' || slug === 'chart-of-accounts' || slug === 'trial-balance' || slug === 'balance-sheet' || slug === 'income-statement' || slug === 'inventory-transfer') {
-    // These pages have custom data handling
+  if (['invoices', 'purchases-cal', 'bank-statement', 'inventory-transfer'].includes(slug) || slug.endsWith('-journal') || slug.endsWith('-balance') || slug.endsWith('-sheet') || slug.endsWith('-statement')) {
+    // These pages have custom data handling or are handled by dedicated page components
     return [];
   }
   
