@@ -186,8 +186,8 @@ export default function SettingsPage() {
     <>
       <PageHeader title={t('settings.title')} />
       <main className="flex-1 p-4 md:p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        {/* Left Column */}
         <div className="space-y-6">
-            {/* Profile Card */}
             <Card className="shadow-lg">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2"><Building /> {t('settings.company_profile.title')}</CardTitle>
@@ -223,79 +223,6 @@ export default function SettingsPage() {
                 </Form>
             </Card>
 
-            {/* User Management Card */}
-            <Card className="shadow-lg">
-                <CardHeader className={cn("flex flex-col sm:items-center justify-between gap-4", direction === 'rtl' ? 'sm:flex-row-reverse' : 'sm:flex-row')}>
-                    <div>
-                        <CardTitle className="flex items-center gap-2"><Users /> {t('settings.user_management.title')}</CardTitle>
-                        <CardDescription>{t('settings.user_management.description')}</CardDescription>
-                    </div>
-                    <Button variant="outline" onClick={() => { setSelectedUser(null); setIsUserDialogOpen(true); }}><PlusCircle className="mr-2 h-4 w-4" /> {t('settings.user_management.add_user')}</Button>
-                </CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>{t('settings.user_management.username')}</TableHead>
-                                <TableHead>{t('settings.user_management.role')}</TableHead>
-                                <TableHead className="text-right">{t('settings.user_management.actions')}</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {users.map((user) => (
-                                <TableRow key={user.id}>
-                                    <TableCell className="font-medium">{user.username}</TableCell>
-                                    <TableCell>
-                                        <Badge variant="secondary">{user.role}</Badge>
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                        <Button variant="ghost" size="icon" onClick={() => { setSelectedUser(user); setIsUserDialogOpen(true); }} aria-label={`Edit user ${user.username}`}>
-                                            <FilePenLine className="h-4 w-4" />
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
-
-            {/* Role Management Card */}
-            <Card className="shadow-lg">
-                <CardHeader className={cn("flex flex-col sm:items-center justify-between gap-4", direction === 'rtl' ? 'sm:flex-row-reverse' : 'sm:flex-row')}>
-                    <div>
-                        <CardTitle className="flex items-center gap-2"><Shield /> {t('settings.role_management.title')}</CardTitle>
-                        <CardDescription>{t('settings.role_management.description')}</CardDescription>
-                    </div>
-                    <Button variant="outline" onClick={() => { setSelectedRole(null); setIsRoleDialogOpen(true); }}><PlusCircle className="mr-2 h-4 w-4" /> {t('settings.role_management.add_role')}</Button>
-                </CardHeader>
-                <CardContent>
-                     <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>{t('settings.role_management.role_name')}</TableHead>
-                                <TableHead className="w-[40%]">{t('settings.role_management.description')}</TableHead>
-                                <TableHead className="text-right">{t('settings.role_management.actions')}</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {userRoles.map((role) => (
-                                <TableRow key={role.id}>
-                                    <TableCell className="font-medium">{role.name}</TableCell>
-                                    <TableCell>{role.description}</TableCell>
-                                    <TableCell className="text-right">
-                                        <Button variant="ghost" size="icon" onClick={() => { setSelectedRole(role); setIsRoleDialogOpen(true); }} aria-label={`Edit role ${role.name}`}>
-                                            <FilePenLine className="h-4 w-4" />
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
-
-            {/* Appearance Card */}
             <Card className="shadow-lg">
                 <CardHeader>
                     <CardTitle>{t('settings.appearance.title')}</CardTitle>
@@ -330,7 +257,6 @@ export default function SettingsPage() {
                 </CardContent>
             </Card>
 
-             {/* Accessibility and Language Cards */}
             <Card className="shadow-lg">
               <CardHeader><CardTitle className="flex items-center gap-2"><TextQuote />{t('settings.accessibility.title')}</CardTitle><CardDescription>{t('settings.accessibility.description')}</CardDescription></CardHeader>
               <CardContent>
@@ -340,28 +266,8 @@ export default function SettingsPage() {
                 </RadioGroup>
               </CardContent>
             </Card>
-            <Card className="shadow-lg">
-                <CardHeader><CardTitle className="flex items-center gap-2"><Languages />{t('settings.language.title')}</CardTitle><CardDescription>{t('settings.language.description')}</CardDescription></CardHeader>
-                <CardContent>
-                    <RadioGroup value={language} onValueChange={(v) => setLanguage(v as 'en' | 'ar')} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <Label htmlFor="lang-en" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground"><RadioGroupItem value="en" id="lang-en" /><span>{t('settings.language.english')}</span></Label>
-                        <Label htmlFor="lang-ar" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground"><RadioGroupItem value="ar" id="lang-ar" /><span>{t('settings.language.arabic')}</span></Label>
-                    </RadioGroup>
-                </CardContent>
-            </Card>
-
-            {/* Accounting and Danger Zone Cards */}
-            <Card className="shadow-lg">
-                <CardHeader><CardTitle className="flex items-center gap-2"><Landmark />{t('settings.accounting.title')}</CardTitle><CardDescription>{t('settings.accounting.description')}</CardDescription></CardHeader>
-                <CardContent>
-                    <Label>{t('settings.accounting.currency')}</Label>
-                     <RadioGroup value={currency} onValueChange={(v) => setCurrency(v as 'AED' | 'USD')} className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-                        <Label htmlFor="curr-aed" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground"><RadioGroupItem value="AED" id="curr-aed" /><span>AED (United Arab Emirates Dirham)</span></Label>
-                        <Label htmlFor="curr-usd" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground"><RadioGroupItem value="USD" id="curr-usd" /><span>USD (United States Dollar)</span></Label>
-                    </RadioGroup>
-                </CardContent>
-            </Card>
-             <Card className="shadow-lg border-destructive/50">
+            
+            <Card className="shadow-lg border-destructive/50">
               <CardHeader><CardTitle className="flex items-center gap-2 text-destructive"><AlertTriangle />{t('settings.danger_zone.title')}</CardTitle><CardDescription>{t('settings.danger_zone.description')}</CardDescription></CardHeader>
               <CardContent><p className="text-sm mb-2">{t('settings.danger_zone.reset_text_1')}</p><p className="text-sm font-medium">{t('settings.danger_zone.reset_text_2')}</p></CardContent>
               <CardFooter>
@@ -374,13 +280,12 @@ export default function SettingsPage() {
                 </AlertDialog>
               </CardFooter>
             </Card>
-
         </div>
 
         {/* Right Column */}
         <div className="space-y-6">
             <Card className="shadow-lg">
-                <CardHeader className={cn("flex flex-col sm:items-center justify-between gap-4", direction === 'rtl' ? 'sm:flex-row-reverse' : 'sm:flex-row')}>
+                <CardHeader className={cn("flex flex-col sm:flex-row items-center justify-between gap-4", direction === 'rtl' ? 'sm:flex-row-reverse' : 'sm:flex-row')}>
                     <div>
                         <CardTitle>{t('settings.chart_of_accounts.title')}</CardTitle>
                         <CardDescription>{t('settings.chart_of_accounts.description')}</CardDescription>
@@ -414,6 +319,97 @@ export default function SettingsPage() {
                             ))}
                         </TableBody>
                     </Table>
+                </CardContent>
+            </Card>
+
+            <Card className="shadow-lg">
+                <CardHeader className={cn("flex flex-col sm:flex-row items-center justify-between gap-4", direction === 'rtl' ? 'sm:flex-row-reverse' : 'sm:flex-row')}>
+                    <div>
+                        <CardTitle className="flex items-center gap-2"><Users /> {t('settings.user_management.title')}</CardTitle>
+                        <CardDescription>{t('settings.user_management.description')}</CardDescription>
+                    </div>
+                    <Button variant="outline" onClick={() => { setSelectedUser(null); setIsUserDialogOpen(true); }}><PlusCircle className="mr-2 h-4 w-4" /> {t('settings.user_management.add_user')}</Button>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>{t('settings.user_management.username')}</TableHead>
+                                <TableHead>{t('settings.user_management.role')}</TableHead>
+                                <TableHead className="text-right">{t('settings.user_management.actions')}</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {users.map((user) => (
+                                <TableRow key={user.id}>
+                                    <TableCell className="font-medium">{user.username}</TableCell>
+                                    <TableCell>
+                                        <Badge variant="secondary">{user.role}</Badge>
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <Button variant="ghost" size="icon" onClick={() => { setSelectedUser(user); setIsUserDialogOpen(true); }} aria-label={`Edit user ${user.username}`}>
+                                            <FilePenLine className="h-4 w-4" />
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
+
+            <Card className="shadow-lg">
+                <CardHeader className={cn("flex flex-col sm:flex-row items-center justify-between gap-4", direction === 'rtl' ? 'sm:flex-row-reverse' : 'sm:flex-row')}>
+                    <div>
+                        <CardTitle className="flex items-center gap-2"><Shield /> {t('settings.role_management.title')}</CardTitle>
+                        <CardDescription>{t('settings.role_management.description')}</CardDescription>
+                    </div>
+                    <Button variant="outline" onClick={() => { setSelectedRole(null); setIsRoleDialogOpen(true); }}><PlusCircle className="mr-2 h-4 w-4" /> {t('settings.role_management.add_role')}</Button>
+                </CardHeader>
+                <CardContent>
+                     <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>{t('settings.role_management.role_name')}</TableHead>
+                                <TableHead className="w-[40%]">{t('settings.role_management.description')}</TableHead>
+                                <TableHead className="text-right">{t('settings.role_management.actions')}</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {userRoles.map((role) => (
+                                <TableRow key={role.id}>
+                                    <TableCell className="font-medium">{role.name}</TableCell>
+                                    <TableCell>{role.description}</TableCell>
+                                    <TableCell className="text-right">
+                                        <Button variant="ghost" size="icon" onClick={() => { setSelectedRole(role); setIsRoleDialogOpen(true); }} aria-label={`Edit role ${role.name}`}>
+                                            <FilePenLine className="h-4 w-4" />
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
+
+            <Card className="shadow-lg">
+                <CardHeader><CardTitle className="flex items-center gap-2"><Languages />{t('settings.language.title')}</CardTitle><CardDescription>{t('settings.language.description')}</CardDescription></CardHeader>
+                <CardContent>
+                    <RadioGroup value={language} onValueChange={(v) => setLanguage(v as 'en' | 'ar')} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <Label htmlFor="lang-en" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground"><RadioGroupItem value="en" id="lang-en" /><span>{t('settings.language.english')}</span></Label>
+                        <Label htmlFor="lang-ar" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground"><RadioGroupItem value="ar" id="lang-ar" /><span>{t('settings.language.arabic')}</span></Label>
+                    </RadioGroup>
+                </CardContent>
+            </Card>
+
+            <Card className="shadow-lg">
+                <CardHeader><CardTitle className="flex items-center gap-2"><Landmark />{t('settings.accounting.title')}</CardTitle><CardDescription>{t('settings.accounting.description')}</CardDescription></CardHeader>
+                <CardContent>
+                    <Label>{t('settings.accounting.currency')}</Label>
+                     <RadioGroup value={currency} onValueChange={(v) => setCurrency(v as 'AED' | 'USD')} className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                        <Label htmlFor="curr-aed" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground"><RadioGroupItem value="AED" id="curr-aed" /><span>AED (United Arab Emirates Dirham)</span></Label>
+                        <Label htmlFor="curr-usd" className="p-4 border rounded-md cursor-pointer hover:bg-accent flex items-center gap-4 has-[input:checked]:bg-primary has-[input:checked]:text-primary-foreground"><RadioGroupItem value="USD" id="curr-usd" /><span>USD (United States Dollar)</span></Label>
+                    </RadioGroup>
                 </CardContent>
             </Card>
         </div>
