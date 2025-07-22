@@ -20,6 +20,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useLanguage } from '@/context/LanguageContext';
 
 // This would typically come from an API
 const currencyFormatter = (value: number) => {
@@ -34,6 +35,8 @@ const currencyFormatter = (value: number) => {
 export default function InvoicesListPage() {
   const [invoices, setInvoices] = useState<any[]>([]);
   const { toast } = useToast();
+  const { direction } = useLanguage();
+
 
   useEffect(() => {
     const savedInvoices = JSON.parse(localStorage.getItem('invoices') || '[]');
@@ -55,7 +58,7 @@ export default function InvoicesListPage() {
       <PageHeader title="Invoices" />
       <main className="flex-1 p-4 md:p-6">
         <Card className="shadow-lg">
-          <CardHeader className="flex flex-row items-center justify-between">
+          <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>
                 <CardTitle>All Invoices</CardTitle>
                 <CardDescription>
@@ -69,63 +72,67 @@ export default function InvoicesListPage() {
             </Button>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Invoice #</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Bill To</TableHead>
-                  <TableHead className="text-right">Total</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {invoices.length > 0 ? (
-                  invoices.map((invoice) => (
-                    <TableRow key={invoice.invoiceNumber}>
-                      <TableCell className="font-medium">{invoice.invoiceNumber}</TableCell>
-                      <TableCell>{invoice.invoiceDate}</TableCell>
-                      <TableCell>{invoice.billTo}</TableCell>
-                      <TableCell className="text-right">{currencyFormatter(invoice.total)}</TableCell>
-                      <TableCell className="text-right">
-                        <Button asChild variant="outline" size="sm" className="mr-2">
-                            <Link href={`/invoices/${invoice.invoiceNumber}`}>
-                                <Printer className="mr-2 h-4 w-4" /> View / Print
-                            </Link>
-                        </Button>
-                        <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                                <Button variant="destructive" size="sm">
-                                    <Trash2 className="mr-2 h-4 w-4" /> Delete
-                                </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                                <AlertDialogHeader>
-                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    This action cannot be undone. This will permanently delete the invoice.
-                                </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleDelete(invoice.invoiceNumber)} className="bg-destructive hover:bg-destructive/90">
-                                    Yes, Delete Invoice
-                                </AlertDialogAction>
-                                </AlertDialogFooter>
-                            </AlertDialogContent>
-                        </AlertDialog>
-                      </TableCell>
+            <div className="overflow-x-auto">
+                <Table>
+                <TableHeader>
+                    <TableRow>
+                    <TableHead>Invoice #</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Bill To</TableHead>
+                    <TableHead className="text-right">Total</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={5} className="h-24 text-center">
-                      No invoices found.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                    {invoices.length > 0 ? (
+                    invoices.map((invoice) => (
+                        <TableRow key={invoice.invoiceNumber}>
+                        <TableCell className="font-medium">{invoice.invoiceNumber}</TableCell>
+                        <TableCell>{invoice.invoiceDate}</TableCell>
+                        <TableCell>{invoice.billTo}</TableCell>
+                        <TableCell className="text-right">{currencyFormatter(invoice.total)}</TableCell>
+                        <TableCell className="text-right">
+                            <div className="flex justify-end gap-2">
+                                <Button asChild variant="outline" size="sm">
+                                    <Link href={`/invoices/${invoice.invoiceNumber}`}>
+                                        <Printer className="mr-2 h-4 w-4" /> View / Print
+                                    </Link>
+                                </Button>
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button variant="destructive" size="sm">
+                                            <Trash2 className="mr-2 h-4 w-4" /> Delete
+                                        </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            This action cannot be undone. This will permanently delete the invoice.
+                                        </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => handleDelete(invoice.invoiceNumber)} className="bg-destructive hover:bg-destructive/90">
+                                            Yes, Delete Invoice
+                                        </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                            </div>
+                        </TableCell>
+                        </TableRow>
+                    ))
+                    ) : (
+                    <TableRow>
+                        <TableCell colSpan={5} className="h-24 text-center">
+                        No invoices found.
+                        </TableCell>
+                    </TableRow>
+                    )}
+                </TableBody>
+                </Table>
+            </div>
           </CardContent>
         </Card>
       </main>

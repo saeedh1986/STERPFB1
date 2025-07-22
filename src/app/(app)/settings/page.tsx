@@ -31,7 +31,7 @@ import { useAccessibility } from '@/context/AccessibilityContext';
 import { useCompanyProfile, type CompanyProfile } from '@/context/CompanyProfileContext';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { fileToDataURI } from '@/lib/utils';
+import { fileToDataURI, cn } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
 import { useCurrency } from '@/context/CurrencyContext';
 
@@ -64,7 +64,7 @@ export default function SettingsPage() {
   const { theme, setTheme, resolvedTheme, themes } = useTheme();
   const { fontSize, setFontSize } = useAccessibility();
   const { profile, setProfile } = useCompanyProfile();
-  const { t, language, setLanguage } = useLanguage();
+  const { t, language, setLanguage, direction } = useLanguage();
   const { currency, setCurrency } = useCurrency();
   const { toast } = useToast();
 
@@ -225,7 +225,7 @@ export default function SettingsPage() {
 
             {/* User Management Card */}
             <Card className="shadow-lg">
-                <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <CardHeader className={cn("flex flex-col sm:items-center justify-between gap-4", direction === 'rtl' ? 'sm:flex-row-reverse' : 'sm:flex-row')}>
                     <div>
                         <CardTitle className="flex items-center gap-2"><Users /> {t('settings.user_management.title')}</CardTitle>
                         <CardDescription>{t('settings.user_management.description')}</CardDescription>
@@ -262,7 +262,7 @@ export default function SettingsPage() {
 
             {/* Role Management Card */}
             <Card className="shadow-lg">
-                <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <CardHeader className={cn("flex flex-col sm:items-center justify-between gap-4", direction === 'rtl' ? 'sm:flex-row-reverse' : 'sm:flex-row')}>
                     <div>
                         <CardTitle className="flex items-center gap-2"><Shield /> {t('settings.role_management.title')}</CardTitle>
                         <CardDescription>{t('settings.role_management.description')}</CardDescription>
@@ -380,7 +380,7 @@ export default function SettingsPage() {
         {/* Right Column */}
         <div className="space-y-6">
             <Card className="shadow-lg">
-                <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <CardHeader className={cn("flex flex-col sm:items-center justify-between gap-4", direction === 'rtl' ? 'sm:flex-row-reverse' : 'sm:flex-row')}>
                     <div>
                         <CardTitle>{t('settings.chart_of_accounts.title')}</CardTitle>
                         <CardDescription>{t('settings.chart_of_accounts.description')}</CardDescription>

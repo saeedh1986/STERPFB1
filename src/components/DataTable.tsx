@@ -199,7 +199,7 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
           onChange={(event) => setGlobalFilter(event.target.value)}
           className="max-w-sm"
         />
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center justify-end gap-2">
           {pageTitle === 'Purchases' && (
             <Button onClick={() => setIsScanDialogOpen(true)} variant="outline">
               <ScanLine className="mr-2 h-4 w-4" /> Scan Invoice
@@ -236,7 +236,7 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
                 <TableRow key={item.id}>
                   {columns.map((column) => {
                     const cellValue = item[column.accessorKey];
-                    const isImageUrl = typeof cellValue === 'string' && cellValue.startsWith('https://placehold.co');
+                    const isImageUrl = typeof cellValue === 'string' && (cellValue.startsWith('https://placehold.co') || cellValue.startsWith('data:image'));
 
                     if (pageTitle === 'Chart of Accounts' && column.accessorKey === 'type') {
                         return (
