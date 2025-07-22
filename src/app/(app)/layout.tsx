@@ -33,17 +33,17 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem themes={THEMES}>
-      <div className={cn(
-        "grid min-h-screen w-full",
-        direction === 'rtl' ? "md:grid-cols-[1fr_240px]" : "md:grid-cols-[240px_1fr]"
+       <div className={cn(
+        "grid min-h-screen w-full md:grid-cols-[240px_1fr]",
+        direction === 'rtl' && "md:grid-cols-[1fr_240px]"
       )}>
         <div className={cn(
           "hidden bg-sidebar md:block glass-sidebar",
-           direction === 'rtl' ? "border-l" : "border-r"
+           direction === 'rtl' ? "border-l [grid-column:2]" : "border-r [grid-column:1]"
         )}>
           <SidebarNav />
         </div>
-        <div className="flex flex-col">
+        <div className={cn("flex flex-col", direction === 'rtl' ? "[grid-column:1]" : "[grid-column:2]")}>
           {children}
         </div>
       </div>
