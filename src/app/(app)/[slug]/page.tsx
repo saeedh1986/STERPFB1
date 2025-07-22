@@ -15,6 +15,7 @@ import TrialBalancePage from '../trial-balance/page';
 import BalanceSheetPage from '../balance-sheet/page';
 import IncomeStatementPage from '../income-statement/page';
 import EmployeesPage from '../employees/page';
+import { ItemPurchasedCostCalculator } from '@/components/purchases/ItemPurchasedCostCalculator';
 
 export default function ModulePage() {
   const params = useParams();
@@ -47,6 +48,9 @@ export default function ModulePage() {
   }
   if (slug === 'employees') {
     return <EmployeesPage />;
+  }
+  if (slug === 'ipcc') {
+    return <ItemPurchasedCostCalculator />;
   }
 
 

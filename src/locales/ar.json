@@ -17,9 +17,9 @@
     "expenses": "المصروفات",
     "logistics": "الخدمات اللوجستية",
     "tools": "الأدوات",
-    "cost_calculator": "حاسبة التكلفة",
+    "cost_calculator": "حاسبة تكلفة الصنف",
     "ipbt": "IPBT",
-    "purchases_cal": "حاسبة المشتريات",
+    "purchases_cal": "حاسبة تكلفة الصنف",
     "logistics_insights": "رؤى لوجستية",
     "crm": "إدارة علاقات العملاء",
     "customers": "العملاء",
@@ -241,7 +241,7 @@
       "debit": "مدين",
       "credit": "دائن"
     },
-     "mapper": {
+    "mapper": {
       "title": "مطابقة أعمدة CSV",
       "description": "طابق الأعمدة من ملف CSV الخاص بك مع الحقول المطلوبة في التطبيق.",
       "csv_column": "عمود CSV الخاص بك",

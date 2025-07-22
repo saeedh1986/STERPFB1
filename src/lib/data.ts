@@ -496,7 +496,7 @@ export const getPageTitle = (slug: string): string => {
     'inventory-barcode': 'Inventory Barcode',
     'inventory-transfer': 'Inventory Transfer',
     'ipcc': 'Item Purchased Cost Calculator',
-    'purchases-cal': 'Purchases Calculator',
+    'purchases-cal': 'Item Purchased Cost Calculator',
     'bank-statement': 'Bank Statement',
     'vendors': 'Vendors',
     'employees': 'Employees',
