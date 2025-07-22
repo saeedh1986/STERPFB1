@@ -41,6 +41,7 @@ import { useLocalStorage } from '@/hooks/use-local-storage';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { ScanInvoiceDialog } from './purchases/ScanInvoiceDialog';
+import { useLanguage } from '@/context/LanguageContext';
 
 
 interface DataTableProps {
@@ -52,6 +53,7 @@ interface DataTableProps {
 const ITEMS_PER_PAGE = 10;
 
 export function DataTable({ data: initialData, columns, pageTitle }: DataTableProps) {
+  const { t } = useLanguage();
   const pageSlug = moduleSlugs.find(slug => slug === pageTitle.toLowerCase().replace(/\s+/g, '-')) || pageTitle.toLowerCase().replace(/\s+/g, '-');
   
   const [tableData, setTableData] = useLocalStorage<GenericItem[]>(`erp-data-${pageSlug}`, initialData);
@@ -95,17 +97,17 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
 
   const handleDelete = (itemId: string) => {
     setTableData(prev => prev.filter(item => item.id !== itemId));
-    toast({ title: "Item Deleted", description: `Item ${itemId} has been deleted.` });
+    toast({ title: t('datatable.toast.item_deleted_title'), description: t('datatable.toast.item_deleted_desc', {itemId}) });
   };
   
   const handleFormSubmit = (values: GenericItem) => {
     if (selectedItem && selectedItem.id) { // Check if it's an update
       setTableData(prev => prev.map(item => item.id === selectedItem.id ? { ...item, ...values } : item));
-      toast({ title: "Item Updated", description: "The record has been successfully updated." });
+      toast({ title: t('datatable.toast.item_updated_title'), description: t('datatable.toast.item_updated_desc') });
     } else { // It's a create
       const newItem = { ...selectedItem, ...values, id: `${pageSlug}-${Date.now()}` };
       setTableData(prev => [newItem, ...prev]);
-      toast({ title: "Item Created", description: "A new record has been successfully added." });
+      toast({ title: t('datatable.toast.item_created_title'), description: t('datatable.toast.item_created_desc') });
     }
     setIsDialogOpen(false);
   };
@@ -142,13 +144,13 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
 
         setTableData(prev => [...newRecords, ...prev]);
         toast({
-          title: "Import Successful",
-          description: `${newRecords.length} record(s) have been added.`,
+          title: t('datatable.toast.import_success_title'),
+          description: t('datatable.toast.import_success_desc', {count: newRecords.length}),
         });
 
       } catch (error) {
         toast({
-          title: "Import Failed",
+          title: t('datatable.toast.import_failed_title'),
           description: error instanceof Error ? error.message : "Could not parse the CSV file.",
           variant: "destructive",
         });
@@ -174,8 +176,8 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
     link.click();
     document.body.removeChild(link);
     toast({
-      title: "Template Downloaded",
-      description: "A CSV template has been downloaded.",
+      title: t('datatable.toast.template_download_title'),
+      description: t('datatable.toast.template_download_desc'),
     });
   };
 
@@ -194,7 +196,7 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
     <div className="w-full space-y-4">
       <div className="flex flex-col md:flex-row items-center justify-between gap-4">
         <Input
-          placeholder="Filter records..."
+          placeholder={t('datatable.filter_placeholder')}
           value={globalFilter}
           onChange={(event) => setGlobalFilter(event.target.value)}
           className="max-w-sm"
@@ -202,20 +204,20 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
         <div className="flex flex-wrap items-center justify-end gap-2">
           {pageTitle === 'Purchases' && (
             <Button onClick={() => setIsScanDialogOpen(true)} variant="outline">
-              <ScanLine className="mr-2 h-4 w-4" /> Scan Invoice
+              <ScanLine className="mr-2 h-4 w-4" /> {t('datatable.scan_invoice')}
             </Button>
           )}
           <Button onClick={() => handleCreate()}>
-            <FilePlus className="mr-2 h-4 w-4" /> Create New
+            <FilePlus className="mr-2 h-4 w-4" /> {t('datatable.create_new')}
           </Button>
            <label htmlFor="file-upload" className="cursor-pointer">
             <Button asChild variant="outline">
-              <span><Upload className="mr-2 h-4 w-4" /> Import from CSV</span>
+              <span><Upload className="mr-2 h-4 w-4" /> {t('datatable.import_csv')}</span>
             </Button>
           </label>
           <input id="file-upload" type="file" ref={fileInputRef} className="hidden" onChange={handleFileUpload} accept=".csv" />
           <Button onClick={handleDownloadTemplate} variant="outline">
-            <Download className="mr-2 h-4 w-4" /> Download Template
+            <Download className="mr-2 h-4 w-4" /> {t('datatable.download_template')}
           </Button>
         </div>
       </div>
@@ -227,7 +229,7 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
               {columns.map((column) => (
                 <TableHead key={column.accessorKey} className="font-semibold">{column.header}</TableHead>
               ))}
-              <TableHead className="text-right font-semibold">Actions</TableHead>
+              <TableHead className="text-right font-semibold">{t('datatable.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -267,13 +269,13 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => handleUpdate(item)}>
-                          <FilePenLine className="mr-2 h-4 w-4" /> Update
+                          <FilePenLine className="mr-2 h-4 w-4" /> {t('datatable.update')}
                         </DropdownMenuItem>
 
                         {pageTitle === 'Product Catalog' && (
                            <DropdownMenuItem asChild>
                                 <Link href={`/inventory-barcode/generate?sku=${item.sku}`}>
-                                    <Barcode className="mr-2 h-4 w-4" /> Generate Code
+                                    <Barcode className="mr-2 h-4 w-4" /> {t('datatable.generate_code')}
                                 </Link>
                            </DropdownMenuItem>
                         )}
@@ -282,20 +284,20 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
                          <AlertDialog>
                             <AlertDialogTrigger asChild>
                                 <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive focus:bg-destructive/10">
-                                    <Trash2 className="mr-2 h-4 w-4" /> Delete
+                                    <Trash2 className="mr-2 h-4 w-4" /> {t('datatable.delete')}
                                 </DropdownMenuItem>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                                 <AlertDialogHeader>
-                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                <AlertDialogTitle>{t('datatable.delete_confirm_title')}</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                    This action cannot be undone. This will permanently delete the item.
+                                    {t('datatable.delete_confirm_desc')}
                                 </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogCancel>{t('settings.cancel')}</AlertDialogCancel>
                                 <AlertDialogAction onClick={() => handleDelete(item.id)} className="bg-destructive hover:bg-destructive/90">
-                                    Delete
+                                    {t('datatable.delete')}
                                 </AlertDialogAction>
                                 </AlertDialogFooter>
                             </AlertDialogContent>
@@ -308,7 +310,7 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length + 1} className="h-24 text-center">
-                  No results found.
+                  {t('datatable.no_results')}
                 </TableCell>
               </TableRow>
             )}
@@ -324,10 +326,10 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
             onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
             disabled={currentPage === 1}
           >
-            Previous
+            {t('datatable.previous')}
           </Button>
           <span className="text-sm text-muted-foreground">
-            Page {currentPage} of {totalPages}
+            {t('datatable.page_info', {currentPage, totalPages})}
           </span>
           <Button
             variant="outline"
@@ -335,7 +337,7 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
             onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
             disabled={currentPage === totalPages}
           >
-            Next
+            {t('datatable.next')}
           </Button>
         </div>
       )}
@@ -346,7 +348,7 @@ export function DataTable({ data: initialData, columns, pageTitle }: DataTablePr
         onSubmit={handleFormSubmit}
         defaultValues={selectedItem}
         columns={columns.filter(c => c.accessorKey !== 'id')} // Don't show ID in form
-        title={selectedItem?.id ? `Edit ${pageTitle}` : `Create New ${pageTitle}`}
+        title={selectedItem?.id ? `${t('datatable.edit_title')} ${pageTitle}` : `${t('datatable.create_title')} ${pageTitle}`}
         options={formOptions}
       />
 

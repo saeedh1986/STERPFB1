@@ -20,6 +20,7 @@ import { format } from 'date-fns';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
+import { useLanguage } from '@/context/LanguageContext';
 
 
 interface DataFormDialogProps {
@@ -52,7 +53,7 @@ const fileToDataURI = (file: File): Promise<string> => {
 
 
 export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, columns, title, options }: DataFormDialogProps) {
-
+  const { t } = useLanguage();
   const isBankStatement = title.includes('Bank Statement');
   const isUsers = title.includes('Employees');
   const isPurchases = title.includes('Purchases');
@@ -230,7 +231,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>
-            {defaultValues?.id ? "Make changes to the record here. Click save when you're done." : "Enter the details for the new record. Click create when you're done."}
+            {defaultValues?.id ? t('datatable.dialog.description_edit') : t('datatable.dialog.description_create')}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -262,7 +263,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                   <FormControl>
                                     <SelectTrigger>
-                                      <SelectValue placeholder="Select a purchase type" />
+                                      <SelectValue placeholder={t('datatable.dialog.select_placeholder', {item: 'purchase type'})} />
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
@@ -288,7 +289,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                                     <FormItem>
                                     <FormLabel>{col.header}</FormLabel>
                                     <FormControl>
-                                        <Textarea placeholder="Enter a detailed description for the asset or expense..." {...field} />
+                                        <Textarea placeholder={t('datatable.dialog.textarea_placeholder', {item: 'detailed description for asset/expense'})} {...field} />
                                     </FormControl>
                                     <FormMessage />
                                     </FormItem>
@@ -309,7 +310,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                   <FormControl>
                                     <SelectTrigger>
-                                      <SelectValue placeholder="Select a role" />
+                                      <SelectValue placeholder={t('datatable.dialog.select_placeholder', {item: 'role'})} />
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
@@ -337,7 +338,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                   <FormControl>
                                     <SelectTrigger>
-                                      <SelectValue placeholder="Select a sales channel" />
+                                      <SelectValue placeholder={t('datatable.dialog.select_placeholder', {item: 'sales channel'})} />
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
@@ -365,7 +366,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                   <FormControl>
                                     <SelectTrigger>
-                                      <SelectValue placeholder="Select a fulfillment warehouse" />
+                                      <SelectValue placeholder={t('datatable.dialog.select_placeholder', {item: 'fulfillment warehouse'})} />
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
@@ -393,7 +394,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                   <FormControl>
                                     <SelectTrigger>
-                                      <SelectValue placeholder="Select a warehouse" />
+                                      <SelectValue placeholder={t('datatable.dialog.select_placeholder', {item: 'warehouse'})} />
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
@@ -422,7 +423,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                   <FormControl>
                                     <SelectTrigger>
-                                      <SelectValue placeholder="Select a category" />
+                                      <SelectValue placeholder={t('datatable.dialog.select_placeholder', {item: 'category'})} />
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
@@ -450,7 +451,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                   <FormControl>
                                     <SelectTrigger>
-                                      <SelectValue placeholder="Select a brand" />
+                                      <SelectValue placeholder={t('datatable.dialog.select_placeholder', {item: 'brand'})} />
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
@@ -488,7 +489,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                                         {field.value ? (
                                         format(new Date(field.value), "PPP")
                                         ) : (
-                                        <span>Pick a date</span>
+                                        <span>{t('datatable.dialog.pick_date')}</span>
                                         )}
                                         <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                     </Button>
@@ -528,7 +529,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                                 }} defaultValue={field.value}>
                                 <FormControl>
                                     <SelectTrigger>
-                                    <SelectValue placeholder={`Select an ${col.header.toLowerCase()}`} />
+                                    <SelectValue placeholder={t('datatable.dialog.select_placeholder', {item: col.header.toLowerCase()})} />
                                     </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
@@ -556,7 +557,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                                     <FormItem>
                                         <FormLabel>{col.header}</FormLabel>
                                         <FormControl>
-                                            <Input placeholder={`Enter ${col.header.toLowerCase()}...`} {...field} />
+                                            <Input placeholder={t('datatable.dialog.input_placeholder', {item: col.header.toLowerCase()})} {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -589,7 +590,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                                         ? expenseCategories.find(
                                             (category) => category === field.value
                                             )
-                                        : "Select a category"}
+                                        : t('datatable.dialog.select_placeholder', {item: 'category'})}
                                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                     </Button>
                                     </FormControl>
@@ -597,14 +598,14 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                                 <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
                                     <Command>
                                     <CommandInput 
-                                        placeholder="Search or create..."
+                                        placeholder={t('datatable.dialog.search_or_create_placeholder')}
                                         value={newCategoryValue}
                                         onValueChange={setNewCategoryValue}
                                     />
                                     <CommandList>
                                         <CommandEmpty>
                                         <Button variant="ghost" className="w-full" onClick={handleCreateCategory}>
-                                            Create "{newCategoryValue}"
+                                            {t('datatable.dialog.create_category', {category: newCategoryValue})}
                                         </Button>
                                         </CommandEmpty>
                                         <CommandGroup>
@@ -650,7 +651,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                             <FormItem>
                                 <FormLabel>{col.header}</FormLabel>
                                 <FormControl>
-                                <Input placeholder="Auto-filled" {...field} readOnly className="bg-muted" />
+                                <Input placeholder={t('datatable.dialog.autofilled_placeholder')} {...field} readOnly className="bg-muted" />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -676,11 +677,11 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                             )}
                             />
                             <FormItem>
-                                <FormLabel>Or Upload Image</FormLabel>
+                                <FormLabel>{t('datatable.dialog.upload_image_label')}</FormLabel>
                                 <FormControl>
                                     <Input type="file" accept="image/*" onChange={handleImageUpload} />
                                 </FormControl>
-                                <FormDescription>The uploaded image will replace the URL above.</FormDescription>
+                                <FormDescription>{t('datatable.dialog.upload_image_desc')}</FormDescription>
                             </FormItem>
                         </div>
                         );
@@ -702,7 +703,7 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                             <FormLabel>{col.header}</FormLabel>
                             <FormControl>
                                 <Input 
-                                    placeholder={`Enter ${col.header.toLowerCase()}...`}
+                                    placeholder={t('datatable.dialog.input_placeholder', {item: col.header.toLowerCase()})}
                                     {...field}
                                     type={isUsers && col.accessorKey === 'password' ? 'password' : typeof field.value === 'number' ? 'number' : 'text'}
                                     step="any"
@@ -774,8 +775,8 @@ export function DataFormDialog({ isOpen, onClose, onSubmit, defaultValues, colum
                 </div>
             </ScrollArea>
             <DialogFooter className="border-t pt-4">
-              <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-              <Button type="submit">{defaultValues?.id ? 'Save Changes' : 'Create Record'}</Button>
+              <Button type="button" variant="outline" onClick={onClose}>{t('datatable.dialog.cancel')}</Button>
+              <Button type="submit">{defaultValues?.id ? t('datatable.dialog.save') : t('datatable.dialog.create')}</Button>
             </DialogFooter>
           </form>
         </Form>

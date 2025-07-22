@@ -22,6 +22,7 @@ import { format } from 'date-fns';
 import QRCode from 'qrcode.react';
 import { useToast } from "@/hooks/use-toast";
 import { useCompanyProfile } from '@/context/CompanyProfileContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 
 const lineItemSchema = z.object({
@@ -52,6 +53,7 @@ export function CreateInvoiceForm() {
   const router = useRouter();
   const { toast } = useToast();
   const { profile } = useCompanyProfile();
+  const { t } = useLanguage();
   const [subtotal, setSubtotal] = useState(0);
   const [total, setTotal] = useState(0);
 
@@ -124,8 +126,8 @@ export function CreateInvoiceForm() {
     localStorage.setItem('invoices', JSON.stringify(savedInvoices));
 
     toast({
-        title: "Invoice Saved",
-        description: `Invoice ${submissionData.invoiceNumber} has been successfully saved.`,
+        title: t('invoice.toast_saved_title'),
+        description: t('invoice.toast_saved_desc', {invoiceNumber: submissionData.invoiceNumber}),
     });
 
     router.push('/invoices');
@@ -163,7 +165,7 @@ export function CreateInvoiceForm() {
                       </div>
                   </div>
                   <div className="text-right w-full sm:w-auto">
-                      <h1 className="text-4xl font-extrabold uppercase text-gray-800 tracking-wider">Invoice</h1>
+                      <h1 className="text-4xl font-extrabold uppercase text-gray-800 tracking-wider">{t('invoice.title')}</h1>
                        <FormField
                           control={form.control}
                           name="invoiceNumber"
@@ -171,7 +173,7 @@ export function CreateInvoiceForm() {
                             <FormItem>
                                 <FormControl>
                                   <div className="flex items-center justify-end">
-                                    <p className="text-sm text-gray-500 mt-1">Invoice #: </p>
+                                    <p className="text-sm text-gray-500 mt-1">{t('invoice.invoice_no')}: </p>
                                     <Input {...field} className="bg-white border-none shadow-none text-right h-auto p-0 m-0 w-32 text-sm text-gray-500 font-sans focus-visible:ring-0" readOnly />
                                   </div>
                                 </FormControl>
@@ -182,14 +184,14 @@ export function CreateInvoiceForm() {
               </header>
 
               <section className="grid grid-cols-1 sm:grid-cols-3 gap-6 border-t border-b border-gray-200 py-4">
-                  <FormField control={form.control} name="billTo" render={({ field }) => (<FormItem><h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Bill To</h3><FormControl><Input className="font-medium text-gray-800 p-1 h-auto" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                  <FormField control={form.control} name="shipTo" render={({ field }) => (<FormItem><h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Ship To</h3><FormControl><Input className="font-medium text-gray-800 p-1 h-auto" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                  <FormField control={form.control} name="billTo" render={({ field }) => (<FormItem><h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">{t('invoice.bill_to')}</h3><FormControl><Input className="font-medium text-gray-800 p-1 h-auto" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                  <FormField control={form.control} name="shipTo" render={({ field }) => (<FormItem><h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">{t('invoice.ship_to')}</h3><FormControl><Input className="font-medium text-gray-800 p-1 h-auto" {...field} /></FormControl><FormMessage /></FormItem>)} />
                   <FormField
                       control={form.control}
                       name="invoiceDate"
                       render={({ field }) => (
                         <FormItem className="sm:text-right">
-                          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Invoice Date</h3>
+                          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">{t('invoice.invoice_date')}</h3>
                           <Popover>
                             <PopoverTrigger asChild>
                               <FormControl>
@@ -220,17 +222,17 @@ export function CreateInvoiceForm() {
               </section>
 
               <section>
-                <FormField control={form.control} name="instructions" render={({ field }) => (<FormItem><h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Instructions</h3><FormControl><Input className="text-sm text-gray-700 p-1 h-auto" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="instructions" render={({ field }) => (<FormItem><h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">{t('invoice.instructions')}</h3><FormControl><Input className="text-sm text-gray-700 p-1 h-auto" {...field} /></FormControl><FormMessage /></FormItem>)} />
               </section>
 
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-gray-50 border-gray-200 hover:bg-gray-50">
-                      <TableHead className="w-[50%] text-gray-600 font-semibold">DESCRIPTION</TableHead>
-                      <TableHead className="text-right text-gray-600 font-semibold">QTY</TableHead>
-                      <TableHead className="text-right text-gray-600 font-semibold">UNIT PRICE</TableHead>
-                      <TableHead className="text-right text-gray-600 font-semibold">TOTAL</TableHead>
+                      <TableHead className="w-[50%] text-gray-600 font-semibold">{t('invoice.description')}</TableHead>
+                      <TableHead className="text-right text-gray-600 font-semibold">{t('invoice.qty')}</TableHead>
+                      <TableHead className="text-right text-gray-600 font-semibold">{t('invoice.unit_price')}</TableHead>
+                      <TableHead className="text-right text-gray-600 font-semibold">{t('invoice.total')}</TableHead>
                       <TableHead className="w-[50px]"></TableHead>
                     </TableRow>
                   </TableHeader>
@@ -244,7 +246,7 @@ export function CreateInvoiceForm() {
                               render={({ field: descriptionField }) => (
                                   <FormItem>
                                   <FormControl>
-                                      <Input {...descriptionField} placeholder="Item description" className="h-auto p-1" />
+                                      <Input {...descriptionField} placeholder={t('invoice.item_description_placeholder')} className="h-auto p-1" />
                                   </FormControl>
                                   <FormMessage/>
                                   </FormItem>
@@ -282,15 +284,15 @@ export function CreateInvoiceForm() {
                           size="sm"
                           role="combobox"
                       >
-                          <PlusCircle className="mr-2 h-4 w-4" /> Add from Catalog
+                          <PlusCircle className="mr-2 h-4 w-4" /> {t('invoice.add_from_catalog')}
                           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-[300px] p-0">
                       <Command>
-                          <CommandInput placeholder="Search product..." />
+                          <CommandInput placeholder={t('invoice.search_product_placeholder')} />
                           <CommandList>
-                          <CommandEmpty>No product found.</CommandEmpty>
+                          <CommandEmpty>{t('invoice.no_product_found')}</CommandEmpty>
                           <CommandGroup>
                               {productCatalogPool.map((product) => (
                               <CommandItem
@@ -309,7 +311,7 @@ export function CreateInvoiceForm() {
                   </Popover>
 
                   <Button type="button" variant="outline" size="sm" onClick={addManualItem}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Add Manual Item
+                    <PlusCircle className="mr-2 h-4 w-4" /> {t('invoice.add_manual_item')}
                   </Button>
                 </div>
                  {form.formState.errors.lineItems?.root && (
@@ -320,7 +322,7 @@ export function CreateInvoiceForm() {
                <div className="flex justify-end mt-10">
                   <div className="w-full max-w-sm space-y-3 text-sm">
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Subtotal</span>
+                        <span className="text-gray-600">{t('invoice.subtotal')}</span>
                         <span className="font-medium flex items-center gap-1">{aedSymbol} {currencyFormatter(subtotal)}</span>
                       </div>
                       <FormField
@@ -328,7 +330,7 @@ export function CreateInvoiceForm() {
                           name="vat"
                           render={({ field }) => (
                               <FormItem className="flex justify-between items-center">
-                                  <FormLabel className="text-gray-600">VAT (5%)</FormLabel>
+                                  <FormLabel className="text-gray-600">{t('invoice.vat')}</FormLabel>
                                   <FormControl>
                                       <div className="flex items-center gap-1">
                                           <span className="font-medium flex items-center gap-1">{aedSymbol}</span>
@@ -343,7 +345,7 @@ export function CreateInvoiceForm() {
                           name="shipping"
                           render={({ field }) => (
                               <FormItem className="flex justify-between items-center">
-                                  <FormLabel className="text-gray-600">Shipping & Handling</FormLabel>
+                                  <FormLabel className="text-gray-600">{t('invoice.shipping')}</FormLabel>
                                   <FormControl>
                                       <div className="flex items-center gap-1">
                                           <span className="font-medium flex items-center gap-1">{aedSymbol}</span>
@@ -358,7 +360,7 @@ export function CreateInvoiceForm() {
                           name="codFees"
                           render={({ field }) => (
                               <FormItem className="flex justify-between items-center pb-2 border-b border-gray-200">
-                                  <FormLabel className="text-gray-600">Collect on Delivery Fees</FormLabel>
+                                  <FormLabel className="text-gray-600">{t('invoice.cod_fees')}</FormLabel>
                                   <FormControl>
                                        <div className="flex items-center gap-1">
                                           <span className="font-medium flex items-center gap-1">{aedSymbol}</span>
@@ -369,7 +371,7 @@ export function CreateInvoiceForm() {
                           )}
                       />
                       <div className="flex justify-between items-center pt-2">
-                        <span className="font-bold text-base text-gray-800">Total Due</span>
+                        <span className="font-bold text-base text-gray-800">{t('invoice.total_due')}</span>
                         <span className="font-bold text-base text-gray-800 flex items-center gap-1">{aedSymbol} {currencyFormatter(total)}</span>
                       </div>
                   </div>
@@ -377,8 +379,8 @@ export function CreateInvoiceForm() {
 
                <div className="flex justify-between items-end mt-16">
                   <div className="text-center">
-                      <p className="font-semibold text-lg">Thank You!</p>
-                      <p className="text-xs text-gray-500">We appreciate your business.</p>
+                      <p className="font-semibold text-lg">{t('invoice.thank_you')}</p>
+                      <p className="text-xs text-gray-500">{t('invoice.thank_you_desc')}</p>
                   </div>
                   <div className="p-2 border rounded-md">
                        <QRCode value={getQrCodeValue()} size={64} level="H" />
@@ -387,7 +389,7 @@ export function CreateInvoiceForm() {
             </div>
             <div className="flex justify-end gap-2 p-6 bg-muted/50 border-t">
                 <Button type="submit">
-                    <Save className="mr-2 h-4 w-4" /> Save Invoice
+                    <Save className="mr-2 h-4 w-4" /> {t('invoice.save_invoice')}
                 </Button>
             </div>
           </form>
@@ -396,5 +398,3 @@ export function CreateInvoiceForm() {
     </Card>
   );
 }
-
-    
