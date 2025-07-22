@@ -30,7 +30,7 @@ import { Separator } from '@/components/ui/separator';
 import { useAccessibility } from '@/context/AccessibilityContext';
 import { useCompanyProfile, type CompanyProfile } from '@/context/CompanyProfileContext';
 import { Input } from '@/components/ui/input';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormDescription, FormMessage } from '@/components/ui/form';
 import { fileToDataURI, cn } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
 import { useCurrency } from '@/context/CurrencyContext';
@@ -206,7 +206,14 @@ export default function SettingsPage() {
                                             <FormDescription>{t('settings.company_profile.show_logo_desc')}</FormDescription>
                                         </div>
                                         <FormControl>
-                                            <Switch checked={field.value} onCheckedChange={field.onChange} />
+                                            <Switch
+                                              checked={field.value}
+                                              onCheckedChange={(checked) => {
+                                                field.onChange(checked);
+                                                // Trigger form submission on change
+                                                profileForm.handleSubmit(handleProfileSubmit)();
+                                              }}
+                                            />
                                         </FormControl>
                                     </FormItem>
                                 )}
