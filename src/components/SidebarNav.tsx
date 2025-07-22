@@ -116,7 +116,6 @@ export function SidebarNav() {
         )}>
         <span className={cn(
             "flex items-center gap-3",
-            direction === 'rtl' && 'flex-row-reverse'
         )}>
             <Icon className="h-5 w-5" />
             <span>{t(titleKey)}</span>
