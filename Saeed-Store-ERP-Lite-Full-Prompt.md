@@ -84,6 +84,7 @@ A dedicated section for detailed, visual reports.
     -   **Accessibility**: Adjust the application's base font size (Default, Medium, Large).
     -   **Chart of Accounts**: A table to manage the general ledger accounts.
     -   **Danger Zone**: An option to reset all application data in `localStorage`.
+-   **Localization**: The application must be fully translated for English (LTR) and Arabic (RTL). All UI text, including labels, buttons, headers, and form fields, must adapt to the selected language.
 
 ---
 
@@ -97,7 +98,7 @@ A dedicated section for detailed, visual reports.
 -   **Forms**: React Hook Form with Zod for validation.
 -   **Charts**: Recharts.
 -   **Data Persistence**: Browser's `localStorage` for all application data.
--   **State Management**: React Context for global state (Authentication, Company Profile, Accessibility).
+-   **State Management**: React Context for global state (Authentication, Company Profile, Accessibility, Language, Currency).
 -   **Direct Printing**: QZ Tray for raw ZPL printing.
 -   **PDF Generation**: `html2canvas` and `jspdf` for creating PDFs from HTML.
 
@@ -105,13 +106,12 @@ A dedicated section for detailed, visual reports.
 
 ### **4. Style & Design Guidelines**
 
--   **Layout**: Fully responsive and modern, using a collapsible sidebar for navigation.
+-   **Layout**: Fully responsive and modern, using a collapsible sidebar for navigation. The layout must correctly adapt for both LTR and RTL directions.
 -   **Primary Color**: A muted blue (`#5DADE2`). This should be one of the selectable theme colors.
 -   **Background Color**: A light gray (`#F5F7FA`) for light mode, with a corresponding dark gray for dark mode.
 -   **Accent Color**: A soft green (`#A3E4D7`).
 -   **Font**: 'PT Sans' for both body text and headlines.
 -   **Icons**: `lucide-react` for all in-app icons.
--   **Overall Feel**: Professional, clean, and modern, with subtle shadows and rounded corners.
--   **Accessibility**: Ensure the app is accessible by using ARIA labels, proper semantic HTML, and ensuring keyboard navigability. The AED currency symbol image must be white in dark mode.
+-   **Overall Feel**: Professional, clean, and modern, with subtle shadows and rounded corners. Utilize a "glassmorphism" effect with blurred, semi-transparent backgrounds for cards and the sidebar.
+-   **Accessibility**: Ensure the app is accessible by using ARIA labels for icon-only buttons, proper semantic HTML, and ensuring keyboard navigability. The AED currency symbol must be white in dark mode.
 -   **Image Placeholders**: Use `https://placehold.co/` with a `data-ai-hint` attribute for all placeholder images.
-
