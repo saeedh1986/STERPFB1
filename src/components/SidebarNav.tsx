@@ -100,7 +100,7 @@ export function SidebarNav() {
         'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
         isModuleActive(item) ? 'bg-sidebar-primary text-sidebar-primary-foreground font-medium' : 'text-sidebar-foreground',
         isSubItem && 'py-2',
-        direction === 'rtl' && 'flex-row-reverse justify-start'
+        direction === 'rtl' && 'flex-row-reverse'
       )}
     >
       <item.icon className="h-5 w-5" />
@@ -112,11 +112,10 @@ export function SidebarNav() {
      <AccordionItem value={value} className="border-b-0">
         <AccordionTrigger className={cn(
             "px-3 py-2.5 text-sm font-medium hover:no-underline hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-lg [&[data-state=open]]:bg-sidebar-accent",
-            direction === 'rtl' && 'flex-row-reverse'
+             direction === 'rtl' && 'flex-row-reverse'
         )}>
         <span className={cn(
             "flex items-center gap-3",
-            direction === 'rtl' && 'flex-row-reverse'
         )}>
             <Icon className="h-5 w-5" />
             <span>{t(titleKey)}</span>
@@ -168,7 +167,7 @@ export function SidebarNav() {
               pathname.startsWith('/settings')
                 ? 'bg-sidebar-primary text-sidebar-primary-foreground font-medium'
                 : 'text-sidebar-foreground',
-              direction === 'rtl' && 'flex-row-reverse justify-start'
+              direction === 'rtl' && 'flex-row-reverse'
             )}
           >
             <Settings className="h-5 w-5" />
@@ -178,4 +177,3 @@ export function SidebarNav() {
     </div>
   );
 }
-
