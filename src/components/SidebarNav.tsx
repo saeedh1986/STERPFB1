@@ -21,6 +21,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   SidebarTrigger,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useCompanyProfile } from '@/context/CompanyProfileContext';
@@ -89,18 +90,17 @@ export function SidebarNav() {
   const pathname = usePathname();
   const { profile } = useCompanyProfile();
   const { t, direction } = useLanguage();
+  const { state } = useSidebar();
+
 
   const isModuleActive = (href: string, subItems?: NavItem[]) => {
     if (href === '/dashboard' || href === '/') {
         return pathname === href;
     }
-    if (pathname.startsWith(href)) {
-        return true;
-    }
     if (subItems) {
         return subItems.some(sub => pathname.startsWith(sub.href));
     }
-    return false;
+    return pathname.startsWith(href);
   };
   
   const NavLink = ({ item }: { item: NavItem }) => (
@@ -119,16 +119,15 @@ export function SidebarNav() {
     
     return (
         <AccordionItem value={value} className="border-b-0">
-            <AccordionTrigger className={cn(
-                "hover:no-underline hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-md",
-                 isActive && "bg-sidebar-accent text-sidebar-accent-foreground"
-            )}>
-                <SidebarMenuButton size="default" variant="ghost" className="w-full justify-start p-2 h-auto" isActive={isActive}>
-                    <>
-                        <Icon />
-                        <span>{t(titleKey)}</span>
-                    </>
-                </SidebarMenuButton>
+            <AccordionTrigger 
+                className={cn(
+                    "hover:no-underline hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-md p-2",
+                    "group flex w-full items-center gap-2 overflow-hidden text-left text-sm outline-none ring-sidebar-ring transition-[width,height,padding] focus-visible:ring-2",
+                     isActive && "bg-sidebar-accent text-sidebar-accent-foreground"
+                )}
+            >
+                <Icon className="h-4 w-4 shrink-0" />
+                <span className="truncate">{t(titleKey)}</span>
             </AccordionTrigger>
             <AccordionContent className="pt-1">
                 <SidebarMenuSub>
@@ -158,10 +157,10 @@ export function SidebarNav() {
     <>
       <SidebarHeader className="border-b">
         <div className="flex items-center gap-2 p-2">
-            <Link href="/dashboard">
+            <Link href="/dashboard" className="flex items-center gap-2">
                 <Image src={profile.logo} alt="Company Logo" width={32} height={32} />
+                <span className={cn("text-lg font-semibold", state === 'collapsed' && 'hidden' )}>{profile.erpName}</span>
             </Link>
-            <span className="text-lg font-semibold">{profile.erpName}</span>
             <div className="grow" />
             <SidebarTrigger />
         </div>
