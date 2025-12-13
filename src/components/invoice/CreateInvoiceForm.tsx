@@ -46,7 +46,8 @@ const invoiceSchema = z.object({
 
 type InvoiceFormValues = z.infer<typeof invoiceSchema>;
 
-const aedSymbol = <Image src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/UAE_Dirham_Symbol.svg/1377px-UAE_Dirham_Symbol.svg.png" alt="AED" width={14} height={14} className="inline-block dark:invert" />;
+const aedSymbolPath = "https://s3eed.ae/wp-content/uploads/2025/07/AED-Symbol-for-parse-1-300x218.png";
+const aedSymbol = <Image src={aedSymbolPath} alt="AED" width={14} height={14} className="inline-block dark:invert" />;
 
 
 export function CreateInvoiceForm() {

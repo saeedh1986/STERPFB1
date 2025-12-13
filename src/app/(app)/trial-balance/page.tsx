@@ -17,8 +17,9 @@ const currencyFormatter = (value: number) => {
         maximumFractionDigits: 2,
     }).format(value);
 };
+const aedSymbolPath = "https://s3eed.ae/wp-content/uploads/2025/07/AED-Symbol-for-parse-1-300x218.png";
+const aedSymbol = (amount: number) => amount > 0 ? <Image src={aedSymbolPath} alt="AED" width={14} height={14} className="inline-block dark:invert" /> : null;
 
-const aedSymbol = (amount: number) => amount > 0 ? <Image src="https://s3eed.ae/wp-content/uploads/2025/07/AED-Symbol-for-parse-1-300x218.png" alt="AED" width={14} height={14} className="inline-block dark:invert" /> : null;
 
 interface LedgerEntry {
     date: Date;
@@ -26,7 +27,6 @@ interface LedgerEntry {
     description: string;
     debit: number;
     credit: number;
-    balance: number;
     account: string;
 }
 
@@ -35,7 +35,7 @@ const getLedgerData = () => {
     const purchasesData = getMockData('purchases');
     const expensesData = getMockData('expenses');
 
-    const combinedData: Omit<LedgerEntry, 'balance'>[] = [];
+    const combinedData: LedgerEntry[] = [];
 
     salesData.forEach(item => {
         combinedData.push({
@@ -55,14 +55,8 @@ const getLedgerData = () => {
             debit: parseFloat(item.amount) || 0, credit: 0, account: item.category
         });
     });
-
-    combinedData.sort((a, b) => a.date.getTime() - b.date.getTime());
-
-    let runningBalance = 0;
-    return combinedData.map(entry => {
-        runningBalance += entry.credit - entry.debit;
-        return { ...entry, balance: runningBalance };
-    });
+    
+    return combinedData;
 };
 
 export default function TrialBalancePage() {
@@ -76,12 +70,11 @@ export default function TrialBalancePage() {
             accounts[acc.name] = { debit: 0, credit: 0 };
         });
 
-        // Add cash balance from bank statement as a starting point
+        // Add cash balance from bank statement as a starting point (simplified)
         accounts['Cash and Bank'] = { debit: 25480.50, credit: 0 };
 
         ledger.forEach(entry => {
-            // Find the account name, checking for category matches as a fallback
-            const accountInfo = chartOfAccountsData.find(acc => acc.name === entry.account || acc.type === entry.account);
+            const accountInfo = chartOfAccountsData.find(acc => acc.name === entry.account);
             const accountName = accountInfo ? accountInfo.name : entry.account;
 
             if (!accounts[accountName]) {
@@ -93,8 +86,21 @@ export default function TrialBalancePage() {
 
         const balances = Object.entries(accounts).map(([name, { debit, credit }]) => {
             const accountInfo = chartOfAccountsData.find(acc => acc.name === name);
-            const finalDebit = debit > credit ? debit - credit : 0;
-            const finalCredit = credit > debit ? credit - debit : 0;
+            const accountType = accountInfo?.type;
+            
+            let finalDebit = 0;
+            let finalCredit = 0;
+
+            if (accountType === 'Asset' || accountType === 'Expense') {
+                const balance = debit - credit;
+                if (balance > 0) finalDebit = balance;
+                else finalCredit = Math.abs(balance);
+            } else { // Liability, Equity, Revenue
+                const balance = credit - debit;
+                if (balance > 0) finalCredit = balance;
+                else finalDebit = Math.abs(balance);
+            }
+
             return {
                 code: accountInfo?.code || 'N/A',
                 name,

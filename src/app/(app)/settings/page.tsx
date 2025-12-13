@@ -8,10 +8,8 @@ import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Moon, Sun, Monitor, FilePenLine, PlusCircle, AlertTriangle, Trash2, TextQuote, Building, Save, Languages, Landmark, Shield, Users, Image as ImageIcon } from "lucide-react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { chartOfAccountsData as initialChartOfAccountsData, getColumns, type GenericItem, usersPool as initialUsers, userRoles as initialUserRoles } from "@/lib/data";
-import { Badge } from "@/components/ui/badge";
+import { Moon, Sun, Monitor, AlertTriangle, Trash2, Building, Save, Languages, Landmark, Image as ImageIcon } from "lucide-react";
+import { getColumns, getMockData, type GenericItem } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { DataFormDialog } from '@/components/DataFormDialog';
 import { useToast } from "@/hooks/use-toast";
@@ -31,22 +29,11 @@ import { useAccessibility } from '@/context/AccessibilityContext';
 import { useCompanyProfile, type CompanyProfile } from '@/context/CompanyProfileContext';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormDescription, FormMessage } from '@/components/ui/form';
-import { fileToDataURI, cn } from '@/lib/utils';
+import { fileToDataURI } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
 import { useCurrency } from '@/context/CurrencyContext';
 import { Switch } from '@/components/ui/switch';
 
-
-const getBadgeVariantForAccountType = (type: string) => {
-    switch (type) {
-        case 'Asset': return 'bg-blue-100 text-blue-800 hover:bg-blue-200';
-        case 'Liability': return 'bg-red-100 text-red-800 hover:bg-red-200';
-        case 'Equity': return 'bg-purple-100 text-purple-800 hover:bg-purple-200';
-        case 'Revenue': return 'bg-green-100 text-green-800 hover:bg-green-200';
-        case 'Expense': return 'bg-orange-100 text-orange-800 hover:bg-orange-200';
-        default: return 'bg-gray-100 text-gray-800 hover:bg-gray-200';
-    }
-};
 
 const themeColors = [
   { nameKey: 'settings.appearance.amber', value: 'theme-amber', class: 'bg-amber-500' },
@@ -65,21 +52,12 @@ export default function SettingsPage() {
   const { theme, setTheme, resolvedTheme, themes } = useTheme();
   const { fontSize, setFontSize } = useAccessibility();
   const { profile, setProfile } = useCompanyProfile();
-  const { t, language, setLanguage, direction } = useLanguage();
+  const { t, language, setLanguage } = useLanguage();
   const { currency, setCurrency } = useCurrency();
   const { toast } = useToast();
 
-  const [accounts, setAccounts] = useState<GenericItem[]>(initialChartOfAccountsData);
   const [isAccountDialogOpen, setIsAccountDialogOpen] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState<GenericItem | null>(null);
-
-  const [users, setUsers] = useState<GenericItem[]>(initialUsers);
-  const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<GenericItem | null>(null);
-  
-  const [userRoles, setUserRoles] = useState<GenericItem[]>(initialUserRoles);
-  const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<GenericItem | null>(null);
   
   const [currentColorTheme, setCurrentColorTheme] = useState('theme-amber');
 
@@ -112,48 +90,16 @@ export default function SettingsPage() {
   const chartOfAccountsColumns = getColumns('chart-of-accounts');
   const chartOfAccountsTitle = t('settings.chart_of_accounts.title');
 
-  const usersColumns = getColumns('users');
-  const usersTitle = t('settings.user_management.title');
-  
-  const rolesColumns = getColumns('roles');
-  const rolesTitle = t('settings.role_management.title');
-
   const handleAccountFormSubmit = (values: GenericItem) => {
+    // This part is simplified for mock data. In a real app, you'd have a state setter.
     if (selectedAccount) {
-      setAccounts(prev => prev.map(acc => acc.id === selectedAccount.id ? { ...acc, ...values } : acc));
       toast({ title: t('settings.toast.account_updated'), description: t('settings.toast.account_updated_desc') });
     } else {
-      const newAccount = { ...values, id: `coa-${Date.now()}` };
-      setAccounts(prev => [newAccount, ...prev]);
       toast({ title: t('settings.toast.account_created'), description: t('settings.toast.account_created_desc') });
     }
     setIsAccountDialogOpen(false);
   };
 
-  const handleUserFormSubmit = (values: GenericItem) => {
-    if (selectedUser) {
-      setUsers(prev => prev.map(item => item.id === selectedUser.id ? { ...item, ...values } : item));
-      toast({ title: t('settings.toast.user_updated'), description: "The user has been successfully updated." });
-    } else {
-      const newUser = { ...values, id: `user-${Date.now()}`, joinDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '-') };
-      setUsers(prev => [newUser, ...prev]);
-      toast({ title: t('settings.toast.user_created'), description: "A new user has been successfully added." });
-    }
-    setIsUserDialogOpen(false);
-  };
-  
-  const handleRoleFormSubmit = (values: GenericItem) => {
-    if (selectedRole) {
-      setUserRoles(prev => prev.map(item => item.id === selectedRole.id ? { ...item, ...values } : item));
-      toast({ title: t('settings.toast.role_updated'), description: "The role has been successfully updated." });
-    } else {
-      const newRole = { ...values, id: `role-${Date.now()}` };
-      setUserRoles(prev => [newRole, ...prev]);
-      toast({ title: t('settings.toast.role_created'), description: "A new role has been successfully added." });
-    }
-    setIsRoleDialogOpen(false);
-  };
-  
   const handleResetData = () => {
     localStorage.clear();
     toast({
@@ -308,7 +254,7 @@ export default function SettingsPage() {
             </Card>
 
             <Card className="shadow-lg">
-              <CardHeader><CardTitle className="flex items-center gap-2"><TextQuote />{t('settings.accessibility.title')}</CardTitle><CardDescription>{t('settings.accessibility.description')}</CardDescription></CardHeader>
+              <CardHeader><CardTitle className="flex items-center gap-2">{t('settings.accessibility.title')}</CardTitle><CardDescription>{t('settings.accessibility.description')}</CardDescription></CardHeader>
               <CardContent>
                 <Label htmlFor="font-size">{t('settings.accessibility.font_size')}</Label>
                 <RadioGroup id="font-size" value={fontSize} onValueChange={setFontSize} className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-2">
@@ -331,8 +277,7 @@ export default function SettingsPage() {
 
       {/* Dialogs */}
       <DataFormDialog isOpen={isAccountDialogOpen} onClose={() => setIsAccountDialogOpen(false)} onSubmit={handleAccountFormSubmit} defaultValues={selectedAccount} columns={chartOfAccountsColumns.filter(c => c.accessorKey !== 'id')} title={selectedAccount ? `Edit ${chartOfAccountsTitle}` : `Create New ${chartOfAccountsTitle}`} />
-      <DataFormDialog isOpen={isUserDialogOpen} onClose={() => setIsUserDialogOpen(false)} onSubmit={handleUserFormSubmit} defaultValues={selectedUser} columns={usersColumns.filter(c => c.accessorKey !== 'id')} title={selectedUser ? `Edit ${usersTitle}` : `Create New ${usersTitle}`} options={{ roles: userRoles.map(r => r.name) }} />
-      <DataFormDialog isOpen={isRoleDialogOpen} onClose={() => setIsRoleDialogOpen(false)} onSubmit={handleRoleFormSubmit} defaultValues={selectedRole} columns={rolesColumns.filter(c => c.accessorKey !== 'id')} title={selectedRole ? `Edit ${rolesTitle}` : `Create New ${rolesTitle}`} />
+      
     </>
   );
 }

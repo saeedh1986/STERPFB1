@@ -16,7 +16,8 @@ const currencyFormatter = (value: number) => {
     }).format(value);
 };
 
-const aedSymbol = <Image src="https://s3eed.ae/wp-content/uploads/2025/07/AED-Symbol-for-parse-1-300x218.png" alt="AED" width={14} height={14} className="inline-block dark:invert" />;
+const aedSymbolPath = "https://s3eed.ae/wp-content/uploads/2025/07/AED-Symbol-for-parse-1-300x218.png";
+const aedSymbol = <Image src={aedSymbolPath} alt="AED" width={14} height={14} className="inline-block dark:invert" />;
 
 interface LedgerEntry {
     date: Date;
@@ -24,7 +25,6 @@ interface LedgerEntry {
     description: string;
     debit: number;
     credit: number;
-    balance: number;
     account: string;
 }
 
@@ -33,13 +33,14 @@ const getLedgerData = () => {
     const purchasesData = getMockData('purchases');
     const expensesData = getMockData('expenses');
 
-    const combinedData: Omit<LedgerEntry, 'balance'>[] = [];
+    const combinedData: LedgerEntry[] = [];
 
     salesData.forEach(item => {
         combinedData.push({
             date: new Date(item.saleDate), type: 'Sale', description: `Sale to ${item.customerName}`,
             credit: parseFloat(item.totalSales) || 0, debit: 0, account: 'Sales Revenue'
         });
+        // This is a simplified entry; a real system would have more splits (e.g., to Accounts Receivable)
     });
     purchasesData.forEach(item => {
         combinedData.push({
@@ -54,13 +55,7 @@ const getLedgerData = () => {
         });
     });
 
-    combinedData.sort((a, b) => a.date.getTime() - b.date.getTime());
-
-    let runningBalance = 0;
-    return combinedData.map(entry => {
-        runningBalance += entry.credit - entry.debit;
-        return { ...entry, balance: runningBalance };
-    });
+    return combinedData;
 };
 
 const ReportRow: React.FC<{ label: string; amount: number; isTotal?: boolean; isHeader?: boolean }> = ({ label, amount, isTotal, isHeader }) => (
@@ -84,22 +79,22 @@ export default function BalanceSheetPage() {
 
         chartOfAccountsData.forEach(acc => accountBalances[acc.name] = 0);
 
-        ledger.forEach(entry => {
-            const accountInfo = chartOfAccountsData.find(acc => acc.name === entry.account || acc.type === entry.account);
-            const accountName = accountInfo ? accountInfo.name : entry.account;
-
-            if (accountName in accountBalances) {
-                 const accountType = chartOfAccountsData.find(a => a.name === accountName)?.type;
-                 if (accountType === 'Asset' || accountType === 'Expense') {
-                    accountBalances[accountName] += entry.debit - entry.credit;
-                 } else { // Liability, Equity, Revenue
-                    accountBalances[accountName] += entry.credit - entry.debit;
-                 }
-            }
-        });
+        // This is a very simplified balance calculation
+        // A real system would use double-entry bookkeeping.
+        const totalRevenue = ledger.filter(e => e.account === 'Sales Revenue').reduce((sum, e) => sum + e.credit, 0);
+        const totalCogs = ledger.filter(e => e.account === 'Cost of Goods Sold').reduce((sum, e) => sum + e.debit, 0);
+        const totalOpEx = ledger.filter(e => chartOfAccountsData.find(a => a.name === e.account)?.type === 'Expense' && e.account !== 'Cost of Goods Sold').reduce((sum, e) => sum + e.debit, 0);
         
-        // Mock cash from bank statement for a more complete balance sheet
-        accountBalances['Cash and Bank'] = 25480.50; 
+        const netIncome = totalRevenue - totalCogs - totalOpEx;
+
+        accountBalances['Cash and Bank'] = 25480.50 + netIncome; // Simplified starting cash + profit
+        accountBalances['Inventory Asset'] = totalCogs * 0.8; // Assume 80% of COGS is still in inventory (very rough estimate)
+        accountBalances['Accounts Receivable'] = totalRevenue * 0.1; // Assume 10% of revenue is receivable
+
+        accountBalances['Accounts Payable'] = totalCogs * 0.15; // Assume 15% of purchases are on credit
+        
+        accountBalances['Owner\'s Equity'] = 30000; // Initial investment
+        accountBalances['Retained Earnings'] = netIncome; // Profit/Loss for the period
 
         const assets = chartOfAccountsData.filter(a => a.type === 'Asset').map(a => ({ name: a.name, balance: accountBalances[a.name] || 0 }));
         const liabilities = chartOfAccountsData.filter(a => a.type === 'Liability').map(a => ({ name: a.name, balance: accountBalances[a.name] || 0 }));

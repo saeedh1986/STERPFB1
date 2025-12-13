@@ -17,8 +17,9 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { useCompanyProfile } from '@/context/CompanyProfileContext';
 
+const aedSymbolPath = "https://s3eed.ae/wp-content/uploads/2025/07/AED-Symbol-for-parse-1-300x218.png";
+const aedSymbol = <Image src={aedSymbolPath} alt="AED" width={14} height={14} className="inline-block dark:invert" />;
 
-const aedSymbol = <Image src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/UAE_Dirham_Symbol.svg/1377px-UAE_Dirham_Symbol.svg.png" alt="AED" width={14} height={14} className="inline-block dark:invert" />;
 
 const currencyFormatter = (value: number) => {
     if (isNaN(value)) return '0.00';
@@ -41,7 +42,7 @@ const PrintableInvoice = React.forwardRef<HTMLDivElement, { invoice: any, profil
         <div ref={ref} className="bg-white text-black p-10 font-sans printable-content">
             <header className="flex justify-between items-start mb-10">
                 <div className="flex items-start gap-4">
-                    {profile.showLogoInInvoice && profile.logo && <Image src={profile.logo} alt="Company Logo" width={240} height={240} className="object-contain" />}
+                    {profile.showLogoInInvoice && profile.logo && <img src={profile.logo} alt="Company Logo" width={240} height={240} className="object-contain" />}
                     <div>
                         <h2 className="text-2xl font-bold text-gray-800">{profile.name}</h2>
                         <p className="text-sm text-gray-600">{profile.description}</p>
@@ -155,6 +156,14 @@ export default function ViewInvoicePage() {
             scale: 4, 
             useCORS: true, 
             logging: false,
+            onclone: (document) => {
+                // When cloning for canvas, replace next/image with a standard img tag
+                // to prevent CORS issues with blob URLs if the logo was recently uploaded.
+                const logo = document.querySelector(`img[src^='${profile.logo}']`);
+                if (logo) {
+                    (logo as HTMLImageElement).src = profile.logo;
+                }
+            }
         }).then(canvas => {
             const imgData = canvas.toDataURL('image/png');
             const pdf = new jsPDF({
@@ -246,5 +255,3 @@ export default function ViewInvoicePage() {
     </>
   );
 }
-
-    
