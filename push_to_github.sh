@@ -1,27 +1,27 @@
 #!/bin/bash
 
-# This script helps push your existing project to GitHub.
-# Make sure you have created a Personal Access Token on GitHub with 'repo' scope.
+# This script simplifies pushing your existing project to GitHub.
+# It handles initialization, adding files, committing, and pushing.
 
-echo "Step 1: Setting branch to 'main'..."
+echo "Step 1: Initializing repository and setting branch to 'main'..."
+git init
 git branch -M main
 
 echo "Step 2: Adding all files for commit..."
 git add .
 
-echo "Step 3: Committing changes..."
+echo "Step 3: Committing changes (if any)..."
 # The '|| true' part ensures the script continues even if there's nothing new to commit.
-git commit -m "chore: prepare for GitHub push" || true
+git commit -m "chore: initial commit of Saeed Store ERP Lite" || true
 
-echo "Step 4: Removing old remote origin if it exists..."
+echo "Step 4: Setting up the remote 'origin'..."
+# Remove old origin if it exists, then add the new one.
 git remote remove origin || true
-
-echo "Step 5: Adding new remote origin..."
 git remote add origin https://github.com/saeedh1986/STERPFB1.git
 
-echo "Step 6: Pushing to GitHub..."
+echo "Step 5: Pushing to GitHub..."
 echo "You will be prompted for your GitHub username and password."
 echo "For the password, use the Personal Access Token you created."
-git push -u origin main
+git push -u --force origin main
 
 echo "Done! Check your GitHub repository page."
